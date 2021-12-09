@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "module": "esnext",
+        "target": "es2021",
+        "sourceMap": true,
+        "lib": [
+            "dom",
+            "es2020"
+        ],
+        "jsx": "react-jsx",
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+    },
+}
