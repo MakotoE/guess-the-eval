@@ -1,0 +1,7 @@
+{
+  "name": "guess-the-eval",
+  "version": "0.0.0",
+  "dependencies": {
+    "stockfish": "^14.1.0"
+  }
+}
