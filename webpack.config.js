@@ -30,7 +30,13 @@ module.exports = {
 						},
 					},
 				],
-			}
+			},
+			{
+				test: /\.m?js$/,
+				resolve: {
+					fullySpecified: false
+				}
+			},
 		],
 	},
 	devtool: 'inline-source-map',
@@ -48,6 +54,9 @@ module.exports = {
 			patterns: [
 				{from: require.resolve('stockfish/src/stockfish.js')},
 				{from: require.resolve('stockfish/src/stockfish.wasm')},
+				{from: 'src/chessground.css'},
+				{from: 'src/theme.css'},
+				{from: 'assets', to: 'assets'},
 			],
 		}),
 	],

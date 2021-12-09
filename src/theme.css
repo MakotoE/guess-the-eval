@@ -1,0 +1,43 @@
+/*
+ * Board
+ */
+.cg-wrap {
+    background-image: url('/assets/green.svg');
+}
+
+.cg-wrap piece.pawn.white {
+    background-image: url('/assets/pieces/wP.svg');
+}
+.cg-wrap piece.bishop.white {
+    background-image: url('/assets/pieces/wB.svg');
+}
+.cg-wrap piece.knight.white {
+    background-image: url('/assets/pieces/wN.svg');
+}
+.cg-wrap piece.rook.white {
+    background-image: url('/assets/pieces/wR.svg');
+}
+.cg-wrap piece.queen.white {
+    background-image: url('/assets/pieces/wQ.svg');
+}
+.cg-wrap piece.king.white {
+    background-image: url('/assets/pieces/wK.svg');
+}
+.cg-wrap piece.pawn.black {
+    background-image: url('/assets/pieces/bP.svg');
+}
+.cg-wrap piece.bishop.black {
+    background-image: url('/assets/pieces/bB.svg');
+}
+.cg-wrap piece.knight.black {
+    background-image: url('/assets/pieces/bN.svg');
+}
+.cg-wrap piece.rook.black {
+    background-image: url('/assets/pieces/bR.svg');
+}
+.cg-wrap piece.queen.black {
+    background-image: url('/assets/pieces/bQ.svg');
+}
+.cg-wrap piece.king.black {
+    background-image: url('/assets/pieces/bK.svg');
+}
