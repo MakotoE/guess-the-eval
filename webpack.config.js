@@ -55,7 +55,6 @@ module.exports = {
 				{from: require.resolve('stockfish/src/stockfish.js')},
 				{from: require.resolve('stockfish/src/stockfish.wasm')},
 				{from: 'src/chessground.css'},
-				{from: 'src/theme.css'},
 				{from: 'assets', to: 'assets'},
 			],
 		}),
