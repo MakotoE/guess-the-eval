@@ -1,13 +1,38 @@
-if (!crossOriginIsolated) {
-	console.log('SharedArrayBuffer is disabled!');
-}
+export class Stockfish {
+	private stockfish: Worker;
 
-const stockfish = new Worker('stockfish.js');
-stockfish.onmessage = function(event) {
-	console.log(event);
-}
+	constructor() {
+		if (!crossOriginIsolated) {
+			console.error('SharedArrayBuffer is disabled!');
+		}
 
-stockfish.postMessage("uci");
-stockfish.postMessage("setoption name Threads value 4");
-stockfish.postMessage("position fen 3rb1k1/1Bp2pp1/4p3/2P1P2p/r5nP/1N4P1/P4P2/R3R1K1 b - - 0 27");
-stockfish.postMessage("go depth 20");
+		this.stockfish = new Worker('stockfish.js');
+		this.stockfish.onmessage = (event) => {
+			console.info(event);
+		};
+		this.stockfish.postMessage('uci');
+		this.stockfish.postMessage('setoption name Threads value 4');
+		this.stockfish.onmessageerror = function(event) {
+			console.error(event);
+		}
+	}
+
+	getEval(fen: String): Promise<number> {
+		this.stockfish.postMessage('position fen ' + fen);
+		this.stockfish.postMessage('go depth 20');
+
+		return new Promise(resolve => {
+			this.stockfish.onmessage = (event) => {
+				console.info(event);
+				const data = event.data as string;
+				if (data.startsWith('info depth 20 seldepth ')) {
+					const matchCP = /^info depth 20 seldepth \d+ multipv \d+ score cp (\d+)/;
+					const matches = data.match(matchCP);
+					if (matches != null) {
+						resolve(parseInt(matches[1]));
+					}
+				}
+			}
+		});
+	}
+}
