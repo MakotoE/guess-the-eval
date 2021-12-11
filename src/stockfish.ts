@@ -1,6 +1,9 @@
 export class Stockfish {
 	private readonly stockfish: Worker;
 	private lastEval: number = 0;
+
+	// evaluation is in centipawns. It is dependent on the turn. If it's black's turn to play, evaluation needs to be
+	// negated.
 	private evalHandler: (evaluation: number) => void = () => {};
 	private depthCB: (depth: number) => void = () => {};
 
@@ -33,12 +36,35 @@ export class Stockfish {
 		}
 	}
 
-	getEval(fen: String, depthCB: (depth: number) => void): Promise<number> {
+	getEval(fen: string, depthCB: (depth: number) => void): Promise<number> {
 		return new Promise(resolve => {
-			this.evalHandler = resolve;
+			this.evalHandler = evaluation => {
+				if (getTurn(fen) == Turn.Black) {
+					resolve(evaluation / -100);
+				} else {
+					resolve(evaluation / 100);
+				}
+			};
 			this.depthCB = depthCB;
 			this.stockfish.postMessage('position fen ' + fen);
 			this.stockfish.postMessage('go movetime 10000 depth 40');
 		});
+	}
+}
+
+enum Turn {
+	White,
+	Black,
+}
+
+function getTurn(fen: string): Turn {
+	const spaceIndex = fen.indexOf(' ');
+	switch (fen[spaceIndex + 1]) {
+	case 'w':
+		return Turn.White;
+	case 'b':
+		return Turn.Black;
+	default:
+		throw new Error(`unexpected character: ${fen[spaceIndex + 1]}`);
 	}
 }
