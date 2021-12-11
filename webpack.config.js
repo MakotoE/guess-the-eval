@@ -11,6 +11,7 @@ module.exports = {
 			'Cross-Origin-Opener-Policy': 'same-origin',
 			'Cross-Origin-Embedder-Policy': 'require-corp',
 		},
+		hot: false, // HMR needs to be disabled for Web Worker to work properly
 	},
 	entry: __dirname + '/src/index.tsx',
 	module: {

@@ -1,5 +1,5 @@
 export class Stockfish {
-	private stockfish: Worker;
+	private readonly stockfish: Worker;
 	private lastEval: number = 0;
 	private evalHandler: (evaluation: number) => void = () => {};
 
@@ -10,9 +10,9 @@ export class Stockfish {
 
 		this.stockfish = new Worker('stockfish.js');
 		this.stockfish.onmessage = (event) => {
-			console.info(event);
-
 			const data = event.data as string;
+			console.info(data);
+
 			const matchEval = /^info depth \d+ seldepth \d+ multipv \d+ score cp (\d+)/;
 			const matches = data.match(matchEval);
 			if (matches != null) {

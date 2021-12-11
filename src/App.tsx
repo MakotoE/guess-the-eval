@@ -16,6 +16,6 @@ export function App(): React.ReactElement {
 
 	return <div>
 		<Chessground config={boardConfig} width={500} height={500} />
-		<p>{evaluation ? evaluation : 'Stockfish is thinking...'}</p>
+		<p>{evaluation == null ? 'Stockfish is thinking...' : evaluation}</p>
 	</div>;
 }
