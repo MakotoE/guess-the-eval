@@ -28,13 +28,14 @@ export class Stockfish {
 		}
 		this.stockfish.postMessage('uci');
 		this.stockfish.postMessage('setoption name Threads value 4');
+		this.stockfish.postMessage('setoption name Hash value 512');
 	}
 
 	getEval(fen: String): Promise<number> {
 		return new Promise(resolve => {
 			this.evalHandler = resolve;
 			this.stockfish.postMessage('position fen ' + fen);
-			this.stockfish.postMessage('go movetime 2');
+			this.stockfish.postMessage('go movetime 10000');
 		});
 	}
 }
