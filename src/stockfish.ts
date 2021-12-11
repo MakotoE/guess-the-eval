@@ -9,26 +9,26 @@ export class Stockfish {
 		}
 
 		this.stockfish = new Worker('stockfish.js');
-		this.stockfish.onmessage = this.onmessage;
-		this.stockfish.onmessageerror = console.error;
+		this.stockfish.onmessage = (event) => {
+			const data = event.data as string;
+			console.info(data);
+
+			const matchEval = /^info depth \d+ seldepth \d+ multipv \d+ score cp (\d+)/;
+			const matches = data.match(matchEval);
+			if (matches != null) {
+				this.lastEval = parseInt(matches[1]);
+			}
+
+			if (data.startsWith('bestmove')) {
+				this.evalHandler(this.lastEval);
+			}
+		}
+		this.stockfish.onmessageerror = function(event) {
+			console.error(event);
+		}
 		this.stockfish.postMessage('uci');
 		this.stockfish.postMessage('setoption name Threads value 4');
 		this.stockfish.postMessage('setoption name Hash value 512');
-	}
-
-	private onmessage(event: MessageEvent) {
-		const data = event.data as string;
-		console.info(data);
-
-		const matchEval = /^info depth \d+ seldepth \d+ multipv \d+ score cp (\d+)/;
-		const matches = data.match(matchEval);
-		if (matches != null) {
-			this.lastEval = parseInt(matches[1]);
-		}
-
-		if (data.startsWith('bestmove')) {
-			this.evalHandler(this.lastEval);
-		}
 	}
 
 	getEval(fen: String): Promise<number> {
