@@ -6,6 +6,7 @@
     "start": "webpack serve --config webpack.config.js"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^1.7.0",
     "@types/react": "^16.14.21",
     "@types/react-dom": "^16.9.14",
     "@types/semantic-ui": "^2.2.7",
@@ -15,6 +16,8 @@
     "html-webpack-plugin": "^5.5.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
+    "react-redux": "^7.2.6",
+    "redux": "^4.1.2",
     "semantic-ui-react": "^2.0.4",
     "stockfish": "^14.1.0",
     "style-loader": "^3.3.1",
