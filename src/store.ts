@@ -1,11 +1,14 @@
-import {configureStore, createAsyncThunk, createSlice} from '@reduxjs/toolkit';
+import {configureStore, createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {TypedUseSelectorHook, useDispatch, useSelector} from 'react-redux';
 import {Stockfish} from "./stockfish";
 
 export const calculateEval = createAsyncThunk<number, string, {extra: Stockfish}>(
 	'stockfish/calculateEval',
 	async (fen, thunkAPI) => {
-		return thunkAPI.extra.getEval(fen);
+		const cb = (depth: number) => {
+			thunkAPI.dispatch(setDepth(depth));
+		};
+		return thunkAPI.extra.getEval(fen, cb);
 	},
 );
 
@@ -15,14 +18,22 @@ const stockfishSlice = createSlice({
 		// evaluation is the calculated evaluation in centipawns. evaluation is null when Stockfish is not done
 		// calculating.
 		evaluation: null as number | null,
+		// Current depth of calculation
+		currentDepth: 0,
 	},
-	reducers: {},
+	reducers: {
+		setDepth(state, {payload}: PayloadAction<number>) {
+			state.currentDepth = payload;
+		},
+	},
 	extraReducers: builder => {
 		builder.addCase(calculateEval.fulfilled, (state, action) => {
 			state.evaluation = action.payload;
 		});
 	},
 });
+
+const {setDepth} = stockfishSlice.actions;
 
 export const store = configureStore({
 	reducer: {

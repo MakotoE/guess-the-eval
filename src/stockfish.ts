@@ -2,6 +2,7 @@ export class Stockfish {
 	private readonly stockfish: Worker;
 	private lastEval: number = 0;
 	private evalHandler: (evaluation: number) => void = () => {};
+	private depthCB: (depth: number) => void = () => {};
 
 	constructor() {
 		if (!crossOriginIsolated) {
@@ -20,10 +21,11 @@ export class Stockfish {
 		const data = event.data as string;
 		console.info(data);
 
-		const matchEval = /^info depth \d+ seldepth \d+ multipv \d+ score cp (\d+)/;
+		const matchEval = /^info depth (\d+) seldepth \d+ multipv \d+ score cp (\d+)/;
 		const matches = data.match(matchEval);
 		if (matches != null) {
-			this.lastEval = parseInt(matches[1]);
+			this.lastEval = parseInt(matches[2]);
+			this.depthCB(parseInt(matches[1]));
 		}
 
 		if (data.startsWith('bestmove')) {
@@ -31,11 +33,12 @@ export class Stockfish {
 		}
 	}
 
-	getEval(fen: String): Promise<number> {
+	getEval(fen: String, depthCB: (depth: number) => void): Promise<number> {
 		return new Promise(resolve => {
 			this.evalHandler = resolve;
+			this.depthCB = depthCB;
 			this.stockfish.postMessage('position fen ' + fen);
-			this.stockfish.postMessage('go movetime 10000');
+			this.stockfish.postMessage('go movetime 10000 depth 40');
 		});
 	}
 }
