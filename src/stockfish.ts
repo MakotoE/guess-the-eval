@@ -9,7 +9,7 @@ export class Stockfish {
 		}
 
 		this.stockfish = new Worker('stockfish.js');
-		this.stockfish.onmessage = this.onmessage;
+		this.stockfish.onmessage = event => this.onmessage(event);
 		this.stockfish.onmessageerror = console.error;
 		this.stockfish.postMessage('uci');
 		this.stockfish.postMessage('setoption name Threads value 4');
