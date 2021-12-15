@@ -23,7 +23,7 @@ export function GameInterface(): React.ReactElement {
 				<Chessground config={boardConfig} width={400} height={400} />
 			</Grid.Column>
 			<Grid.Column width={1} style={{minWidth: '400px'}}>
-				<Inputs />
+				<Inputs evaluationFinished={evaluation !== null} depth={depth} />
 			</Grid.Column>
 		</Grid.Row>
 	</Grid>;
