@@ -12,7 +12,6 @@ export class Stockfish {
 			console.error('SharedArrayBuffer is disabled!');
 		}
 
-		console.log('start');
 		// It seems like Web Worker state is preserved between reload, so the random value prevents caching
 		this.stockfish = new Worker('stockfish.js?' + Math.random());
 		this.stockfish.onmessage = event => this.onmessage(event);

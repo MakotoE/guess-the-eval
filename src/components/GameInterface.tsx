@@ -19,8 +19,8 @@ export function GameInterface(): React.ReactElement {
 
 	return <Grid centered>
 		<Grid.Row>
-			<Grid.Column width={2} style={{minWidth: '500px'}}>
-				<Chessground config={boardConfig} width={500} height={500}/>
+			<Grid.Column width={2} style={{minWidth: '400px'}}>
+				<Chessground config={boardConfig} width={400} height={400} />
 			</Grid.Column>
 			<Grid.Column width={1} style={{minWidth: '400px'}}>
 				<Inputs />
