@@ -57,6 +57,7 @@ module.exports = {
 				{from: require.resolve('stockfish/src/stockfish.wasm')},
 				{from: 'src/chessground.css'},
 				{from: 'assets', to: 'assets'},
+				{from: require.resolve('fomantic-ui-css/semantic.min.css')},
 			],
 		}),
 	],
