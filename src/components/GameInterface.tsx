@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 import Chessground from "../chessground";
 import {calculateEval, useAppDispatch, useAppSelector} from "../store";
 import {Config} from "chessground/config";
-import {Container, Grid} from "semantic-ui-react";
+import {Grid} from "semantic-ui-react";
 import {Inputs} from "./Inputs";
 
 export function GameInterface(): React.ReactElement {
