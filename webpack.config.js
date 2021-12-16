@@ -13,7 +13,7 @@ module.exports = {
 		},
 		hot: false, // HMR needs to be disabled for Web Worker to work properly
 	},
-	entry: __dirname + '/src/index.tsx',
+	entry: './src/index.tsx',
 	module: {
 		rules: [
 			{
@@ -53,11 +53,11 @@ module.exports = {
 		new HtmlWebpackPlugin({template: './src/index.html'}),
 		new CopyPlugin({
 			patterns: [
-				{from: require.resolve('stockfish/src/stockfish.js')},
-				{from: require.resolve('stockfish/src/stockfish.wasm')},
+				{from: './node_modules/stockfish/src/stockfish.js'},
+				{from: './node_modules/stockfish/src/stockfish.wasm'},
 				{from: 'src/chessground.css'},
 				{from: 'assets', to: 'assets'},
-				{from: require.resolve('fomantic-ui-css/semantic.min.css')},
+				{from: './node_modules/fomantic-ui-css/semantic.min.css'},
 			],
 		}),
 	],

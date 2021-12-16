@@ -1,10 +1,12 @@
 export class Stockfish {
 	private readonly stockfish: Worker;
-	private lastEval: number = 0;
+	private lastEval = 0;
 
 	// evaluation is in centipawns. It is dependent on the turn. If it's black's turn to play, evaluation needs to be
 	// negated.
+	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	private evalHandler: (evaluation: number) => void = () => {};
+	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	private depthCB: (depth: number) => void = () => {};
 
 	constructor() {

@@ -15,7 +15,7 @@ export function GameInterface(): React.ReactElement {
 
 	useEffect(() => {
 		dispatch(calculateEval(fen));
-	}, []);
+	}, [dispatch]);
 
 	return <Grid centered>
 		<Grid.Row>

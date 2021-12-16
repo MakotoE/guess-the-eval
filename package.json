@@ -3,16 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "webpack serve --config webpack.config.js"
+    "start": "webpack serve --config webpack.config.js",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.7.0",
     "@types/react": "^16.14.21",
     "@types/react-dom": "^16.9.14",
     "@types/semantic-ui": "^2.2.7",
+    "@typescript-eslint/eslint-plugin": "^5.7.0",
+    "@typescript-eslint/parser": "^5.7.0",
     "chessground": "^8.1.7",
     "copy-webpack-plugin": "^10.0.0",
     "css-loader": "^6.5.1",
+    "eslint": "^8.4.1",
+    "eslint-plugin-react": "^7.27.1",
+    "eslint-plugin-react-hooks": "^4.3.0",
     "fomantic-ui-css": "^2.8.8",
     "html-webpack-plugin": "^5.5.0",
     "react": "^16.14.0",
@@ -23,7 +29,7 @@
     "stockfish": "^14.1.0",
     "style-loader": "^3.3.1",
     "ts-loader": "^9.2.6",
-    "typescript": "^4.5.2",
+    "typescript": "^4.5.4",
     "webpack": "^5.65.0",
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.6.0"

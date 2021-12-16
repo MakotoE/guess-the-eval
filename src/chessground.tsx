@@ -29,7 +29,7 @@ function Chessground({width = 900, height = 900, config = {}, contained = false}
 		} else if (ref && ref.current && api) {
 			api.set(config);
 		}
-	}, [ref]);
+	}, [api, ref, config]);
 
 	useEffect(() => {
 		api?.set(config);
