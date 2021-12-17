@@ -31,5 +31,9 @@ module.exports = {
     ignorePatterns: ["*.js"],
     rules: {
         '@typescript-eslint/no-var-requires': 'off',
+        'quotes': 'off',
+        '@typescript-eslint/quotes': ['error', 'single'],
+        'indent': 'off',
+        '@typescript-eslint/indent': ['error', 'tab'],
     },
 };

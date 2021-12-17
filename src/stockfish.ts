@@ -66,11 +66,11 @@ export enum Turn {
 export function getTurn(fen: string): Turn {
 	const spaceIndex = fen.indexOf(' ');
 	switch (fen[spaceIndex + 1]) {
-	case 'w':
-		return Turn.White;
-	case 'b':
-		return Turn.Black;
-	default:
-		throw new Error(`unexpected character: ${fen[spaceIndex + 1]}`);
+		case 'w':
+			return Turn.White;
+		case 'b':
+			return Turn.Black;
+		default:
+			throw new Error(`unexpected character: ${fen[spaceIndex + 1]}`);
 	}
 }

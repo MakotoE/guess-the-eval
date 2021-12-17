@@ -1,6 +1,6 @@
 import {configureStore, createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {TypedUseSelectorHook, useDispatch, useSelector} from 'react-redux';
-import {Stockfish} from "./stockfish";
+import {Stockfish} from './stockfish';
 
 export const calculateEval = createAsyncThunk<number, string, {extra: Stockfish}>(
 	'stockfish/calculateEval',

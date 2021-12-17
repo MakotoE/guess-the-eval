@@ -1,6 +1,6 @@
-import React, {useState} from "react";
-import {Button, Form, InputOnChangeData, Popup} from "semantic-ui-react";
-import {Turn} from "../stockfish";
+import React, {useState} from 'react';
+import {Button, Form, InputOnChangeData, Popup} from 'semantic-ui-react';
+import {Turn} from '../stockfish';
 
 export interface Answers {
 	evaluation: number,
@@ -22,7 +22,7 @@ export function Inputs({evaluationFinished, depth, nextTurn, onSubmit}: Props): 
 		playerTournament: '',
 	});
 
-	const handleChange = (_: any, {name, value}: InputOnChangeData) => {
+	const handleChange = (_: React.ChangeEvent, {name, value}: InputOnChangeData) => {
 		setAnswers({...answers, [name]: value});
 	};
 
