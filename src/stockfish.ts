@@ -53,17 +53,17 @@ export class Stockfish {
 			};
 			this.depthCB = depthCB;
 			this.stockfish.postMessage('position fen ' + fen);
-			this.stockfish.postMessage('go movetime 10000 depth 40');
+			this.stockfish.postMessage('go movetime 5000 depth 40');
 		});
 	}
 }
 
-enum Turn {
+export enum Turn {
 	White,
 	Black,
 }
 
-function getTurn(fen: string): Turn {
+export function getTurn(fen: string): Turn {
 	const spaceIndex = fen.indexOf(' ');
 	switch (fen[spaceIndex + 1]) {
 	case 'w':

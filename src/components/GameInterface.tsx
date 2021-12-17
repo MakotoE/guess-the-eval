@@ -4,6 +4,7 @@ import {calculateEval, useAppDispatch, useAppSelector} from "../store";
 import {Config} from "chessground/config";
 import {Grid} from "semantic-ui-react";
 import {Inputs} from "./Inputs";
+import {getTurn} from "../stockfish";
 
 export function GameInterface(): React.ReactElement {
 	const dispatch = useAppDispatch();
@@ -23,7 +24,12 @@ export function GameInterface(): React.ReactElement {
 				<Chessground config={boardConfig} width={400} height={400} />
 			</Grid.Column>
 			<Grid.Column width={1} style={{minWidth: '400px'}}>
-				<Inputs evaluationFinished={evaluation !== null} depth={depth} />
+				<Inputs
+					evaluationFinished={evaluation !== null}
+					depth={depth}
+					nextTurn={getTurn(fen)}
+					onSubmit={(d) => console.log(d)}
+				/>
 			</Grid.Column>
 		</Grid.Row>
 	</Grid>;
