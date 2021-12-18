@@ -1,11 +1,12 @@
 export class Stockfish {
 	private readonly stockfish: Worker;
-	private lastEval = 0;
 
 	// evaluation is in centipawns. It is dependent on the turn. If it's black's turn to play, evaluation needs to be
 	// negated.
+	private lastEval: EvaluationAndBestMove = {evaluation: 0, bestMoves: ['', '', '']};
+
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
-	private evalHandler: (evaluation: number) => void = () => {};
+	private evalHandler: (evaluation: EvaluationAndBestMove) => void = () => {};
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	private depthCB: (depth: number) => void = () => {};
 
@@ -24,16 +25,21 @@ export class Stockfish {
 		this.stockfish.postMessage('uci');
 		this.stockfish.postMessage('setoption name Threads value 4');
 		this.stockfish.postMessage('setoption name Hash value 512');
+		this.stockfish.postMessage('setoption name MultiPV value 3');
 	}
 
 	private onmessage(event: MessageEvent) {
 		const data = event.data as string;
 		console.info(data);
 
-		const matchEval = /^info depth (\d+) seldepth \d+ multipv \d+ score cp (\d+)/;
+		const matchEval = /^info depth (\d+) seldepth \d+ multipv (\d+) score cp (\d+) nodes \d+ nps \d+ .+ time \d+ pv (.+)/;
 		const matches = data.match(matchEval);
 		if (matches != null) {
-			this.lastEval = parseInt(matches[2]);
+			const variation = parseInt(matches[2]) - 1;
+			if (variation === 0) {
+				this.lastEval.evaluation = parseInt(matches[3]);
+			}
+			this.lastEval.bestMoves[variation] = matches[4];
 			this.depthCB(parseInt(matches[1]));
 		}
 
@@ -42,20 +48,27 @@ export class Stockfish {
 		}
 	}
 
-	getEval(fen: string, depthCB: (depth: number) => void): Promise<number> {
+	getEval(fen: string, depthCB: (depth: number) => void): Promise<EvaluationAndBestMove> {
 		return new Promise(resolve => {
 			this.evalHandler = evaluation => {
 				if (getTurn(fen) == Turn.Black) {
-					resolve(evaluation / -100);
+					evaluation.evaluation /= -100;
 				} else {
-					resolve(evaluation / 100);
+					evaluation.evaluation /= 100;
 				}
+
+				resolve(evaluation);
 			};
 			this.depthCB = depthCB;
 			this.stockfish.postMessage('position fen ' + fen);
 			this.stockfish.postMessage('go movetime 5000 depth 40');
 		});
 	}
+}
+
+export interface EvaluationAndBestMove {
+	evaluation: number;
+	bestMoves: [string, string, string];
 }
 
 export enum Turn {

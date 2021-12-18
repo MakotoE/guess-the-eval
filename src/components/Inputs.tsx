@@ -1,22 +1,17 @@
 import React, {useState} from 'react';
 import {Button, Form, InputOnChangeData, Popup} from 'semantic-ui-react';
 import {Turn} from '../stockfish';
-
-export interface Answers {
-	evaluation: number,
-	bestMove: string,
-	playerTournament: string,
-}
+import {Answer} from '../calculatePoints';
 
 interface Props {
 	evaluationFinished: boolean;
 	depth: number;
 	nextTurn: Turn;
-	onSubmit: (answers: Answers) => void;
+	onSubmit: (answers: Answer) => void;
 }
 
 export function Inputs({evaluationFinished, depth, nextTurn, onSubmit}: Props): React.ReactElement {
-	const [answers, setAnswers] = useState<{[key in keyof Answers]: string}>({
+	const [answers, setAnswers] = useState<{[key in keyof Answer]: string}>({
 		evaluation: '',
 		bestMove: '',
 		playerTournament: '',
