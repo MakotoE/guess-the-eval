@@ -35,5 +35,7 @@ module.exports = {
         '@typescript-eslint/quotes': ['error', 'single'],
         'indent': 'off',
         '@typescript-eslint/indent': ['error', 'tab'],
+        'comma-dangle': 'off',
+        '@typescript-eslint/comma-dangle': ['error', 'always-multiline'],
     },
 };

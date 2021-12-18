@@ -35,14 +35,29 @@ const stockfishSlice = createSlice({
 
 const {setDepth} = stockfishSlice.actions;
 
+const pointsSlice = createSlice({
+	name: 'points',
+	initialState: {
+		points: 0,
+	},
+	reducers: {
+		addPoints(state, {payload}: PayloadAction<number>) {
+			state.points += payload;
+		},
+	},
+});
+
+const {addPoints} = pointsSlice.actions;
+
 export const store = configureStore({
 	reducer: {
 		stockfish: stockfishSlice.reducer,
+		answers: pointsSlice.reducer,
 	},
 	middleware: getDefaultMiddleware => getDefaultMiddleware({
 		thunk: {
 			extraArgument: new Stockfish(),
-		}
+		},
 	}),
 	devTools: true,
 });
