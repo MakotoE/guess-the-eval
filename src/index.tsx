@@ -1,12 +1,19 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
-import {App} from './components/App';
+import {Game} from './components/Game';
 import {Provider} from 'react-redux';
 import {store} from './store';
+import {BrowserRouter, Route, Routes} from 'react-router-dom';
 
 ReactDOM.render(
 	<Provider store={store}>
-		<App />
+		<BrowserRouter>
+			<Routes>
+				<Route path='/' element={<p>index</p>} />
+				<Route path='/:id' element={<Game />} />
+				<Route path='*' element={<p>Not found</p>} />
+			</Routes>
+		</BrowserRouter>
 	</Provider>,
 	document.getElementById('root'),
 );

@@ -4,6 +4,9 @@
       <option name="USE_DOUBLE_QUOTES" value="false" />
       <option name="FORCE_QUOTE_STYlE" value="true" />
     </JSCodeStyleSettings>
+    <TypeScriptCodeStyleSettings version="0">
+      <option name="USE_DOUBLE_QUOTES" value="false" />
+    </TypeScriptCodeStyleSettings>
     <codeStyleSettings language="TypeScript">
       <indentOptions>
         <option name="USE_TAB_CHARACTER" value="true" />
