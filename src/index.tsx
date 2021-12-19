@@ -9,8 +9,7 @@ ReactDOM.render(
 	<Provider store={store}>
 		<BrowserRouter>
 			<Routes>
-				<Route path='/' element={<p>index</p>} />
-				<Route path='/game' element={<Game />} />
+				<Route path='/' element={<Game />} />
 				<Route path='*' element={<p>Page not found</p>} />
 			</Routes>
 		</BrowserRouter>

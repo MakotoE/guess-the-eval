@@ -15,18 +15,27 @@ export const calculateEval = createAsyncThunk<EvaluationAndBestMove, string, {ex
 	},
 );
 
-const stockfishSlice = createSlice({
-	name: 'stockfish',
+const gameSlice = createSlice({
+	name: 'game',
 	initialState: {
 		// evaluation is the calculated evaluation in centipawns. evaluation is null when Stockfish is not done
 		// calculating.
 		evaluation: null as EvaluationAndBestMove | null,
 		// Current depth of calculation
 		currentDepth: 0,
+		currentQuestion: 0,
+		points: 0,
 	},
 	reducers: {
 		setDepth(state, {payload}: PayloadAction<number>) {
 			state.currentDepth = payload;
+		},
+		submitAnswer(state, {payload}: PayloadAction<Answer>) {
+			if (state.evaluation === null) {
+				throw new Error('evaluation is null');
+			}
+			state.points += calculatePoints(questions[state.currentQuestion], state.evaluation, payload);
+			state.currentQuestion += 1;
 		},
 	},
 	extraReducers: builder => {
@@ -36,27 +45,10 @@ const stockfishSlice = createSlice({
 	},
 });
 
-const {setDepth} = stockfishSlice.actions;
-
-const gameSlice = createSlice({
-	name: 'game',
-	initialState: {
-		currentQuestion: 0,
-		points: 0,
-	},
-	reducers: {
-		submitAnswer(state, {payload}: PayloadAction<Answer>) {
-			state.points += calculatePoints(questions[state.currentQuestion], payload);
-			state.currentQuestion += 1;
-		},
-	},
-});
-
-export const {submitAnswer} = gameSlice.actions;
+export const {setDepth, submitAnswer} = gameSlice.actions;
 
 export const store = configureStore({
 	reducer: {
-		stockfish: stockfishSlice.reducer,
 		game: gameSlice.reducer,
 	},
 	middleware: getDefaultMiddleware => getDefaultMiddleware({

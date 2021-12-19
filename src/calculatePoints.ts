@@ -1,6 +1,11 @@
 import {Question} from './questions';
+import {EvaluationAndBestMove} from './stockfish';
 
-export function calculatePoints(question: Question, answer: Answer): number {
+export function calculatePoints(
+	question: Question,
+	{evaluation, bestMoves}: EvaluationAndBestMove,
+	answer: Answer
+): number {
 	return 1;
 }
 
