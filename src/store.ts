@@ -36,24 +36,28 @@ const stockfishSlice = createSlice({
 
 const {setDepth} = stockfishSlice.actions;
 
-const pointsSlice = createSlice({
-	name: 'points',
+const gameSlice = createSlice({
+	name: 'game',
 	initialState: {
+		currentQuestion: 0,
 		points: 0,
 	},
 	reducers: {
+		incrementQuestion(state) {
+			state.currentQuestion += 1;
+		},
 		addPoints(state, {payload}: PayloadAction<number>) {
 			state.points += payload;
 		},
 	},
 });
 
-const {addPoints} = pointsSlice.actions;
+const {addPoints} = gameSlice.actions;
 
 export const store = configureStore({
 	reducer: {
 		stockfish: stockfishSlice.reducer,
-		answers: pointsSlice.reducer,
+		game: gameSlice.reducer,
 	},
 	middleware: getDefaultMiddleware => getDefaultMiddleware({
 		thunk: {

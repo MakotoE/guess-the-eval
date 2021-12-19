@@ -10,8 +10,8 @@ ReactDOM.render(
 		<BrowserRouter>
 			<Routes>
 				<Route path='/' element={<p>index</p>} />
-				<Route path='/:id' element={<Game />} />
-				<Route path='*' element={<p>Not found</p>} />
+				<Route path='/game' element={<Game />} />
+				<Route path='*' element={<p>Page not found</p>} />
 			</Routes>
 		</BrowserRouter>
 	</Provider>,
