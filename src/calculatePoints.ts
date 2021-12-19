@@ -1,7 +1,7 @@
 import {Question} from './questions';
 
 export function calculatePoints(question: Question, answer: Answer): number {
-	return 0;
+	return 1;
 }
 
 export interface Answer {
