@@ -37,5 +37,6 @@ module.exports = {
         '@typescript-eslint/indent': ['error', 'tab'],
         'comma-dangle': 'off',
         '@typescript-eslint/comma-dangle': ['error', 'always-multiline'],
+        'eqeqeq': ['error', 'always'],
     },
 };

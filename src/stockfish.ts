@@ -34,7 +34,7 @@ export class Stockfish {
 
 		const matchEval = /^info depth (\d+) seldepth \d+ multipv (\d+) score cp (\d+) nodes \d+ nps \d+ .+ time \d+ pv (.+)/;
 		const matches = data.match(matchEval);
-		if (matches != null) {
+		if (matches !== null) {
 			const variation = parseInt(matches[2]) - 1;
 			if (variation === 0) {
 				this.lastEval.evaluation = parseInt(matches[3]);
@@ -51,7 +51,7 @@ export class Stockfish {
 	getEval(fen: string, depthCB: (depth: number) => void): Promise<EvaluationAndBestMove> {
 		return new Promise(resolve => {
 			this.evalHandler = evaluation => {
-				if (getTurn(fen) == Turn.Black) {
+				if (getTurn(fen) === Turn.Black) {
 					evaluation.evaluation /= -100;
 				} else {
 					evaluation.evaluation /= 100;

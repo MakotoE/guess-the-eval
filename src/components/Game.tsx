@@ -7,9 +7,7 @@ import {questions} from '../questions';
 
 export function Game(): React.ReactElement {
 	const dispatch = useAppDispatch();
-	const {currentQuestion, points} = useAppSelector(state => state.game);
-	const evaluation = useAppSelector(state => state.stockfish.evaluation);
-	const depth = useAppSelector(state => state.stockfish.currentDepth);
+	const {currentQuestion, points, evaluation, currentDepth} = useAppSelector(state => state.game);
 
 	let fen = '';
 	let rightSide: React.ReactElement;
@@ -17,7 +15,7 @@ export function Game(): React.ReactElement {
 		fen = questions[currentQuestion].fen;
 		rightSide = <Inputs
 			evaluationFinished={evaluation !== null}
-			depth={depth}
+			depth={currentDepth}
 			nextTurn={getTurn(fen)}
 			onSubmit={answer => {dispatch(submitAnswer(answer))}}
 		/>;
