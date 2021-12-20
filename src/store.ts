@@ -37,7 +37,10 @@ const gameSlice = createSlice({
 			}
 			state.lastResult = new QuestionResult(questions[state.currentQuestion], current(state.evaluation), payload);
 			state.points += state.lastResult.totalPoints();
-			state.currentQuestion += 1;
+		},
+		nextQuestion(state) {
+			state.lastResult = null;
+			++state.currentQuestion;
 		},
 	},
 	extraReducers: builder => {
@@ -47,7 +50,7 @@ const gameSlice = createSlice({
 	},
 });
 
-export const {setDepth, submitAnswer} = gameSlice.actions;
+export const {setDepth, submitAnswer, nextQuestion} = gameSlice.actions;
 
 export const store = configureStore({
 	reducer: {

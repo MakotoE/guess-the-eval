@@ -70,7 +70,7 @@ export interface EvaluationAndBestMove {
 type RawEvalOutput = EvaluationAndBestMove;
 
 function rawEvalToEvaluation(input: RawEvalOutput, fen: string): EvaluationAndBestMove {
-	let result: EvaluationAndBestMove = input;
+	const result: EvaluationAndBestMove = input;
 
 	result.evaluation /= 100;
 
@@ -86,24 +86,7 @@ function rawEvalToEvaluation(input: RawEvalOutput, fen: string): EvaluationAndBe
 			throw new Error('move is null; invalid move');
 		}
 		return move.san;
-	}) as [string, string, string];
+	}) as EvaluationAndBestMove['bestMoves'];
 
 	return result;
-}
-
-export enum Turn {
-	White,
-	Black,
-}
-
-export function getTurn(fen: string): Turn {
-	const spaceIndex = fen.indexOf(' ');
-	switch (fen[spaceIndex + 1]) {
-		case 'w':
-			return Turn.White;
-		case 'b':
-			return Turn.Black;
-		default:
-			throw new Error(`unexpected character: ${fen[spaceIndex + 1]}`);
-	}
 }
