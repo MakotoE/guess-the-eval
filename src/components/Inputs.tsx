@@ -14,7 +14,7 @@ export function Inputs({evaluationFinished, depth, nextTurn, onSubmit}: Props): 
 	const [answers, setAnswers] = useState<{[key in keyof Answer]: string}>({
 		evaluation: '',
 		bestMove: '',
-		playerTournament: '',
+		playerOrTournament: '',
 	});
 
 	const handleChange = (_: React.ChangeEvent, {name, value}: InputOnChangeData) => {
@@ -47,7 +47,7 @@ export function Inputs({evaluationFinished, depth, nextTurn, onSubmit}: Props): 
 		/>
 		<Form.Input
 			name='playerTournament'
-			value={answers.playerTournament}
+			value={answers.playerOrTournament}
 			onChange={handleChange}
 			label='Name one of the players or the tournament'
 			autoComplete='off'
