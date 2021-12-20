@@ -70,7 +70,7 @@ export interface EvaluationAndBestMove {
 type RawEvalOutput = EvaluationAndBestMove;
 
 function rawEvalToEvaluation(input: RawEvalOutput, fen: string): EvaluationAndBestMove {
-	const result: EvaluationAndBestMove = input;
+	let result: EvaluationAndBestMove = input;
 
 	result.evaluation /= 100;
 
@@ -80,13 +80,13 @@ function rawEvalToEvaluation(input: RawEvalOutput, fen: string): EvaluationAndBe
 	}
 
 	// Convert best moves
-	result.bestMoves.map(input => {
+	result.bestMoves = result.bestMoves.map(input => {
 		const move = chess.move(input, {sloppy: true, dry_run: true});
 		if (move === null) {
 			throw new Error('move is null; invalid move');
 		}
 		return move.san;
-	});
+	}) as [string, string, string];
 
 	return result;
 }
