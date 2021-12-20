@@ -13,6 +13,7 @@
     "@types/semantic-ui": "^2.2.7",
     "@typescript-eslint/eslint-plugin": "^5.7.0",
     "@typescript-eslint/parser": "^5.7.0",
+    "chess.ts": "^0.16.2",
     "chessground": "^8.1.7",
     "copy-webpack-plugin": "^10.0.0",
     "css-loader": "^6.5.1",

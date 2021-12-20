@@ -1,9 +1,9 @@
+import {Chess} from 'chess.ts';
+
 export class Stockfish {
 	private readonly stockfish: Worker;
 
-	// evaluation is in centipawns. It is dependent on the turn. If it's black's turn to play, evaluation needs to be
-	// negated.
-	private lastEval: EvaluationAndBestMove = {evaluation: 0, bestMoves: ['', '', '']};
+	private lastEval: RawEvalOutput = {evaluation: 0, bestMoves: ['', '', '']};
 
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	private evalHandler: (evaluation: EvaluationAndBestMove) => void = () => {};
@@ -32,7 +32,7 @@ export class Stockfish {
 		const data = event.data as string;
 		console.info(data);
 
-		const matchEval = /^info depth (\d+) seldepth \d+ multipv (\d+) score cp (\d+) nodes \d+ nps \d+ .+ time \d+ pv (.+)/;
+		const matchEval = /^info depth (\d+) seldepth \d+ multipv (\d+) score cp (\d+) nodes \d+ nps \d+ .+ time \d+ pv (\S+)/;
 		const matches = data.match(matchEval);
 		if (matches !== null) {
 			const variation = parseInt(matches[2]) - 1;
@@ -51,13 +51,7 @@ export class Stockfish {
 	getEval(fen: string, depthCB: (depth: number) => void): Promise<EvaluationAndBestMove> {
 		return new Promise(resolve => {
 			this.evalHandler = evaluation => {
-				if (getTurn(fen) === Turn.Black) {
-					evaluation.evaluation /= -100;
-				} else {
-					evaluation.evaluation /= 100;
-				}
-
-				resolve(evaluation);
+				resolve(rawEvalToEvaluation(evaluation, fen));
 			};
 			this.depthCB = depthCB;
 			this.stockfish.postMessage('position fen ' + fen);
@@ -69,6 +63,32 @@ export class Stockfish {
 export interface EvaluationAndBestMove {
 	evaluation: number;
 	bestMoves: [string, string, string];
+}
+
+// Evaluation is in centipawns. If it's black's turn to play, evaluation needs to be negated. Best moves are in long
+// algebraic notation and needs to be converted to SAN.
+type RawEvalOutput = EvaluationAndBestMove;
+
+function rawEvalToEvaluation(input: RawEvalOutput, fen: string): EvaluationAndBestMove {
+	const result: EvaluationAndBestMove = input;
+
+	result.evaluation /= 100;
+
+	const chess = new Chess(fen);
+	if (chess.turn() === 'b') {
+		result.evaluation *= -1;
+	}
+
+	// Convert best moves
+	result.bestMoves.map(input => {
+		const move = chess.move(input, {sloppy: true, dry_run: true});
+		if (move === null) {
+			throw new Error('move is null; invalid move');
+		}
+		return move.san;
+	});
+
+	return result;
 }
 
 export enum Turn {
