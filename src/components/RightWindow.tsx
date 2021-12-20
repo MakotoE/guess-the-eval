@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Button, Form, InputOnChangeData, Popup} from 'semantic-ui-react';
-import {Answer} from '../calculatePoints';
+import {Answer, PointsSolver} from '../calculatePoints';
 import {calculateEval, nextQuestion, submitAnswer, useAppDispatch, useAppSelector} from '../store';
 import {LastResult} from './LastResult';
 import {Chess} from 'chess.ts';
@@ -38,7 +38,7 @@ export function RightWindow(): React.ReactElement {
 			if (showingAnswer) {
 				dispatch(nextQuestion());
 			} else {
-				dispatch(submitAnswer({...answers, evaluation: parseInt(answers.evaluation)}));
+				dispatch(submitAnswer(inputStringsToAnswer(answers)));
 			}
 		}}>
 			<Form.Input
@@ -70,7 +70,7 @@ export function RightWindow(): React.ReactElement {
 			<p>
 				{evaluation === null ? 'Stockfish is thinking...' : 'Stockfish is done thinking'} (Depth: {currentDepth})
 			</p>
-			{showingAnswer ? <LastResult lastResult={lastResult} /> : null}
+			{showingAnswer ? <LastResult points={new PointsSolver(lastResult)} /> : null}
 			<Popup
 				trigger={
 					<div>
@@ -86,4 +86,12 @@ export function RightWindow(): React.ReactElement {
 			/>
 		</Form>
 	</>;
+}
+
+function inputStringsToAnswer(inputs: {[key in keyof Answer]: string}): Answer {
+	let evaluation = parseInt(inputs.evaluation);
+	if (isNaN(evaluation)) {
+		evaluation = 0;
+	}
+	return {...inputs, evaluation};
 }

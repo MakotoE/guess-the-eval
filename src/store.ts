@@ -1,7 +1,7 @@
 import {configureStore, createAsyncThunk, createSlice, current, PayloadAction} from '@reduxjs/toolkit';
 import {TypedUseSelectorHook, useDispatch, useSelector} from 'react-redux';
 import {EvaluationAndBestMove, Stockfish} from './stockfish';
-import {Answer, QuestionResult} from './calculatePoints';
+import {Answer, PointsSolver, QuestionResult} from './calculatePoints';
 import {questions} from './questions';
 
 export const calculateEval = createAsyncThunk<EvaluationAndBestMove, string, {extra: Stockfish}>(
@@ -35,8 +35,12 @@ const gameSlice = createSlice({
 			if (state.evaluation === null) {
 				throw new Error('evaluation is null');
 			}
-			state.lastResult = new QuestionResult(questions[state.currentQuestion], current(state.evaluation), payload);
-			state.points += state.lastResult.totalPoints();
+			state.lastResult = {
+				question: questions[state.currentQuestion],
+				answer: payload,
+				stockfishEval: current(state.evaluation),
+			}
+			state.points += new PointsSolver(state.lastResult).totalPoints();
 		},
 		nextQuestion(state) {
 			state.lastResult = null;

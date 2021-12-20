@@ -1,22 +1,24 @@
 import {Question} from './questions';
 import {EvaluationAndBestMove} from './stockfish';
 
-export class QuestionResult {
-	public readonly question: Question;
-	public readonly stockfishEval: EvaluationAndBestMove;
-	public readonly answer: Answer;
+export interface QuestionResult {
+	question: Question;
+	stockfishEval: EvaluationAndBestMove;
+	answer: Answer;
+}
 
-	constructor(question: Question, stockfishEval: EvaluationAndBestMove, answer: Answer) {
-		this.question = question;
-		this.stockfishEval = stockfishEval;
-		this.answer = answer;
+export class PointsSolver {
+	public readonly result: QuestionResult;
+
+	constructor(result: QuestionResult) {
+		this.result = result;
 	}
 
 	/**
 	 * 1. 20 points for correctly guessing the winning side or that the position is a draw
 	 */
 	foundWinningSide(): boolean {
-		return this.answer.evaluation * this.stockfishEval.evaluation > 0;
+		return this.result.answer.evaluation * this.result.stockfishEval.evaluation > 0;
 	}
 
 	/**
@@ -33,14 +35,14 @@ export class QuestionResult {
 	 * 10: -110
 	 */
 	evalPoints(): number {
-		return -16 * Math.abs(this.answer.evaluation - this.stockfishEval.evaluation) + 50;
+		return -16 * Math.abs(this.result.answer.evaluation - this.result.stockfishEval.evaluation) + 50;
 	}
 
 	/**
 	 * Returns nth best move, or null if best move was not found.
 	 */
 	foundBestMove(): number | null {
-		const bestMoveIndex = this.stockfishEval.bestMoves.indexOf(this.answer.bestMove);
+		const bestMoveIndex = this.result.stockfishEval.bestMoves.indexOf(this.result.answer.bestMove);
 		if (bestMoveIndex === -1) {
 			return null;
 		}
@@ -64,13 +66,18 @@ export class QuestionResult {
 	 */
 	foundPlayerOrTournament(): boolean {
 		const possibleWords = new Set<string>();
-		for (const s of [this.question.players.white, this.question.players.black, this.question.tournament]) {
+		const strings = [
+			this.result.question.players.white,
+			this.result.question.players.black,
+			this.result.question.tournament,
+		];
+		for (const s of strings) {
 			for (const word of s.split(' ')) {
 				possibleWords.add(word);
 			}
 		}
 
-		for (const word of this.answer.playerOrTournament.split(' ')) {
+		for (const word of this.result.answer.playerOrTournament.split(' ')) {
 			if (possibleWords.has(word)) {
 				return true;
 			}
