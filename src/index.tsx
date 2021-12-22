@@ -4,15 +4,18 @@ import {Game} from './components/Game';
 import {Provider} from 'react-redux';
 import {store} from './store';
 import {BrowserRouter, Route, Routes} from 'react-router-dom';
+import {ErrorBoundary} from './components/ErrorBoundary';
 
 ReactDOM.render(
-	<Provider store={store}>
-		<BrowserRouter>
-			<Routes>
-				<Route path='/' element={<Game />} />
-				<Route path='*' element={<p>Page not found</p>} />
-			</Routes>
-		</BrowserRouter>
-	</Provider>,
+	<ErrorBoundary>
+		<Provider store={store}>
+			<BrowserRouter>
+				<Routes>
+					<Route path='/' element={<Game />} />
+					<Route path='*' element={<p>Page not found</p>} />
+				</Routes>
+			</BrowserRouter>
+		</Provider>
+	</ErrorBoundary>,
 	document.getElementById('root'),
 );

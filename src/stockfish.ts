@@ -12,12 +12,16 @@ export class Stockfish {
 
 	constructor() {
 		if (!crossOriginIsolated) {
-			console.error('SharedArrayBuffer is disabled!');
+			throw new Error(
+				'SharedArrayBuffer is disabled. See'
+				+ ' https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer#browser_compatibility'
+				+ ' for supported browsers.'
+			);
 		}
 
 		this.stockfish = new Worker('/stockfish.js');
 		this.stockfish.onmessage = event => this.onmessage(event);
-		this.stockfish.onmessageerror = console.error;
+		this.stockfish.onmessageerror = event => console.error(event);
 		this.stockfish.postMessage('uci');
 		this.stockfish.postMessage('setoption name Threads value 4');
 		this.stockfish.postMessage('setoption name Hash value 512');

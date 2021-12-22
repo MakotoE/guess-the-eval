@@ -7,6 +7,7 @@ import {Chess} from 'chess.ts';
 
 export function Game(): React.ReactElement {
 	const currentQuestion = useAppSelector(state => state.game.currentQuestion);
+	const error = useAppSelector(state => state.game.error);
 
 	let fen = '';
 	let rightSide: React.ReactElement;
@@ -20,5 +21,6 @@ export function Game(): React.ReactElement {
 
 	return <Layout fen={fen}>
 		{rightSide}
+		{error ? <pre>{error}</pre> : null}
 	</Layout>;
 }

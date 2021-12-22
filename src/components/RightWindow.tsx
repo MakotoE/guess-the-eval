@@ -74,7 +74,7 @@ export function RightWindow(): React.ReactElement {
 			<Popup
 				trigger={
 					<div>
-						{/* <div> needed for tooltip to properly work*/}
+						{/* <div> needed for tooltip to properly work */}
 						<Button disabled={evaluation === null}>
 							{showingAnswer ? 'Okay, next' : 'Submit my guess'}
 						</Button>

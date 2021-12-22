@@ -1,4 +1,13 @@
-import {configureStore, createAsyncThunk, createSlice, current, PayloadAction} from '@reduxjs/toolkit';
+import {
+	AnyAction,
+	configureStore,
+	createAsyncThunk,
+	createSlice,
+	current, isRejected, isRejectedWithValue,
+	Middleware,
+	MiddlewareAPI,
+	PayloadAction
+} from '@reduxjs/toolkit';
 import {TypedUseSelectorHook, useDispatch, useSelector} from 'react-redux';
 import {EvaluationAndBestMove, Stockfish} from './stockfish';
 import {Answer, PointsSolver, QuestionResult} from './calculatePoints';
@@ -26,8 +35,13 @@ const gameSlice = createSlice({
 		currentQuestion: 0,
 		points: 0,
 		lastResult: null as QuestionResult | null,
+		error: null as string | null,
 	},
 	reducers: {
+		setError(state, {payload}: PayloadAction<string>) {
+			console.error(payload);
+			state.error = payload;
+		},
 		setDepth(state, {payload}: PayloadAction<number>) {
 			state.currentDepth = payload;
 		},
@@ -54,7 +68,15 @@ const gameSlice = createSlice({
 	},
 });
 
-export const {setDepth, submitAnswer, nextQuestion} = gameSlice.actions;
+export const {setError, setDepth, submitAnswer, nextQuestion} = gameSlice.actions;
+
+const errorHandler: Middleware = (api: MiddlewareAPI<typeof store.dispatch, RootState>) =>
+	(next) => (action: AnyAction) => {
+		if (isRejected(action)) {
+			api.dispatch(setError(`error: ${JSON.stringify(action.payload)}`));
+		}
+		return next(action);
+	};
 
 export const store = configureStore({
 	reducer: {
@@ -64,7 +86,7 @@ export const store = configureStore({
 		thunk: {
 			extraArgument: new Stockfish(),
 		},
-	}),
+	}).concat(errorHandler),
 	devTools: true,
 });
 
