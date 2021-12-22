@@ -3,10 +3,10 @@ import {
 	configureStore,
 	createAsyncThunk,
 	createSlice,
-	current, isRejected, isRejectedWithValue,
+	current, isRejected,
 	Middleware,
 	MiddlewareAPI,
-	PayloadAction
+	PayloadAction,
 } from '@reduxjs/toolkit';
 import {TypedUseSelectorHook, useDispatch, useSelector} from 'react-redux';
 import {EvaluationAndBestMove, Stockfish} from './stockfish';

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useAppSelector} from '../store';
 import {RightWindow} from './RightWindow';
 import {Layout} from './Layout';
@@ -8,6 +8,8 @@ import {Chess} from 'chess.ts';
 export function Game(): React.ReactElement {
 	const currentQuestion = useAppSelector(state => state.game.currentQuestion);
 	const error = useAppSelector(state => state.game.error);
+
+	useEffect(checkCompatibility, []);
 
 	let fen = '';
 	let rightSide: React.ReactElement;
@@ -23,4 +25,14 @@ export function Game(): React.ReactElement {
 		{rightSide}
 		{error ? <pre>{error}</pre> : null}
 	</Layout>;
+}
+
+function checkCompatibility() {
+	if (!crossOriginIsolated) {
+		throw new Error(
+			'SharedArrayBuffer is disabled. See'
+			+ ' https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer#browser_compatibility'
+			+ ' for supported browsers.'
+		);
+	}
 }

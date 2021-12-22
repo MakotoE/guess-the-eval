@@ -11,14 +11,6 @@ export class Stockfish {
 	private depthCB: (depth: number) => void = () => {};
 
 	constructor() {
-		if (!crossOriginIsolated) {
-			throw new Error(
-				'SharedArrayBuffer is disabled. See'
-				+ ' https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer#browser_compatibility'
-				+ ' for supported browsers.'
-			);
-		}
-
 		this.stockfish = new Worker('/stockfish.js');
 		this.stockfish.onmessage = event => this.onmessage(event);
 		this.stockfish.onmessageerror = event => console.error(event);
