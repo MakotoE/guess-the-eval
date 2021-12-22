@@ -89,7 +89,7 @@ export function RightWindow(): React.ReactElement {
 }
 
 function inputStringsToAnswer(inputs: {[key in keyof Answer]: string}): Answer {
-	let evaluation = parseInt(inputs.evaluation);
+	let evaluation = parseFloat(inputs.evaluation);
 	if (isNaN(evaluation)) {
 		evaluation = 0;
 	}

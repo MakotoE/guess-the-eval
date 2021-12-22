@@ -15,10 +15,6 @@ export class Stockfish {
 			console.error('SharedArrayBuffer is disabled!');
 		}
 
-		// Stop cached worker
-		this.stockfish = new Worker('/stockfish.js');
-		this.stockfish.terminate();
-
 		this.stockfish = new Worker('/stockfish.js');
 		this.stockfish.onmessage = event => this.onmessage(event);
 		this.stockfish.onmessageerror = console.error;
