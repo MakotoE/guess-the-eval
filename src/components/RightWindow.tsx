@@ -8,7 +8,7 @@ import {questions} from '../questions';
 
 export function RightWindow(): React.ReactElement {
 	const dispatch = useAppDispatch();
-	const {currentQuestion, points, evaluation, currentDepth, lastResult} = useAppSelector(state => state.game);
+	const {currentQuestion, evaluation, currentDepth, lastResult} = useAppSelector(state => state.game);
 	const [answers, setAnswers] = useState<{[key in keyof Answer]: string}>({
 		evaluation: '',
 		bestMove: '',
@@ -33,7 +33,6 @@ export function RightWindow(): React.ReactElement {
 	}
 
 	return <>
-		<p>Total points: {points}</p>
 		<Form onSubmit={() => {
 			if (showingAnswer) {
 				dispatch(nextQuestion());

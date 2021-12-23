@@ -6,7 +6,7 @@ import {questions} from '../questions';
 import {Chess} from 'chess.ts';
 
 export function Game(): React.ReactElement {
-	const currentQuestion = useAppSelector(state => state.game.currentQuestion);
+	const {currentQuestion, points} = useAppSelector(state => state.game);
 	const error = useAppSelector(state => state.game.error);
 
 	useEffect(checkCompatibility, []);
@@ -21,7 +21,10 @@ export function Game(): React.ReactElement {
 		rightSide = <p>End of game</p>;
 	}
 
+	// TODO show summary at end
+
 	return <Layout fen={fen}>
+		<p>Total points: {points.toFixed(1)}</p>
 		{rightSide}
 		{error ? <pre>{error}</pre> : null}
 	</Layout>;
