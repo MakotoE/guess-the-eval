@@ -16,9 +16,6 @@ module.exports = {
         browser: true,
         node: true,
     },
-    ecmaFeatures: {
-        jsx: true,
-    },
     parserOptions: {
         tsconfigRootDir: __dirname,
         project: ['./tsconfig.json'],

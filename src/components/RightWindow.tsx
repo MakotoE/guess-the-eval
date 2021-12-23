@@ -49,6 +49,7 @@ export function RightWindow(): React.ReactElement {
 				placeholder='i.e. +1.0'
 				type='number'
 				autoComplete='off'
+				spellCheck={false}
 			/>
 			<Form.Input
 				name='bestMove'

@@ -15,23 +15,23 @@ export function LastResult({points}: Props): React.ReactElement {
 				: 'You did not guess the winning side. +0 points'
 		}
 		<br />
-		{`Your eval guess was off by ${Math.abs(answer.evaluation - stockfishEval.evaluation)}. Actual eval was ${formatEval(stockfishEval.evaluation)}.`}
+		{`Your eval guess was off by ${Math.abs(answer.evaluation - stockfishEval[0].evaluation)}. Actual eval was ${formatEval(stockfishEval[0].evaluation)}.`}
 		<br />
 		{`${points.evalPoints().toFixed(1)} points for the evaluation.`}
 		<br />
 		{
-			points.foundBestMove() === null
-				? 'You did not find a best move.'
-				: `You found the ${points.foundBestMove() as number}th best move. Multiplier: x${points.bestMoveMultiplier()}`
+			points.foundBestMove()
+				? 'You found one of the top 3 moves.'
+				: 'You did not find a best move.'
 		}
 		{
 			// Multiplier was applied to a negative score
-			points.foundBestMove() !== null && points.evalPoints() < 0
-				? ' (OOOF!)'
+			points.evalPoints() < 0 && points.bestMoveMultiplier() > 1
+				? ` Your negative eval score was multiplied by ${points.bestMoveMultiplier()}. OOOF!`
 				: ''
 		}
 		<br />
-		{`These are the best moves according to Stockfish: ${stockfishEval.bestMoves[0]}, ${stockfishEval.bestMoves[1]}, ${stockfishEval.bestMoves[2]}.`}
+		{`These are the top 3 moves according to Stockfish: ${stockfishEval[0].move}, ${stockfishEval[1].move}, ${stockfishEval[2].move}.`}
 		<br />
 		{
 			points.foundPlayerOrTournament()
@@ -41,7 +41,7 @@ export function LastResult({points}: Props): React.ReactElement {
 		<br />
 		{`This was a game between ${question.players.white} (white) and ${question.players.black} (black). It was played at the ${question.tournament}.`}
 		<br />
-		<a href={question.url}>Source</a>
+		<a href={question.url} target='_blank' rel='noopener noreferrer'>Source</a>
 		<br />
 		{`You earned ${points.totalPoints().toFixed(1)} points.`}
 	</Container>;

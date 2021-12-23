@@ -1,12 +1,35 @@
 import {Question} from './questions';
-import {EvaluationAndBestMove} from './stockfish';
+import {BestMoves} from './stockfish';
 
 export interface QuestionResult {
 	question: Question;
-	stockfishEval: EvaluationAndBestMove;
+	stockfishEval: BestMoves;
 	answer: Answer;
 }
 
+/**
+ * 1. 20 points for correctly guessing the winning side or that the position is a draw
+ *
+ * 2. The number of points for the eval guess is given by -16 |guess - actual_eval| + 50
+ * Eval difference vs points awarded table
+ * 0: 50
+ * 0.5: 42
+ * 1: 34
+ * 2: 18
+ * 3: 2
+ * 4: -14
+ * 5: -30
+ * 6: -46
+ * 10: -110
+ *
+ * 3. Guessing a best move multiplies your eval points by max(-0.75 abs(guessEval - bestMoveEval) + 3, 1)
+ * 0: x3.0
+ * 1: x2.25
+ * 2: x1.5
+ * 2.66: x1.0
+ *
+ * 4. Guessing a player or the tournament awards 10 points
+ */
 export class PointsSolver {
 	public readonly result: QuestionResult;
 
@@ -15,55 +38,45 @@ export class PointsSolver {
 	}
 
 	/**
-	 * 1. 20 points for correctly guessing the winning side or that the position is a draw
+	 * @returns true if the winning side was found
 	 */
 	foundWinningSide(): boolean {
-		return this.result.answer.evaluation * this.result.stockfishEval.evaluation > 0;
+		return this.result.answer.evaluation * this.result.stockfishEval[0].evaluation > 0;
 	}
 
 	/**
-	 * 2. The number of points for the eval guess is given by -16 |guess - actual_eval| + 50
-	 * Eval difference vs points awarded table
-	 * 0: 50
-	 * 0.5: 42
-	 * 1: 34
-	 * 2: 18
-	 * 3: 2
-	 * 4: -14
-	 * 5: -30
-	 * 6: -46
-	 * 10: -110
+	 * @returns Points awarded for eval
 	 */
 	evalPoints(): number {
-		return -16 * Math.abs(this.result.answer.evaluation - this.result.stockfishEval.evaluation) + 50;
+		return -16 * Math.abs(this.result.answer.evaluation - this.result.stockfishEval[0].evaluation) + 50;
 	}
 
 	/**
-	 * Returns nth best move, or null if best move was not found.
+	 * @returns true if guessed move was in the top 3
 	 */
-	foundBestMove(): number | null {
-		const bestMoveIndex = this.result.stockfishEval.bestMoves.indexOf(this.result.answer.bestMove);
-		if (bestMoveIndex === -1) {
-			return null;
-		}
-		return bestMoveIndex + 1;
+	foundBestMove(): boolean {
+		const bestMove = this.result.stockfishEval.find(
+			variation => variation.move === this.result.answer.bestMove
+		);
+		return bestMove !== undefined;
 	}
 
 	/**
-	 * 3. Guessing a best move multiplies your eval points by -0.5 (bestMoveNumber) + 4.5
-	 * 0: x3.0, 1: x2.5, 2: x2.0
+	 * @returns Eval points multiplier
 	 */
 	bestMoveMultiplier(): number {
-		// TODO best move multiplier should be determined by cp
-		const bestMove = this.foundBestMove();
-		if (bestMove === null) {
+		const bestMove = this.result.stockfishEval.find(
+			variation => variation.move === this.result.answer.bestMove
+		);
+		if (bestMove === undefined) {
 			return 1;
 		}
-		return -0.5 * bestMove + 3;
+
+		return Math.max(-0.75 * Math.abs(bestMove.evaluation - this.result.stockfishEval[0].evaluation) + 3, 1)
 	}
 
 	/**
-	 * 4. Guessing a player or the tournament awards 10 points
+	 * @returns true if a player or tournament was guessed
 	 */
 	foundPlayerOrTournament(): boolean {
 		const possibleWords = new Set<string>();
@@ -87,6 +100,9 @@ export class PointsSolver {
 		return false;
 	}
 
+	/**
+	 * @returns Points awarded for question
+	 */
 	totalPoints(): number {
 		return (this.foundWinningSide() ? 20 : 0)
 			+ this.evalPoints() * this.bestMoveMultiplier()

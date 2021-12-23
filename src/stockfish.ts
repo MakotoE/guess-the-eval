@@ -3,10 +3,11 @@ import {Chess} from 'chess.ts';
 export class Stockfish {
 	private readonly stockfish: Worker;
 
-	private lastEval: RawEvalOutput = {evaluation: 0, bestMoves: ['', '', '']};
+	// TODO it is possible for less than 3 moves to be given
+	private lastEval: RawOutput = [{move: '', evaluation: 0}, {move: '', evaluation: 0}, {move: '', evaluation: 0}];
 
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
-	private evalHandler: (evaluation: EvaluationAndBestMove) => void = () => {};
+	private evalHandler: (evaluation: BestMoves) => void = () => {};
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	private depthCB: (depth: number) => void = () => {};
 
@@ -24,23 +25,46 @@ export class Stockfish {
 		const data = event.data as string;
 		console.info(data);
 
-		const matchEval = /^info depth (\d+) seldepth \d+ multipv (\d+) score cp (\d+) nodes \d+ nps \d+ .+ time \d+ pv (\S+)/;
-		const matches = data.match(matchEval);
-		if (matches !== null) {
-			const variation = parseInt(matches[2]) - 1;
-			if (variation === 0) {
-				this.lastEval.evaluation = parseInt(matches[3]);
-			}
-			this.lastEval.bestMoves[variation] = matches[4];
-			this.depthCB(parseInt(matches[1]));
-		}
-
 		if (data.startsWith('bestmove')) {
 			this.evalHandler(this.lastEval);
 		}
+
+		const evaluation = Stockfish.parseEvalString(data);
+		if (evaluation === null) {
+			return;
+		}
+
+		this.lastEval[evaluation.variation] = {
+			move: evaluation.move,
+			evaluation: evaluation.cp,
+		};
+
+		this.depthCB(evaluation.depth);
 	}
 
-	getEval(fen: string, depthCB: (depth: number) => void): Promise<EvaluationAndBestMove> {
+	/**
+	 * @returns null if given string is not an eval string
+	 */
+	static parseEvalString(s: string): {depth: number, variation: number, cp: number, move: string} | null {
+		const matchEval = /^info depth (?<depth>\d+) seldepth \d+ multipv (?<variation>\d+) score cp (?<cp>\d+) nodes \d+ nps \d+ .+ time \d+ pv (?<move>\S+)/;
+		const matches = s.match(matchEval);
+		if (matches === null) {
+			return null;
+		}
+
+		if (matches.groups === undefined) {
+			throw new Error();
+		}
+
+		return {
+			depth: parseInt(matches.groups.depth),
+			variation: parseInt(matches.groups.variation) - 1,
+			cp: parseInt(matches.groups.cp),
+			move: matches.groups.move,
+		}
+	}
+
+	getEval(fen: string, depthCB: (depth: number) => void): Promise<BestMoves> {
 		return new Promise(resolve => {
 			this.evalHandler = evaluation => {
 				resolve(rawEvalToEvaluation(evaluation, fen));
@@ -52,33 +76,35 @@ export class Stockfish {
 	}
 }
 
-export interface EvaluationAndBestMove {
+export interface Variation {
+	move: string;
 	evaluation: number;
-	bestMoves: [string, string, string];
 }
 
-// Evaluation is in centipawns. If it's black's turn to play, evaluation needs to be negated. Best moves are in long
-// algebraic notation and needs to be converted to SAN.
-type RawEvalOutput = EvaluationAndBestMove;
+// The first variation gives the current evaluation.
+export type BestMoves = [Variation, Variation, Variation];
 
-function rawEvalToEvaluation(input: RawEvalOutput, fen: string): EvaluationAndBestMove {
-	const result: EvaluationAndBestMove = input;
+// Evaluation is in centipawns. If it's black's turn to play, evaluation needs to be negated. Moves are in long
+// algebraic notation and need to be converted to SAN.
+type RawOutput = BestMoves;
 
-	result.evaluation /= 100;
-
+function rawEvalToEvaluation(raw: RawOutput, fen: string): BestMoves {
 	const chess = new Chess(fen);
-	if (chess.turn() === 'b') {
-		result.evaluation *= -1;
-	}
 
-	// Convert best moves
-	result.bestMoves = result.bestMoves.map(input => {
-		const move = chess.move(input, {sloppy: true, dry_run: true});
+	return raw.map(variation => {
+		const move = chess.move(variation.move, {sloppy: true, dry_run: true});
 		if (move === null) {
-			throw new Error('move is null; invalid move');
+			throw new Error(`move is null; invalid move: ${variation.move}`);
 		}
-		return move.san;
-	}) as EvaluationAndBestMove['bestMoves'];
 
-	return result;
+		let evaluation = variation.evaluation /= 100;
+		if (chess.turn() === 'b') {
+			evaluation *= -1;
+		}
+
+		return {
+			move: move.san,
+			evaluation,
+		};
+	}) as BestMoves;
 }
