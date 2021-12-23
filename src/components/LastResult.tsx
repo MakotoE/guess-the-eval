@@ -7,6 +7,7 @@ interface Props {
 }
 
 export function LastResult({points}: Props): React.ReactElement {
+	const {question, stockfishEval, answer} = points.result;
 	return <Container>
 		{
 			points.foundWinningSide()
@@ -14,7 +15,7 @@ export function LastResult({points}: Props): React.ReactElement {
 				: 'You did not guess the winning side. +0 points'
 		}
 		<br />
-		{`Your eval guess was off by ${Math.abs(points.result.answer.evaluation - points.result.stockfishEval.evaluation)}. Actual eval was ${formatEval(points.result.stockfishEval.evaluation)}.`}
+		{`Your eval guess was off by ${Math.abs(answer.evaluation - stockfishEval.evaluation)}. Actual eval was ${formatEval(stockfishEval.evaluation)}.`}
 		<br />
 		{`${points.evalPoints().toFixed(1)} points for the evaluation.`}
 		<br />
@@ -30,7 +31,7 @@ export function LastResult({points}: Props): React.ReactElement {
 				: ''
 		}
 		<br />
-		{`These were the best moves according to Stockfish: ${points.result.stockfishEval.bestMoves[0]}, ${points.result.stockfishEval.bestMoves[1]}, ${points.result.stockfishEval.bestMoves[2]}.`}
+		{`These are the best moves according to Stockfish: ${stockfishEval.bestMoves[0]}, ${stockfishEval.bestMoves[1]}, ${stockfishEval.bestMoves[2]}.`}
 		<br />
 		{
 			points.foundPlayerOrTournament()
@@ -38,8 +39,9 @@ export function LastResult({points}: Props): React.ReactElement {
 				: 'You did not guess a player or the tournament.'
 		}
 		<br />
-		{`This was a game between ${points.result.question.players.white} (white) and ${points.result.question.players.black} (black). It was played at the ${points.result.question.tournament}.`}
-		{/* TODO show source */}
+		{`This was a game between ${question.players.white} (white) and ${question.players.black} (black). It was played at the ${question.tournament}.`}
+		<br />
+		<a href={question.url}>Source</a>
 		<br />
 		{`You earned ${points.totalPoints().toFixed(1)} points.`}
 	</Container>;
