@@ -54,6 +54,7 @@ export class PointsSolver {
 	 * 0: x3.0, 1: x2.5, 2: x2.0
 	 */
 	bestMoveMultiplier(): number {
+		// TODO best move multiplier should be determined by cp
 		const bestMove = this.foundBestMove();
 		if (bestMove === null) {
 			return 1;

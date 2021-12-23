@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Button, Form, InputOnChangeData, Popup} from 'semantic-ui-react';
-import {Answer, PointsSolver} from '../calculatePoints';
+import {Answer, PointsSolver} from '../PointsSolver';
 import {calculateEval, nextQuestion, submitAnswer, useAppDispatch, useAppSelector} from '../store';
 import {LastResult} from './LastResult';
 import {Chess} from 'chess.ts';
@@ -32,6 +32,7 @@ export function RightWindow(): React.ReactElement {
 		turnStr = 'black';
 	}
 
+	// TODO show next turn
 	return <>
 		<Form onSubmit={() => {
 			if (showingAnswer) {

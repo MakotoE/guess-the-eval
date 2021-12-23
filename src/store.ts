@@ -10,7 +10,7 @@ import {
 } from '@reduxjs/toolkit';
 import {TypedUseSelectorHook, useDispatch, useSelector} from 'react-redux';
 import {EvaluationAndBestMove, Stockfish} from './stockfish';
-import {Answer, PointsSolver, QuestionResult} from './calculatePoints';
+import {Answer, PointsSolver, QuestionResult} from './PointsSolver';
 import {questions} from './questions';
 
 export const calculateEval = createAsyncThunk<EvaluationAndBestMove, string, {extra: Stockfish}>(

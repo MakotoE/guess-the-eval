@@ -1,6 +1,6 @@
 import React from 'react';
 import {Container} from 'semantic-ui-react';
-import {PointsSolver} from '../calculatePoints';
+import {PointsSolver} from '../PointsSolver';
 
 interface Props {
 	points: PointsSolver;
@@ -38,7 +38,8 @@ export function LastResult({points}: Props): React.ReactElement {
 				: 'You did not guess a player or the tournament.'
 		}
 		<br />
-		{`That was a match between ${points.result.question.players.white} (white) and ${points.result.question.players.black} (black). It was played at the ${points.result.question.tournament}.`}
+		{`This was a game between ${points.result.question.players.white} (white) and ${points.result.question.players.black} (black). It was played at the ${points.result.question.tournament}.`}
+		{/* TODO show source */}
 		<br />
 		{`You earned ${points.totalPoints().toFixed(1)} points.`}
 	</Container>;
