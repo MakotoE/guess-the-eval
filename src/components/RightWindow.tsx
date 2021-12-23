@@ -32,7 +32,6 @@ export function RightWindow(): React.ReactElement {
 		turnStr = 'black';
 	}
 
-	// TODO show next turn
 	return <>
 		<Form onSubmit={() => {
 			if (showingAnswer) {
@@ -41,6 +40,7 @@ export function RightWindow(): React.ReactElement {
 				dispatch(submitAnswer(inputStringsToAnswer(answers)));
 			}
 		}}>
+			<p>It’s {turnStr}’s turn.</p>
 			<Form.Input
 				name='evaluation'
 				value={answers.evaluation}
