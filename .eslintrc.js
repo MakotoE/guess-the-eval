@@ -11,6 +11,9 @@ module.exports = {
         'plugin:@typescript-eslint/recommended-requiring-type-checking',
         'plugin:react/recommended',
         'plugin:react-hooks/recommended',
+        'airbnb',
+        'airbnb/hooks',
+        'airbnb-typescript',
     ],
     env: {
         browser: true,
@@ -25,15 +28,8 @@ module.exports = {
             version: 'detect',
         },
     },
-    ignorePatterns: ["*.js"],
+    ignorePatterns: ['*.js'],
     rules: {
-        '@typescript-eslint/no-var-requires': 'off',
-        'quotes': 'off',
-        '@typescript-eslint/quotes': ['error', 'single'],
-        'indent': 'off',
-        '@typescript-eslint/indent': ['error', 'tab'],
-        'comma-dangle': 'off',
-        '@typescript-eslint/comma-dangle': ['error', 'always-multiline'],
-        'eqeqeq': ['error', 'always'],
+        'react/function-component-definition': 'off',
     },
 };
