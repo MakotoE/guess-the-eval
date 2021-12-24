@@ -3,17 +3,10 @@ import { Chess } from 'chess.ts';
 export class Stockfish {
   private readonly stockfish: Worker;
 
-  private lastEval: RawOutput = [];
-
-  // eslint-disable-next-line class-methods-use-this
-  private evalHandler: (evaluation: BestMoves) => void = () => {};
-
-  // eslint-disable-next-line class-methods-use-this
-  private depthCB: (depth: number) => void = () => {};
-
   constructor() {
     this.stockfish = new Worker('/stockfish.js');
-    this.stockfish.onmessage = (event) => this.onmessage(event);
+    // eslint-disable-next-line no-console
+    this.stockfish.onmessage = (event) => console.info(event.data);
     // eslint-disable-next-line no-console
     this.stockfish.onmessageerror = (event) => console.error(event);
     this.stockfish.postMessage('uci');
@@ -22,34 +15,12 @@ export class Stockfish {
     this.stockfish.postMessage('setoption name MultiPV value 3');
   }
 
-  private onmessage(event: MessageEvent) {
-    const data = event.data as string;
-    // eslint-disable-next-line no-console
-    console.info(data);
-
-    if (data.startsWith('bestmove')) {
-      this.evalHandler(this.lastEval);
-    }
-
-    const evaluation = Stockfish.parseEvalString(data);
-    if (evaluation === null) {
-      return;
-    }
-
-    this.lastEval[evaluation.variation] = {
-      move: evaluation.move,
-      evaluation: evaluation.cp,
-    };
-
-    this.depthCB(evaluation.depth);
-  }
-
   /**
    * @returns null if given string is not an eval string
    */
   static parseEvalString(s: string):
   { depth: number, variation: number, cp: number, move: string } | null {
-    const matchEval = /^info depth (?<depth>\d+) seldepth \d+ multipv (?<variation>\d+) score cp (?<cp>\d+) nodes \d+ nps \d+ .+ time \d+ pv (?<move>\S+)/;
+    const matchEval = /^info depth (?<depth>\d+) seldepth \d+ multipv (?<variation>\d+) score cp (?<cp>[-\d]+) nodes \d+ nps \d+( hashfull \d+)? time \d+ pv (?<move>\S+)/;
     const matches = s.match(matchEval);
     if (matches === null) {
       return null;
@@ -69,10 +40,30 @@ export class Stockfish {
 
   getEval(fen: string, depthCB: (depth: number) => void): Promise<BestMoves> {
     return new Promise((resolve) => {
-      this.evalHandler = (evaluation) => {
-        resolve(Stockfish.rawEvalToEvaluation(evaluation, fen));
+      const currentEval: RawOutput = [];
+
+      this.stockfish.onmessage = (event: MessageEvent) => {
+        const data = event.data as string;
+        // eslint-disable-next-line no-console
+        console.info(data);
+
+        if (data.startsWith('bestmove')) {
+          resolve(Stockfish.rawEvalToEvaluation(currentEval, fen));
+        }
+
+        const evaluation = Stockfish.parseEvalString(data);
+        if (evaluation === null) {
+          return;
+        }
+
+        currentEval[evaluation.variation] = {
+          move: evaluation.move,
+          evaluation: evaluation.cp,
+        };
+
+        depthCB(evaluation.depth);
       };
-      this.depthCB = depthCB;
+
       this.stockfish.postMessage(`position fen ${fen}`);
       this.stockfish.postMessage('go movetime 5000 depth 40');
     });
