@@ -3,8 +3,7 @@ import { Chess } from 'chess.ts';
 export class Stockfish {
   private readonly stockfish: Worker;
 
-  // TODO it is possible for less than 3 moves to be given
-  private lastEval: RawOutput = [{ move: '', evaluation: 0 }, { move: '', evaluation: 0 }, { move: '', evaluation: 0 }];
+  private lastEval: RawOutput = [];
 
   // eslint-disable-next-line class-methods-use-this
   private evalHandler: (evaluation: BestMoves) => void = () => {};
@@ -106,8 +105,8 @@ export interface Variation {
   evaluation: number;
 }
 
-// The first variation gives the current evaluation.
-export type BestMoves = [Variation, Variation, Variation];
+// BestMoves has 1 to 3 items. The first variation gives the current evaluation.
+export type BestMoves = Variation[];
 
 // Evaluation is in centipawns. If it's black's turn to play, evaluation needs to be negated. Moves
 // are in long algebraic notation and need to be converted to SAN.
