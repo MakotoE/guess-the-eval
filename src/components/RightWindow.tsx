@@ -3,7 +3,7 @@ import {
   Button, Form, InputOnChangeData, Popup,
 } from 'semantic-ui-react';
 import { Chess } from 'chess.ts';
-import { Answer, PointsSolver } from '../PointsSolver';
+import { Answer, PointsSolver, QuestionResult } from '../PointsSolver';
 import {
   calculateEval, nextQuestion, submitAnswer, useAppDispatch, useAppSelector,
 } from '../store';
@@ -28,8 +28,7 @@ export default function RightWindow(): React.ReactElement {
     bestMove: '',
     playerOrTournament: '',
   });
-
-  const showingAnswer = lastResult !== null;
+  const [showAnswer, setShowAnswer] = useState(false);
 
   const { fen } = questions[currentQuestion];
 
@@ -48,11 +47,12 @@ export default function RightWindow(): React.ReactElement {
 
   return (
     <Form onSubmit={() => {
-      if (showingAnswer) {
+      if (showAnswer) {
         dispatch(nextQuestion());
       } else {
         dispatch(submitAnswer(inputStringsToAnswer(answers)));
       }
+      setShowAnswer(!showAnswer);
     }}
     >
       <p>
@@ -89,13 +89,13 @@ export default function RightWindow(): React.ReactElement {
         {evaluation === null ? 'Stockfish is thinking...' : 'Stockfish is done thinking'}
         {` (Depth: ${currentDepth})`}
       </p>
-      {showingAnswer ? <LastResult points={new PointsSolver(lastResult)} /> : null}
+      {showAnswer ? <LastResult points={new PointsSolver(lastResult as QuestionResult)} /> : null}
       <Popup
         trigger={(
           <div>
             {/* <div> needed for tooltip to properly work */}
             <Button disabled={evaluation === null}>
-              {showingAnswer ? 'Okay, next' : 'Submit my guess'}
+              {showAnswer ? 'Okay, next' : 'Submit my guess'}
             </Button>
           </div>
         )}
