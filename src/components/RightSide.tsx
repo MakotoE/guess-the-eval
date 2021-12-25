@@ -18,16 +18,18 @@ function inputStringsToAnswer(inputs: { [key in keyof Answer]: string }): Answer
   return { ...inputs, evaluation };
 }
 
+const defaultAnswers: { [key in keyof Answer]: string } = {
+  evaluation: '',
+  bestMove: '',
+  playerOrTournament: '',
+};
+
 export default function RightSide(): React.ReactElement {
   const dispatch = useAppDispatch();
   const {
     currentQuestion, evaluation, currentDepth, results,
   } = useAppSelector((state) => state.game);
-  const [answers, setAnswers] = useState<{ [key in keyof Answer]: string }>({
-    evaluation: '',
-    bestMove: '',
-    playerOrTournament: '',
-  });
+  const [answers, setAnswers] = useState(defaultAnswers);
   const [showAnswer, setShowAnswer] = useState(false);
 
   const { fen } = questions[currentQuestion];
@@ -49,6 +51,7 @@ export default function RightSide(): React.ReactElement {
     <Form onSubmit={() => {
       if (showAnswer) {
         dispatch(nextQuestion());
+        setAnswers(defaultAnswers);
       } else {
         dispatch(submitAnswer(inputStringsToAnswer(answers)));
       }
