@@ -4,6 +4,7 @@ import { useAppSelector } from '../store';
 import RightSide from './RightSide';
 import Layout from './Layout';
 import { questions } from '../questions';
+import Summary from './Summary';
 
 function checkCompatibility() {
   if (!crossOriginIsolated) {
@@ -16,7 +17,7 @@ function checkCompatibility() {
 }
 
 export default (): React.ReactElement => {
-  const { currentQuestion, points } = useAppSelector((state) => state.game);
+  const { currentQuestion, points, results } = useAppSelector((state) => state.game);
   const error = useAppSelector((state) => state.game.error);
 
   useEffect(checkCompatibility, []);
@@ -28,10 +29,8 @@ export default (): React.ReactElement => {
     rightSide = <RightSide />;
   } else {
     fen = new Chess().fen();
-    rightSide = <p>End of game</p>;
+    rightSide = <Summary points={100} results={results} />;
   }
-
-  // TODO show summary at end
 
   return (
     <Layout fen={fen}>

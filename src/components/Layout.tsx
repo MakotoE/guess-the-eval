@@ -10,6 +10,7 @@ interface Props {
 export default ({ fen, children }: React.PropsWithChildren<Props>): React.ReactElement => {
   const boardConfig: Config = { fen };
 
+  // TODO add top margin
   return (
     <Grid centered>
       <Grid.Row>
