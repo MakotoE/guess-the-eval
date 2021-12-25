@@ -37,7 +37,7 @@ export default ({ points }: Props): React.ReactElement => {
           : ''
       }
       <br />
-      {`These are the top 3 moves according to Stockfish: ${stockfishEval[0].move}, ${stockfishEval[1].move}, ${stockfishEval[2].move}.`}
+      {`These are the top ${stockfishEval.length} moves according to Stockfish: ${stockfishEval.map((variation) => `, ${variation.move}`).join('').slice(2, -1)}.`}
       <br />
       {
         points.foundPlayerOrTournament()

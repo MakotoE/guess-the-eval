@@ -6,18 +6,18 @@ export interface Question {
 }
 
 export const questions: Question[] = [
-  {
-    fen: '3rb1k1/1Bp2pp1/4p3/2P1P2p/r5nP/1N4P1/P4P2/R3R1K1 b - - 0 27',
-    players: { white: 'Ian Nepomniachtchi', black: 'Magnus Carlsen' },
-    tournament: 'World Chess Championship 2021',
-    url: 'https://lichess.org/study/RoBvWqfx/qq4glFqA#53',
-  },
-  {
-    fen: 'r1k4r/p2nb1p1/2b4p/1p1n1p2/2PP4/3Q1NB1/1P3PPP/R5K1 b - - 0 19',
-    players: { white: 'Deep Blue', black: 'Garry Kasparov' },
-    tournament: 'IBM Man-Machine 1997',
-    url: 'https://lichess.org/study/PSiqUImS/H0yrYCp7#37',
-  },
+  // {
+  //   fen: '3rb1k1/1Bp2pp1/4p3/2P1P2p/r5nP/1N4P1/P4P2/R3R1K1 b - - 0 27',
+  //   players: { white: 'Ian Nepomniachtchi', black: 'Magnus Carlsen' },
+  //   tournament: 'World Chess Championship 2021',
+  //   url: 'https://lichess.org/study/RoBvWqfx/qq4glFqA#53',
+  // },
+  // {
+  //   fen: 'r1k4r/p2nb1p1/2b4p/1p1n1p2/2PP4/3Q1NB1/1P3PPP/R5K1 b - - 0 19',
+  //   players: { white: 'Deep Blue', black: 'Garry Kasparov' },
+  //   tournament: 'IBM Man-Machine 1997',
+  //   url: 'https://lichess.org/study/PSiqUImS/H0yrYCp7#37',
+  // },
   {
     fen: '5q1k/ppp2Nbp/2np2p1/3B1b2/2PP4/4r1P1/PP1Q3P/R5K1 b - - 3 18',
     players: { white: 'Roman Toran Albero', black: 'Mikhail Tal' },
