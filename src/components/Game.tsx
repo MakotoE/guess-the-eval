@@ -35,7 +35,7 @@ export default (): React.ReactElement => {
   return (
     <Layout fen={fen}>
       <p>
-        Total points:
+        Total points:&nbsp;
         {points.toFixed(1)}
       </p>
       {rightSide}

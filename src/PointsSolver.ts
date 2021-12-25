@@ -58,7 +58,7 @@ export class PointsSolver {
    */
   foundBestMove(): boolean {
     const bestMove = this.result.stockfishEval.find(
-      (variation) => variation.move === this.result.answer.bestMove,
+      (variation) => variation.move.toLowerCase() === this.result.answer.bestMove.toLowerCase(),
     );
     return bestMove !== undefined;
   }
@@ -68,7 +68,7 @@ export class PointsSolver {
    */
   bestMoveMultiplier(): number {
     const bestMove = this.result.stockfishEval.find(
-      (variation) => variation.move === this.result.answer.bestMove,
+      (variation) => variation.move.toLowerCase() === this.result.answer.bestMove.toLowerCase(),
     );
     if (bestMove === undefined) {
       return 1;
@@ -89,9 +89,11 @@ export class PointsSolver {
       this.result.question.players.black,
       this.result.question.tournament,
     ];
-    const possibleWords = new Set<string>(strings.map((s) => s.split(' ')).flat());
+    const possibleWords = new Set<string>(
+      strings.map((s) => s.toLowerCase().split(' ')).flat(),
+    );
     return this.result.answer.playerOrTournament.split(' ')
-      .some((word) => possibleWords.has(word));
+      .some((word) => possibleWords.has(word.toLowerCase()));
   }
 
   /**

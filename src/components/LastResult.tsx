@@ -21,7 +21,7 @@ export default ({ points }: Props): React.ReactElement => {
           : 'You did not guess the winning side. +0 points'
       }
       <br />
-      {`Your eval guess was off by ${Math.abs(answer.evaluation - stockfishEval[0].evaluation)}. Actual eval was ${formatEval(stockfishEval[0].evaluation)}.`}
+      {`Your eval guess was off by ${Math.abs(answer.evaluation - stockfishEval[0].evaluation).toFixed(2)}. Actual eval was ${formatEval(stockfishEval[0].evaluation)}.`}
       <br />
       {`${points.evalPoints().toFixed(1)} points for the evaluation.`}
       <br />
@@ -33,7 +33,7 @@ export default ({ points }: Props): React.ReactElement => {
       {
         // Multiplier was applied to a negative score
         points.evalPoints() < 0 && points.bestMoveMultiplier() > 1
-          ? ` Your negative eval score was multiplied by ${points.bestMoveMultiplier()}. OOOF!`
+          ? ` Your negative eval score was multiplied by ${points.bestMoveMultiplier().toFixed(1)}. OOOF!`
           : ''
       }
       <br />
