@@ -37,7 +37,7 @@ const gameSlice = createSlice({
     currentDepth: 0,
     currentQuestion: 0,
     points: 0,
-    lastResult: null as QuestionResult | null,
+    results: [] as QuestionResult[],
     error: null as string | null,
   },
   reducers: {
@@ -53,15 +53,15 @@ const gameSlice = createSlice({
       if (state.evaluation === null) {
         throw new Error('evaluation is null');
       }
-      state.lastResult = {
+      const result: QuestionResult = {
         question: questions[state.currentQuestion],
         answer: payload,
         stockfishEval: current(state.evaluation),
       };
-      state.points += new PointsSolver(state.lastResult).totalPoints();
+      state.results.push(result);
+      state.points += new PointsSolver(result).totalPoints();
     },
     nextQuestion(state) {
-      state.lastResult = null;
       state.currentQuestion += 1;
     },
   },

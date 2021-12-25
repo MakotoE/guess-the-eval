@@ -7,12 +7,6 @@ export interface Question {
 
 export const questions: Question[] = [
   {
-    fen: 'r3r1k1/pp3pbp/1qp1b1p1/2B5/2BP4/Q1n2N2/P4PPP/3R1K1R w - - 4 18',
-    players: { white: 'Donald Byrne', black: 'Robert Bobby James Fischer' },
-    tournament: 'Rosenwald Memorial Tournament',
-    url: 'https://www.chessgames.com/perl/chessgame?gid=1008361',
-  },
-  {
     fen: '3rb1k1/1Bp2pp1/4p3/2P1P2p/r5nP/1N4P1/P4P2/R3R1K1 b - - 0 27',
     players: { white: 'Ian Nepomniachtchi', black: 'Magnus Carlsen' },
     tournament: 'World Chess Championship 2021',
@@ -29,6 +23,12 @@ export const questions: Question[] = [
     players: { white: 'Roman Toran Albero', black: 'Mikhail Tal' },
     tournament: 'European Team Chess Championship 1961',
     url: 'https://www.chessgames.com/perl/chessgame?gid=1139541',
+  },
+  {
+    fen: 'r3r1k1/pp3pbp/1qp1b1p1/2B5/2BP4/Q1n2N2/P4PPP/3R1K1R w - - 4 18',
+    players: { white: 'Donald Byrne', black: 'Robert Bobby James Fischer' },
+    tournament: 'Rosenwald Memorial Tournament',
+    url: 'https://www.chessgames.com/perl/chessgame?gid=1008361',
   },
   {
     fen: 'rnbq1bnr/ppppkppp/8/4p3/4P3/8/PPPPKPPP/RNBQ1BNR w - - 2 3',

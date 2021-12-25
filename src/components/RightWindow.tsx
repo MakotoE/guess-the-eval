@@ -3,7 +3,7 @@ import {
   Button, Form, InputOnChangeData, Popup,
 } from 'semantic-ui-react';
 import { Chess } from 'chess.ts';
-import { Answer, PointsSolver, QuestionResult } from '../PointsSolver';
+import { Answer, PointsSolver } from '../PointsSolver';
 import {
   calculateEval, nextQuestion, submitAnswer, useAppDispatch, useAppSelector,
 } from '../store';
@@ -21,7 +21,7 @@ function inputStringsToAnswer(inputs: { [key in keyof Answer]: string }): Answer
 export default function RightWindow(): React.ReactElement {
   const dispatch = useAppDispatch();
   const {
-    currentQuestion, evaluation, currentDepth, lastResult,
+    currentQuestion, evaluation, currentDepth, results,
   } = useAppSelector((state) => state.game);
   const [answers, setAnswers] = useState<{ [key in keyof Answer]: string }>({
     evaluation: '',
@@ -89,7 +89,7 @@ export default function RightWindow(): React.ReactElement {
         {evaluation === null ? 'Stockfish is thinking...' : 'Stockfish is done thinking'}
         {` (Depth: ${currentDepth})`}
       </p>
-      {showAnswer ? <LastResult points={new PointsSolver(lastResult as QuestionResult)} /> : null}
+      {showAnswer ? <LastResult points={new PointsSolver(results[results.length - 1])} /> : null}
       <Popup
         trigger={(
           <div>
