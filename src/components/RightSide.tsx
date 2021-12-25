@@ -62,6 +62,7 @@ export default function RightSide(): React.ReactElement {
         name="evaluation"
         value={answers.evaluation}
         onChange={handleChange}
+        disabled={showAnswer}
         label="Guess the eval"
         placeholder="i.e. +1.0"
         type="number"
@@ -72,6 +73,7 @@ export default function RightSide(): React.ReactElement {
         name="bestMove"
         value={answers.bestMove}
         onChange={handleChange}
+        disabled={showAnswer}
         label={`What is the best move for ${turnStr}?`}
         placeholder="i.e. Ke2"
         autoComplete="off"
@@ -81,6 +83,7 @@ export default function RightSide(): React.ReactElement {
         name="playerOrTournament"
         value={answers.playerOrTournament}
         onChange={handleChange}
+        disabled={showAnswer}
         label="Name one of the players or the tournament"
         autoComplete="off"
         spellCheck={false}
