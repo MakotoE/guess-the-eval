@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Chess } from 'chess.ts';
 import { useAppSelector } from '../store';
-import RightWindow from './RightWindow';
+import RightSide from './RightSide';
 import Layout from './Layout';
 import { questions } from '../questions';
 
@@ -25,7 +25,7 @@ export default (): React.ReactElement => {
   let rightSide: React.ReactElement;
   if (currentQuestion < questions.length) {
     fen = questions[currentQuestion].fen;
-    rightSide = <RightWindow />;
+    rightSide = <RightSide />;
   } else {
     fen = new Chess().fen();
     rightSide = <p>End of game</p>;

@@ -18,7 +18,7 @@ function inputStringsToAnswer(inputs: { [key in keyof Answer]: string }): Answer
   return { ...inputs, evaluation };
 }
 
-export default function RightWindow(): React.ReactElement {
+export default function RightSide(): React.ReactElement {
   const dispatch = useAppDispatch();
   const {
     currentQuestion, evaluation, currentDepth, results,
