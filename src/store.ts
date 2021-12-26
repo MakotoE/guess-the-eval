@@ -1,43 +1,24 @@
-/* eslint-disable operator-linebreak */
 import {
   AnyAction,
   configureStore,
-  createAsyncThunk,
   createSlice,
-  current, isRejected,
+  isRejected,
   Middleware,
   MiddlewareAPI,
   PayloadAction,
 } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
-import { BestMoves, Stockfish } from './stockfish';
-import { Answer, PointsSolver, QuestionResult } from './PointsSolver';
+import { Answer, PointsSolver, QuestionAnswer } from './PointsSolver';
 import { questions } from './questions';
 
 /* eslint-disable no-param-reassign,@typescript-eslint/no-use-before-define */
 
-export const calculateEval = createAsyncThunk<BestMoves, string, { extra: Stockfish }>(
-  'stockfish/calculateEval',
-  async (fen, thunkAPI) => {
-    thunkAPI.dispatch(setDepth(0));
-    const cb = (depth: number) => {
-      thunkAPI.dispatch(setDepth(depth));
-    };
-    return JSON.parse(JSON.stringify(await thunkAPI.extra.getEval(fen, cb))) as BestMoves;
-  },
-);
-
 const gameSlice = createSlice({
   name: 'game',
   initialState: {
-    // evaluation is the calculated evaluation in centipawns. evaluation is null when Stockfish is
-    // not done calculating.
-    evaluation: null as BestMoves | null,
-    // Current depth of calculation
-    currentDepth: 0,
     currentQuestion: 0,
     points: 0,
-    results: [] as QuestionResult[],
+    answers: [] as Answer[],
     error: null as string | null,
   },
   reducers: {
@@ -46,37 +27,26 @@ const gameSlice = createSlice({
       console.error(payload);
       state.error = payload;
     },
-    setDepth(state, { payload }: PayloadAction<number>) {
-      state.currentDepth = payload;
-    },
     submitAnswer(state, { payload }: PayloadAction<Answer>) {
-      if (state.evaluation === null) {
-        throw new Error('evaluation is null');
-      }
-      const result: QuestionResult = {
+      state.answers.push(payload);
+      const result: QuestionAnswer = {
         question: questions[state.currentQuestion],
         answer: payload,
-        stockfishEval: current(state.evaluation),
       };
-      state.results.push(result);
       state.points += new PointsSolver(result).totalPoints();
     },
     nextQuestion(state) {
       state.currentQuestion += 1;
     },
   },
-  extraReducers: (builder) => {
-    builder.addCase(calculateEval.fulfilled, (state, action) => {
-      state.evaluation = action.payload;
-    });
-  },
 });
 
 export const {
-  setError, setDepth, submitAnswer, nextQuestion,
+  setError, submitAnswer, nextQuestion,
 } = gameSlice.actions;
 
 const errorHandler: Middleware
+  // eslint-disable-next-line operator-linebreak
   = (api: MiddlewareAPI<typeof store.dispatch, RootState>) => (next) => (action: AnyAction) => {
     if (isRejected(action)) {
       api.dispatch(setError(`error: ${JSON.stringify(action.payload)}`));
@@ -88,11 +58,8 @@ export const store = configureStore({
   reducer: {
     game: gameSlice.reducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware({
-    thunk: {
-      extraArgument: new Stockfish(),
-    },
-  }).concat(errorHandler),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware()
+    .concat(errorHandler),
   devTools: true,
 });
 

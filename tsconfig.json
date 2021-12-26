@@ -10,7 +10,6 @@
         "jsx": "react-jsx",
         "moduleResolution": "node",
         "allowSyntheticDefaultImports": true,
-        "strict": true,
-    },
-    "include": ["src/index.tsx", "src/stockfish.ts", "src/components/StockfishOutput.tsx"]
+        "strict": true
+    }
 }

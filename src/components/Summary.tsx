@@ -1,12 +1,13 @@
 import React from 'react';
 import { TextArea } from 'semantic-ui-react';
-import { PointsSolver, QuestionResult } from '../PointsSolver';
+import { Answer, PointsSolver } from '../PointsSolver';
+import { questions } from '../questions';
 
-function resultsString(index: number, result: QuestionResult): string {
-  const { stockfishEval, answer } = result;
-  const points = new PointsSolver(result);
+function resultsString(index: number, answer: Answer): string {
+  const question = questions[index];
+  const points = new PointsSolver({ question, answer });
   return `> Question ${index}:
->\tMy eval guess was off by ${Math.abs(answer.evaluation - stockfishEval[0].evaluation).toFixed(2)}.${points.foundBestMove() ? '\n>\tI found one of the top 3 moves.' : ''}${points.foundPlayerOrTournament() ? '\n>\tI guessed one of the players or the tournament.' : ''}
+>\tMy eval guess was off by ${Math.abs(answer.evaluation - question.bestMoves[0].evaluation).toFixed(2)}.${points.foundBestMove() ? '\n>\tI found one of the top 3 moves.' : ''}${points.foundPlayerOrTournament() ? '\n>\tI guessed one of the players or the tournament.' : ''}
 >\tI earned ${points.totalPoints().toFixed(1)} points on this question.
 >
 `;
@@ -14,7 +15,7 @@ function resultsString(index: number, result: QuestionResult): string {
 
 interface Props {
   points: number,
-  results: QuestionResult[],
+  results: Answer[],
 }
 
 export default function Summary({ points, results }: Props): React.ReactElement {
@@ -25,7 +26,7 @@ export default function Summary({ points, results }: Props): React.ReactElement 
         value={
           `> I scored ${points.toFixed(1)} points.\n>\n${results.map((result, index) => (
             resultsString(index, result)
-          )).join()}`
+          )).join('')}`
         }
         rows={35}
         style={{ width: '100%' }}

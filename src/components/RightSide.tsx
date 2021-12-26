@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
-  Button, Form, InputOnChangeData, Popup,
+  Button, Form, InputOnChangeData,
 } from 'semantic-ui-react';
 import { Chess } from 'chess.ts';
 import { Answer, PointsSolver } from '../PointsSolver';
 import {
-  calculateEval, nextQuestion, submitAnswer, useAppDispatch, useAppSelector,
+  nextQuestion, submitAnswer, useAppDispatch, useAppSelector,
 } from '../store';
 import LastResult from './LastResult';
 import { questions } from '../questions';
@@ -18,7 +18,7 @@ function inputStringsToAnswer(inputs: { [key in keyof Answer]: string }): Answer
   return { ...inputs, evaluation };
 }
 
-const defaultAnswers: { [key in keyof Answer]: string } = {
+const defaultInput: { [key in keyof Answer]: string } = {
   evaluation: '',
   bestMove: '',
   playerOrTournament: '',
@@ -26,20 +26,14 @@ const defaultAnswers: { [key in keyof Answer]: string } = {
 
 export default function RightSide(): React.ReactElement {
   const dispatch = useAppDispatch();
-  const {
-    currentQuestion, evaluation, currentDepth, results,
-  } = useAppSelector((state) => state.game);
-  const [answers, setAnswers] = useState(defaultAnswers);
+  const { currentQuestion, answers } = useAppSelector((state) => state.game);
+  const [input, setInput] = useState(defaultInput);
   const [showAnswer, setShowAnswer] = useState(false);
 
   const { fen } = questions[currentQuestion];
 
-  useEffect(() => {
-    dispatch(calculateEval(fen));
-  }, [dispatch, fen]);
-
   const handleChange = (_: React.ChangeEvent, { name, value }: InputOnChangeData) => {
-    setAnswers({ ...answers, [name]: value });
+    setInput({ ...input, [name]: value });
   };
 
   let turnStr = 'white';
@@ -51,9 +45,9 @@ export default function RightSide(): React.ReactElement {
     <Form onSubmit={() => {
       if (showAnswer) {
         dispatch(nextQuestion());
-        setAnswers(defaultAnswers);
+        setInput(defaultInput);
       } else {
-        dispatch(submitAnswer(inputStringsToAnswer(answers)));
+        dispatch(submitAnswer(inputStringsToAnswer(input)));
       }
       setShowAnswer(!showAnswer);
     }}
@@ -63,7 +57,7 @@ export default function RightSide(): React.ReactElement {
       </p>
       <Form.Input
         name="evaluation"
-        value={answers.evaluation}
+        value={input.evaluation}
         onChange={handleChange}
         disabled={showAnswer}
         label="Guess the eval"
@@ -74,7 +68,7 @@ export default function RightSide(): React.ReactElement {
       />
       <Form.Input
         name="bestMove"
-        value={answers.bestMove}
+        value={input.bestMove}
         onChange={handleChange}
         disabled={showAnswer}
         label={`What is the best move for ${turnStr}?`}
@@ -84,31 +78,30 @@ export default function RightSide(): React.ReactElement {
       />
       <Form.Input
         name="playerOrTournament"
-        value={answers.playerOrTournament}
+        value={input.playerOrTournament}
         onChange={handleChange}
         disabled={showAnswer}
         label="Name one of the players or the tournament"
         autoComplete="off"
         spellCheck={false}
       />
-      <p>
-        {evaluation === null ? 'Stockfish is thinking...' : 'Stockfish is done thinking'}
-        {` (Depth: ${currentDepth})`}
-      </p>
-      {showAnswer ? <LastResult points={new PointsSolver(results[results.length - 1])} /> : null}
-      <Popup
-        trigger={(
-          <div>
-            {/* <div> needed for tooltip to properly work */}
-            <Button disabled={evaluation === null}>
-              {showAnswer ? 'Okay, next' : 'Submit my guess'}
-            </Button>
-          </div>
-        )}
-        content="Stockfish is still thinking"
-        disabled={evaluation !== null}
-        size="tiny"
-      />
+      {
+        showAnswer
+          ? (
+            <LastResult
+              points={
+                new PointsSolver({
+                  question: questions[currentQuestion],
+                  answer: answers[answers.length - 1],
+                })
+              }
+            />
+          )
+          : null
+      }
+      <Button>
+        {showAnswer ? 'Okay, next' : 'Submit my guess'}
+      </Button>
     </Form>
   );
 }

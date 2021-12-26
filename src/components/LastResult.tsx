@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default ({ points }: Props): React.ReactElement => {
-  const { question, stockfishEval, answer } = points.result;
+  const { question, answer } = points.result;
   return (
     <Container>
       {
@@ -21,7 +21,7 @@ export default ({ points }: Props): React.ReactElement => {
           : 'You did not guess the winning side. +0 points'
       }
       <br />
-      {`Your eval guess was off by ${Math.abs(answer.evaluation - stockfishEval[0].evaluation).toFixed(2)}. Actual eval was ${formatEval(stockfishEval[0].evaluation)}.`}
+      {`Your eval guess was off by ${Math.abs(answer.evaluation - question.bestMoves[0].evaluation).toFixed(2)}. Actual eval was ${formatEval(question.bestMoves[0].evaluation)}.`}
       <br />
       {`${points.evalPoints().toFixed(1)} points for the evaluation.`}
       <br />
@@ -37,7 +37,7 @@ export default ({ points }: Props): React.ReactElement => {
           : ''
       }
       <br />
-      {`These are the top ${stockfishEval.length} moves according to Stockfish: ${stockfishEval.map((variation) => `, ${variation.move}`).join('').slice(2, -1)}.`}
+      {`These are the top ${question.bestMoves.length} moves according to Stockfish: ${question.bestMoves.map((variation) => `, ${variation.move}`).join('').slice(2, -1)}.`}
       <br />
       {
         points.foundPlayerOrTournament()

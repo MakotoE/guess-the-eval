@@ -1,9 +1,7 @@
 import { Question } from './questions';
-import { BestMoves } from './stockfish';
 
-export interface QuestionResult {
+export interface QuestionAnswer {
   question: Question;
-  stockfishEval: BestMoves;
   answer: Answer;
 }
 
@@ -32,9 +30,9 @@ export interface QuestionResult {
  * 4. Guessing a player or the tournament awards 10 points
  */
 export class PointsSolver {
-  public readonly result: QuestionResult;
+  public readonly result: QuestionAnswer;
 
-  constructor(result: QuestionResult) {
+  constructor(result: QuestionAnswer) {
     this.result = result;
   }
 
@@ -42,22 +40,22 @@ export class PointsSolver {
    * @returns true if the winning side was found
    */
   foundWinningSide(): boolean {
-    return this.result.answer.evaluation * this.result.stockfishEval[0].evaluation > 0;
+    return this.result.answer.evaluation * this.result.question.bestMoves[0].evaluation > 0;
   }
 
   /**
    * @returns Points awarded for eval
    */
   evalPoints(): number {
-    return -16 * Math.abs(this.result.answer.evaluation - this.result.stockfishEval[0].evaluation)
-      + 50;
+    return -16
+      * Math.abs(this.result.answer.evaluation - this.result.question.bestMoves[0].evaluation) + 50;
   }
 
   /**
    * @returns true if guessed move was in the top 3
    */
   foundBestMove(): boolean {
-    const bestMove = this.result.stockfishEval.find(
+    const bestMove = this.result.question.bestMoves.find(
       (variation) => variation.move.toLowerCase() === this.result.answer.bestMove.toLowerCase(),
     );
     return bestMove !== undefined;
@@ -67,7 +65,7 @@ export class PointsSolver {
    * @returns Eval points multiplier
    */
   bestMoveMultiplier(): number {
-    const bestMove = this.result.stockfishEval.find(
+    const bestMove = this.result.question.bestMoves.find(
       (variation) => variation.move.toLowerCase() === this.result.answer.bestMove.toLowerCase(),
     );
     if (bestMove === undefined) {
@@ -75,7 +73,7 @@ export class PointsSolver {
     }
 
     return Math.max(
-      -0.75 * Math.abs(bestMove.evaluation - this.result.stockfishEval[0].evaluation) + 3,
+      -0.75 * Math.abs(bestMove.evaluation - this.result.question.bestMoves[0].evaluation) + 3,
       1,
     );
   }

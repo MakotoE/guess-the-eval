@@ -16,8 +16,8 @@ function checkCompatibility() {
   }
 }
 
-export default (): React.ReactElement => {
-  const { currentQuestion, points, results } = useAppSelector((state) => state.game);
+export default function Game(): React.ReactElement {
+  const { currentQuestion, points, answers } = useAppSelector((state) => state.game);
   const error = useAppSelector((state) => state.game.error);
 
   useEffect(checkCompatibility, []);
@@ -29,7 +29,7 @@ export default (): React.ReactElement => {
     rightSide = <RightSide />;
   } else {
     fen = new Chess().fen();
-    rightSide = <Summary points={100} results={results} />;
+    rightSide = <Summary points={points} results={answers} />;
   }
 
   return (
@@ -42,4 +42,4 @@ export default (): React.ReactElement => {
       {error ? <pre>{error}</pre> : null}
     </Layout>
   );
-};
+}
