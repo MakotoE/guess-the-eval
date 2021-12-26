@@ -10,9 +10,8 @@ interface Props {
 export default ({ fen, children }: React.PropsWithChildren<Props>): React.ReactElement => {
   const boardConfig: Config = { fen };
 
-  // TODO add top margin
   return (
-    <Grid centered>
+    <Grid centered style={{ marginTop: '20px' }}>
       <Grid.Row>
         <Grid.Column width={2} style={{ minWidth: '440px' }}>
           <Chessground config={boardConfig} width={400} height={400} />

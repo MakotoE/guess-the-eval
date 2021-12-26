@@ -1,6 +1,5 @@
 import { Chess } from 'chess.ts';
 
-// TODO compute all evals compile time
 export class Stockfish {
   private readonly stockfish: Worker;
 
