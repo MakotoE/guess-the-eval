@@ -38,7 +38,7 @@ export class Stockfish {
     };
   }
 
-  getEval(fen: string, depthCB: (depth: number) => void): Promise<BestMoves> {
+  getEval(fen: string): Promise<BestMoves> {
     return new Promise((resolve) => {
       const currentEval: RawOutput = [];
 
@@ -60,12 +60,10 @@ export class Stockfish {
           move: evaluation.move,
           evaluation: evaluation.cp,
         };
-
-        depthCB(evaluation.depth);
       };
 
       this.stockfish.postMessage(`position fen ${fen}`);
-      this.stockfish.postMessage('go movetime 5000 depth 40');
+      this.stockfish.postMessage('go movetime 1000 depth 40');
     });
   }
 

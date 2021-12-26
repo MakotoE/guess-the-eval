@@ -12,4 +12,5 @@
         "allowSyntheticDefaultImports": true,
         "strict": true,
     },
+    "include": ["src/index.tsx", "src/stockfish.ts", "src/components/StockfishOutput.tsx"]
 }
