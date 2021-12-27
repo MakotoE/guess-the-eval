@@ -9,4 +9,7 @@ module.exports = merge(common, {
 		historyApiFallback: true,
 	},
 	devtool: 'inline-source-map',
+	output: {
+		publicPath: '/',
+	},
 });

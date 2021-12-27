@@ -35,7 +35,6 @@ module.exports = {
     target: 'web',
     output: {
         filename: '[name].[contenthash].js',
-        publicPath: '/',
     },
     plugins: [
         new HtmlWebpackPlugin({template: './src/index.html'}),
