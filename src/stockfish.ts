@@ -11,7 +11,7 @@ export class Stockfish {
     this.stockfish.onmessageerror = (event) => console.error(event);
     this.stockfish.postMessage('uci');
     this.stockfish.postMessage('setoption name Threads value 4');
-    this.stockfish.postMessage('setoption name Hash value 512');
+    this.stockfish.postMessage('setoption name Hash value 800');
     this.stockfish.postMessage('setoption name MultiPV value 3');
   }
 
@@ -63,7 +63,7 @@ export class Stockfish {
       };
 
       this.stockfish.postMessage(`position fen ${fen}`);
-      this.stockfish.postMessage('go movetime 1000 depth 40');
+      this.stockfish.postMessage('go movetime 300000');
     });
   }
 

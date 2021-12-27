@@ -8,7 +8,6 @@ export interface Question {
   bestMoves: BestMoves,
 }
 
-// TODO re-calculate
 export const questions: Question[] = [
   {
     fen: '3rb1k1/1Bp2pp1/4p3/2P1P2p/r5nP/1N4P1/P4P2/R3R1K1 b - - 0 27',
@@ -21,11 +20,11 @@ export const questions: Question[] = [
     bestMoves: [
       {
         move: 'c6',
-        evaluation: -2.4,
+        evaluation: -2.92,
       },
       {
         move: 'Rd3',
-        evaluation: -0.46,
+        evaluation: -0.07,
       },
       {
         move: 'Ra7',
@@ -44,15 +43,15 @@ export const questions: Question[] = [
     bestMoves: [
       {
         move: 'bxc4',
-        evaluation: 2.98,
-      },
-      {
-        move: 'N5f6',
-        evaluation: 4.62,
+        evaluation: 5.02,
       },
       {
         move: 'N5b6',
-        evaluation: 5.46,
+        evaluation: 6.28,
+      },
+      {
+        move: 'N5f6',
+        evaluation: 6.76,
       },
     ],
   },
@@ -66,11 +65,11 @@ export const questions: Question[] = [
     url: 'https://www.chessgames.com/perl/chessgame?gid=1139541',
     bestMoves: [
       {
-        move: 'Kg8',
-        evaluation: -0.6,
+        move: 'Qxf7',
+        evaluation: 0,
       },
       {
-        move: 'Qxf7',
+        move: 'Kg8',
         evaluation: 0,
       },
     ],
@@ -86,15 +85,15 @@ export const questions: Question[] = [
     bestMoves: [
       {
         move: 'Qxc3',
-        evaluation: -1.97,
-      },
-      {
-        move: 'Bd3',
-        evaluation: -2.92,
+        evaluation: -2.23,
       },
       {
         move: 'Be2',
-        evaluation: -3.23,
+        evaluation: -3.12,
+      },
+      {
+        move: 'Bd3',
+        evaluation: -3.36,
       },
     ],
   },
@@ -108,16 +107,16 @@ export const questions: Question[] = [
     url: 'https://www.chessgames.com/perl/chessgame?gid=2029671',
     bestMoves: [
       {
-        move: 'Nc3',
-        evaluation: 0.51,
-      },
-      {
-        move: 'd4',
-        evaluation: 0.47,
+        move: 'Nf3',
+        evaluation: 0.3,
       },
       {
         move: 'Ke1',
-        evaluation: 0.45,
+        evaluation: 0.38,
+      },
+      {
+        move: 'Nc3',
+        evaluation: 0.22,
       },
     ],
   },
