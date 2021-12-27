@@ -21,12 +21,15 @@ interface Props {
 export default function Summary({ points, results }: Props): React.ReactElement {
   return (
     <>
-      <p>Here&apos;s a summary of the results. Copy and paste this to share your results.</p>
+      <p>
+        Thanks for playing! Here&apos;s a summary of the results. Copy and paste this to share your
+        results.
+      </p>
       <TextArea
         value={
           `> I scored ${points.toFixed(1)} points.\n>\n${results.map((result, index) => (
             resultsString(index, result)
-          )).join('')}`
+          )).join('').slice(0, '>\n'.length)}`
         }
         rows={35}
         style={{ width: '100%' }}

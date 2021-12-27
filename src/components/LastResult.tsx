@@ -27,13 +27,13 @@ export default ({ points }: Props): React.ReactElement => {
       <br />
       {
         points.foundBestMove()
-          ? 'You found one of the top 3 moves.'
+          ? `You found one of the top 3 moves. Multiplier of x${points.bestMoveMultiplier().toFixed(1)}`
           : 'You did not find a best move.'
       }
       {
         // Multiplier was applied to a negative score
         points.evalPoints() < 0 && points.bestMoveMultiplier() > 1
-          ? ` Your negative eval score was multiplied by ${points.bestMoveMultiplier().toFixed(1)}. OOOF!`
+          ? ' OOOF!'
           : ''
       }
       <br />
