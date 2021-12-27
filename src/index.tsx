@@ -4,7 +4,6 @@ import { Provider } from 'react-redux';
 import Game from './components/Game';
 import { store } from './store';
 import ErrorBoundary from './components/ErrorBoundary';
-import StockfishOutput from './components/StockfishOutput';
 
 ReactDOM.render(
   <ErrorBoundary>
@@ -15,5 +14,6 @@ ReactDOM.render(
   document.getElementById('root'),
 );
 
-// Uncomment to get Stockfish output
+// Comment above and uncomment below to get Stockfish output
+// import StockfishOutput from './components/StockfishOutput';
 // ReactDOM.render(<StockfishOutput />, document.getElementById('root'));

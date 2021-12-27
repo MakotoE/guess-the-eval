@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "webpack serve --config webpack.config.js",
+    "start": "webpack serve --config webpack/webpack.dev.js",
+    "build": "webpack --config webpack/webpack.prod.js",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix"
   },
   "dependencies": {
@@ -17,7 +18,13 @@
     "chessground": "^8.1.7",
     "copy-webpack-plugin": "^10.0.0",
     "css-loader": "^6.5.1",
+    "eslint": "^8.5.0",
+    "eslint-config-airbnb": "^19.0.2",
     "eslint-config-airbnb-typescript": "^16.1.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-react": "^7.28.0",
+    "eslint-plugin-react-hooks": "^4.3.0",
     "fomantic-ui-css": "^2.8.8",
     "html-webpack-plugin": "^5.5.0",
     "react": "^16.14.0",
@@ -32,11 +39,6 @@
     "webpack": "^5.65.0",
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.6.0",
-    "eslint": "^8.5.0",
-    "eslint-config-airbnb": "^19.0.2",
-    "eslint-plugin-import": "^2.25.3",
-    "eslint-plugin-jsx-a11y": "^6.5.1",
-    "eslint-plugin-react": "^7.28.0",
-    "eslint-plugin-react-hooks": "^4.3.0"
+    "webpack-merge": "^5.8.0"
   }
 }
