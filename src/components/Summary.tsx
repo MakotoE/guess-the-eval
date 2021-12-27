@@ -29,7 +29,7 @@ export default function Summary({ points, results }: Props): React.ReactElement 
         value={
           `> I scored ${points.toFixed(1)} points.\n>\n${results.map((result, index) => (
             resultsString(index, result)
-          )).join('').slice(0, '>\n'.length)}`
+          )).join('').slice(0, '\n>\n'.length * -1)}`
         }
         rows={35}
         style={{ width: '100%' }}
