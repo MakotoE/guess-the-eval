@@ -53,9 +53,7 @@ export default function RightSide(): React.ReactElement {
     }}
     >
       <p>
-        It&apos;s
-        {turnStr}
-        &apos;s turn to play.
+        {`It’s ${turnStr}’s turn to play.`}
       </p>
       <Form.Input
         name="evaluation"
