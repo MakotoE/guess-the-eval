@@ -33,7 +33,7 @@ export default ({ points }: Props): React.ReactElement => {
       {
         // Multiplier was applied to a negative score
         points.evalPoints() < 0 && points.bestMoveMultiplier() > 1
-          ? ' OOOF!'
+          ? ' (OOOF!)'
           : ''
       }
       <br />

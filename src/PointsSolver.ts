@@ -9,7 +9,7 @@ export interface QuestionAnswer {
  * 1. 20 points for correctly guessing the winning side or that the position is a draw
  *
  * 2. The number of points for the eval guess is given by:
- * points = -16 |guess - actual_eval| + 50
+ * points = -16 * abs(guess - actual_eval) + 50
  * if points < 0: points / 4
  * Eval difference vs points awarded table
  * 0: 50
@@ -22,8 +22,8 @@ export interface QuestionAnswer {
  * 6: -11.5
  * 10: -27.5
  *
- * 3. Guessing a best move multiplies your eval points by
- * max(-0.75 abs(guessEval - bestMoveEval) + 3, 1)
+ * 3. Guessing a best move multiplies your eval points by:
+ * max(-0.75 * abs(guessedMoveEval - bestMoveEval) + 3, 1)
  * 0: x3.0
  * 1: x2.25
  * 2: x1.5
@@ -39,9 +39,13 @@ export class PointsSolver {
   }
 
   /**
-   * @returns true if the winning side was found
+   * @returns true if the winning side was found or correctly answering a draw
    */
   foundWinningSide(): boolean {
+    if (this.result.answer.evaluation === 0 && this.result.question.bestMoves[0].evaluation === 0) {
+      return true;
+    }
+
     return this.result.answer.evaluation * this.result.question.bestMoves[0].evaluation > 0;
   }
 
