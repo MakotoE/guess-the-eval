@@ -15,7 +15,7 @@ export const questions: Question[] = [
       white: 'Ian Nepomniachtchi',
       black: 'Magnus Carlsen',
     },
-    tournament: 'World Chess Championship 2021',
+    tournament: 'World Chess Championship WCC 2021',
     url: 'https://lichess.org/study/RoBvWqfx/qq4glFqA#53',
     bestMoves: [
       {
