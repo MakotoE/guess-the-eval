@@ -63,7 +63,7 @@ export class Stockfish {
       };
 
       this.stockfish.postMessage(`position fen ${fen}`);
-      this.stockfish.postMessage('go movetime 300000');
+      this.stockfish.postMessage('go movetime 600000');
     });
   }
 

@@ -20,14 +20,14 @@ export const questions: Question[] = [
     bestMoves: [
       {
         move: 'c6',
-        evaluation: -2.92,
-      },
-      {
-        move: 'Rd3',
-        evaluation: -0.07,
+        evaluation: -2.77,
       },
       {
         move: 'Ra7',
+        evaluation: -0.07,
+      },
+      {
+        move: 'Rd3',
         evaluation: 0,
       },
     ],
@@ -43,15 +43,15 @@ export const questions: Question[] = [
     bestMoves: [
       {
         move: 'bxc4',
-        evaluation: 5.02,
+        evaluation: 5.35,
       },
       {
         move: 'N5b6',
-        evaluation: 6.28,
+        evaluation: 6.3,
       },
       {
         move: 'N5f6',
-        evaluation: 6.76,
+        evaluation: 6.92,
       },
     ],
   },
@@ -85,15 +85,15 @@ export const questions: Question[] = [
     bestMoves: [
       {
         move: 'Qxc3',
-        evaluation: -2.23,
-      },
-      {
-        move: 'Be2',
-        evaluation: -3.12,
+        evaluation: -2.16,
       },
       {
         move: 'Bd3',
-        evaluation: -3.36,
+        evaluation: -3.33,
+      },
+      {
+        move: 'Be2',
+        evaluation: -3.27,
       },
     ],
   },
@@ -107,16 +107,16 @@ export const questions: Question[] = [
     url: 'https://www.chessgames.com/perl/chessgame?gid=2029671',
     bestMoves: [
       {
-        move: 'Nf3',
-        evaluation: 0.3,
+        move: 'd4',
+        evaluation: 0.29,
       },
       {
         move: 'Ke1',
-        evaluation: 0.38,
+        evaluation: 0.25,
       },
       {
         move: 'Nc3',
-        evaluation: 0.22,
+        evaluation: 0.23,
       },
     ],
   },

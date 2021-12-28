@@ -19,5 +19,9 @@ module.exports = merge(common, {
     compress: true,
     port: 3010,
     historyApiFallback: true,
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+    },
   },
 });

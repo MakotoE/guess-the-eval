@@ -15,5 +15,8 @@ ReactDOM.render(
 );
 
 // Comment above and uncomment below to get Stockfish output
+// import ReactDOM from 'react-dom';
+// import React from 'react';
 // import StockfishOutput from './components/StockfishOutput';
+//
 // ReactDOM.render(<StockfishOutput />, document.getElementById('root'));
