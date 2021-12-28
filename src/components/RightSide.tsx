@@ -53,7 +53,7 @@ export default (): React.ReactElement => {
     }}
     >
       <p>
-        {`It’s ${turnStr}’s turn to play.`}
+        {`Question ${currentQuestion + 1}/5—It’s ${turnStr}’s turn to play.`}
       </p>
       <Form.Input
         name="evaluation"
