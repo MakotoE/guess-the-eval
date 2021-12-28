@@ -6,4 +6,26 @@ module.exports = merge(common, {
     output: {
         publicPath: '/guess-the-eval/',
     },
+    module: {
+        rules: [
+            {
+                test: /.tsx?$/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: [
+                            '@babel/react',
+                            '@babel/preset-typescript',
+                            [
+                                '@babel/preset-env',
+                                {
+                                    'targets': '> 2%',
+                                },
+                            ],
+                        ],
+                    },
+                },
+            },
+        ],
+    },
 });

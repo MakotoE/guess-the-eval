@@ -8,12 +8,17 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix"
   },
   "dependencies": {
+    "@babel/core": "^7.16.5",
+    "@babel/preset-env": "^7.16.5",
+    "@babel/preset-react": "^7.16.5",
+    "@babel/preset-typescript": "^7.16.5",
     "@reduxjs/toolkit": "^1.7.0",
     "@types/react": "^16.14.21",
     "@types/react-dom": "^16.9.14",
     "@types/semantic-ui": "^2.2.7",
     "@typescript-eslint/eslint-plugin": "^5.7.0",
     "@typescript-eslint/parser": "^5.7.0",
+    "babel-loader": "^8.2.3",
     "chess.ts": "^0.16.2",
     "chessground": "^8.1.7",
     "copy-webpack-plugin": "^10.0.0",
