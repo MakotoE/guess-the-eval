@@ -24,7 +24,7 @@ const defaultInput: { [key in keyof Answer]: string } = {
   playerOrTournament: '',
 };
 
-export default function RightSide(): React.ReactElement {
+export default (): React.ReactElement => {
   const dispatch = useAppDispatch();
   const { currentQuestion, answers } = useAppSelector((state) => state.game);
   const [input, setInput] = useState(defaultInput);
@@ -104,4 +104,4 @@ export default function RightSide(): React.ReactElement {
       </Button>
     </Form>
   );
-}
+};

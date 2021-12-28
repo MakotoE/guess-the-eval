@@ -18,22 +18,20 @@ interface Props {
   results: Answer[],
 }
 
-export default function Summary({ points, results }: Props): React.ReactElement {
-  return (
-    <>
-      <p>
-        Thanks for playing! Here&apos;s a summary of the results. Copy and paste this to share your
-        results.
-      </p>
-      <TextArea
-        value={
-          `> I scored ${points.toFixed(1)} points.\n>\n${results.map((result, index) => (
-            resultsString(index, result)
-          )).join('').slice(0, '\n>\n'.length * -1)}`
-        }
-        rows={35}
-        style={{ width: '100%' }}
-      />
-    </>
-  );
-}
+export default ({ points, results }: Props): React.ReactElement => (
+  <>
+    <p>
+      Thanks for playing! Here&apos;s a summary of the results. Copy and paste this to share your
+      results.
+    </p>
+    <TextArea
+      value={
+        `> I scored ${points.toFixed(1)} points.\n>\n${results.map((result, index) => (
+          resultsString(index, result)
+        )).join('').slice(0, '\n>\n'.length * -1)}`
+      }
+      rows={35}
+      style={{ width: '100%' }}
+    />
+  </>
+);

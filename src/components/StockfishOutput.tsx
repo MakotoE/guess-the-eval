@@ -42,7 +42,7 @@ const partialQuestions: Question[] = [
 
 const stockfish = new Stockfish();
 
-export default function StockfishOutput(): React.ReactElement {
+export default (): React.ReactElement => {
   const [questions, setQuestions] = useState<Question[]>([]);
 
   useEffect(() => {
@@ -64,4 +64,4 @@ export default function StockfishOutput(): React.ReactElement {
   }, [questions]);
 
   return <pre>{JSON.stringify(questions, null, 2)}</pre>;
-}
+};

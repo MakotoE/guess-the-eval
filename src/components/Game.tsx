@@ -6,11 +6,11 @@ import Layout from './Layout';
 import { questions } from '../questions';
 import Summary from './Summary';
 
-export default function Game(): React.ReactElement {
+export default (): React.ReactElement => {
   const { currentQuestion, points, answers } = useAppSelector((state) => state.game);
   const error = useAppSelector((state) => state.game.error);
 
-  let fen = '';
+  let fen: string;
   let rightSide: React.ReactElement;
   if (currentQuestion < questions.length) {
     fen = questions[currentQuestion].fen;
@@ -30,4 +30,4 @@ export default function Game(): React.ReactElement {
       {error ? <pre>{error}</pre> : null}
     </Layout>
   );
-}
+};

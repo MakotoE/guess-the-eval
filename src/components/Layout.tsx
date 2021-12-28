@@ -1,14 +1,27 @@
 import { Config } from 'chessground/config';
 import { Grid } from 'semantic-ui-react';
 import React from 'react';
-import Chessground from '../chessground';
+import { Chess } from 'chess.ts';
+import { Color } from 'chessground/types';
+import Chessground from './chessground';
 
 interface Props {
   fen: string;
 }
 
 export default ({ fen, children }: React.PropsWithChildren<Props>): React.ReactElement => {
-  const boardConfig: Config = { fen };
+  let orientation: Color = 'white';
+  if (new Chess(fen).turn() === 'b') {
+    orientation = 'black';
+  }
+
+  const boardConfig: Config = {
+    fen,
+    orientation,
+    draggable: {
+      enabled: false,
+    },
+  };
 
   return (
     <Grid centered style={{ marginTop: '20px' }}>
