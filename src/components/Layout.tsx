@@ -27,7 +27,11 @@ export default ({ fen, children }: React.PropsWithChildren<Props>): React.ReactE
     <Grid centered style={{ marginTop: '20px' }}>
       <Grid.Row>
         <Grid.Column width={2} style={{ minWidth: '440px' }}>
-          <Chessground config={boardConfig} width={400} height={400} />
+          <Chessground
+            config={boardConfig}
+            width={Math.min(400, document.documentElement.clientWidth)}
+            height={Math.min(400, document.documentElement.clientWidth)}
+          />
         </Grid.Column>
         <Grid.Column width={1} style={{ minWidth: '400px' }}>
           {children}
