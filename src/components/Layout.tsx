@@ -21,6 +21,9 @@ export default ({ fen, children }: React.PropsWithChildren<Props>): React.ReactE
     draggable: {
       enabled: false,
     },
+    selectable: {
+      enabled: false,
+    },
   };
 
   return (
