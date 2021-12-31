@@ -4,4 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-tokio = { version = "1.15", features = ["rt-multi-thread", "macros", "process", "io-util", "time"] }
+tokio = { version = "1.15", features = ["rt-multi-thread", "macros", "process", "io-util", "time", "sync"] }
+anyhow = "1.0"
