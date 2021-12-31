@@ -1,11 +1,11 @@
 use anyhow::Result;
+use std::fmt::Debug;
 use std::process::Stdio;
 use std::sync::Arc;
-use std::time::Duration;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader, Lines};
 use tokio::process::{ChildStdout, Command};
 use tokio::sync::Notify;
-use tokio::time::sleep;
+use vampirc_uci::{parse_one, Serializable, UciFen, UciMessage, UciSearchControl};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -23,14 +23,29 @@ async fn main() -> Result<()> {
     tokio::spawn({
         let semaphore = semaphore.clone();
         async move {
-            stdin.write_all(b"uci\n").await.unwrap();
-            stdin
-                .write_all(
-                    b"position fen 3rb1k1/1Bp2pp1/4p3/2P1P2p/r5nP/1N4P1/P4P2/R3R1K1 b - - 0 27\n",
-                )
-                .await
-                .unwrap();
-            stdin.write_all(b"go depth 10\n").await.unwrap();
+            let messages: Vec<UciMessage> = vec![
+                UciMessage::Uci,
+                UciMessage::Position {
+                    startpos: false,
+                    fen: Some(UciFen::from(
+                        "3rb1k1/1Bp2pp1/4p3/2P1P2p/r5nP/1N4P1/P4P2/R3R1K1 b - - 0 27",
+                    )),
+                    moves: vec![],
+                },
+                UciMessage::Go {
+                    time_control: None,
+                    search_control: Some(UciSearchControl::depth(10)),
+                },
+            ];
+
+            for message in messages {
+                println!("{}", message.serialize());
+                stdin
+                    .write_all((message.serialize() + "\n").as_bytes())
+                    .await
+                    .unwrap();
+            }
+
             semaphore.notified().await;
             stdin.write_all(b"quit\n").await.unwrap();
         }
@@ -47,7 +62,8 @@ async fn main() -> Result<()> {
 async fn read_all(stdin: &mut Lines<BufReader<ChildStdout>>) -> Result<()> {
     loop {
         if let Some(s) = stdin.next_line().await? {
-            println!("{}", s);
+            let message = parse_one(&s);
+            println!("{}", message.serialize());
 
             if s.starts_with("bestmove") {
                 return Ok(());
