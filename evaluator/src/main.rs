@@ -1,10 +1,17 @@
+mod question;
+
 use anyhow::Result;
+use shakmaty::uci::Uci;
+use shakmaty::{File, Rank, Role, Square};
 use std::process::Stdio;
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader, Lines};
 use tokio::process::{ChildStdin, ChildStdout, Command};
 use tokio::sync::Notify;
-use vampirc_uci::{parse_one, Serializable, UciFen, UciMessage, UciSearchControl};
+use vampirc_uci::UciMessage::BestMove;
+use vampirc_uci::{
+    parse_one, Serializable, UciFen, UciMessage, UciMove, UciSearchControl, UciSquare,
+};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -55,7 +62,7 @@ async fn main() -> Result<()> {
             }
             .await;
             if let Err(e) = result {
-                eprintln!("error: {}", e);
+                panic!("error: {}", e);
             }
         }
     });
@@ -63,7 +70,8 @@ async fn main() -> Result<()> {
     let mut stdin = BufReader::new(child.stdout.take().unwrap()).lines();
 
     for _ in 0..5 {
-        read_all(&mut stdin).await?;
+        let result = read_all(&mut stdin).await?;
+        println!("{}", result);
         semaphore.notify_one();
     }
 
@@ -71,18 +79,36 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn read_all(stdin: &mut Lines<BufReader<ChildStdout>>) -> Result<()> {
+async fn read_all(stdin: &mut Lines<BufReader<ChildStdout>>) -> Result<Uci> {
     loop {
         if let Some(s) = stdin.next_line().await? {
             if !s.is_empty() {
                 let message = parse_one(&s);
                 println!("{}", message.serialize());
 
-                if s.starts_with("bestmove") {
-                    return Ok(());
+                if let BestMove { best_move, .. } = message {
+                    return Ok(vampirc_to_shakmaty(&best_move));
                 }
             }
         }
+    }
+}
+
+fn vampirc_to_shakmaty(uci_move: &UciMove) -> Uci {
+    fn convert_square(square: &UciSquare) -> Square {
+        (
+            File::from_char(square.file).unwrap(),
+            Rank::ALL.get(square.rank as usize - 1).unwrap().clone(),
+        )
+            .into()
+    }
+
+    Uci::Normal {
+        from: convert_square(&uci_move.from),
+        to: convert_square(&uci_move.to),
+        promotion: uci_move
+            .promotion
+            .map(|p| Role::from_char(p.as_char().unwrap_or('p')).unwrap()),
     }
 }
 
