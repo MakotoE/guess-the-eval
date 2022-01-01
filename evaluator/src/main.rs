@@ -1,8 +1,11 @@
 mod question;
 
+use crate::question::*;
 use anyhow::Result;
+use shakmaty::fen::{fen, Fen};
+use shakmaty::san::San;
 use shakmaty::uci::Uci;
-use shakmaty::{File, Rank, Role, Square};
+use shakmaty::{CastlingMode, Chess, File, FromSetup, Rank, Role, Square};
 use std::process::Stdio;
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader, Lines};
@@ -26,17 +29,17 @@ async fn main() -> Result<()> {
 
     let mut stdin = child.stdin.take().unwrap();
 
+    const POSITIONS: &[&str] = &[
+        "3rb1k1/1Bp2pp1/4p3/2P1P2p/r5nP/1N4P1/P4P2/R3R1K1 b - - 0 27",
+        "r1k4r/p2nb1p1/2b4p/1p1n1p2/2PP4/3Q1NB1/1P3PPP/R5K1 b - - 0 19",
+        "5q1k/ppp2Nbp/2np2p1/3B1b2/2PP4/4r1P1/PP1Q3P/R5K1 b - - 3 18",
+        "r3r1k1/pp3pbp/1qp1b1p1/2B5/2BP4/Q1n2N2/P4PPP/3R1K1R w - - 4 18",
+        "rnbq1bnr/ppppkppp/8/4p3/4P3/8/PPPPKPPP/RNBQ1BNR w - - 2 3",
+    ];
+
     tokio::spawn({
         let semaphore = semaphore.clone();
         async move {
-            const POSITIONS: &[&str] = &[
-                "3rb1k1/1Bp2pp1/4p3/2P1P2p/r5nP/1N4P1/P4P2/R3R1K1 b - - 0 27",
-                "r1k4r/p2nb1p1/2b4p/1p1n1p2/2PP4/3Q1NB1/1P3PPP/R5K1 b - - 0 19",
-                "5q1k/ppp2Nbp/2np2p1/3B1b2/2PP4/4r1P1/PP1Q3P/R5K1 b - - 3 18",
-                "r3r1k1/pp3pbp/1qp1b1p1/2B5/2BP4/Q1n2N2/P4PPP/3R1K1R w - - 4 18",
-                "rnbq1bnr/ppppkppp/8/4p3/4P3/8/PPPPKPPP/RNBQ1BNR w - - 2 3",
-            ];
-
             let result: Result<()> = async {
                 write_message(&mut stdin, &UciMessage::Uci).await?;
 
@@ -69,10 +72,16 @@ async fn main() -> Result<()> {
 
     let mut stdin = BufReader::new(child.stdout.take().unwrap()).lines();
 
-    for _ in 0..5 {
-        let result = read_all(&mut stdin).await?;
-        println!("{}", result);
+    for position in POSITIONS {
+        let uci = read_all(&mut stdin).await?;
         semaphore.notify_one();
+        let fen = Fen::from_ascii(position.as_bytes())?;
+        let position = Chess::from_setup(&fen, CastlingMode::Standard)?;
+        let san = San::from_move(&position, &uci.to_move(&position)?);
+        let variation = Variation {
+            move_: SerializableSan(san),
+            evaluation: 0.0,
+        };
     }
 
     child.wait().await.unwrap();

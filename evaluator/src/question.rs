@@ -1,5 +1,5 @@
-use pgn_reader::San;
 use serde::{Serialize, Serializer};
+use shakmaty::san::San;
 
 pub type BestMoves = Vec<Variation>;
 
@@ -27,7 +27,7 @@ mod tests {
     use super::*;
     use pgn_reader::Square;
     use shakmaty::fen::Fen;
-    use shakmaty::{CastlingMode, Chess, Move, Role};
+    use shakmaty::{CastlingMode, Chess, Move, Role, Square};
 
     #[test]
     fn test_serializable_san() {
