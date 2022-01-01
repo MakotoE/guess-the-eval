@@ -2,18 +2,18 @@ mod question;
 
 use crate::question::*;
 use anyhow::Result;
-use shakmaty::fen::{fen, Fen};
+use shakmaty::fen::Fen;
 use shakmaty::san::San;
 use shakmaty::uci::Uci;
-use shakmaty::{CastlingMode, Chess, File, FromSetup, Rank, Role, Square};
+use shakmaty::{CastlingMode, Chess, Color, File, FromSetup, Rank, Role, Setup, Square};
 use std::process::Stdio;
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader, Lines};
 use tokio::process::{ChildStdin, ChildStdout, Command};
 use tokio::sync::Notify;
-use vampirc_uci::UciMessage::BestMove;
 use vampirc_uci::{
-    parse_one, Serializable, UciFen, UciMessage, UciMove, UciSearchControl, UciSquare,
+    parse_one, Serializable, UciFen, UciInfoAttribute, UciMessage, UciMove, UciSearchControl,
+    UciSquare,
 };
 
 #[tokio::main]
@@ -73,33 +73,83 @@ async fn main() -> Result<()> {
     let mut stdin = BufReader::new(child.stdout.take().unwrap()).lines();
 
     for position in POSITIONS {
-        let uci = read_all(&mut stdin).await?;
+        let best_move = read_all_evals(&mut stdin).await?;
         semaphore.notify_one();
         let fen = Fen::from_ascii(position.as_bytes())?;
         let position = Chess::from_setup(&fen, CastlingMode::Standard)?;
-        let san = San::from_move(&position, &uci.to_move(&position)?);
+        let san = San::from_move(&position, &best_move.best_move.to_move(&position)?);
+
+        let evaluation = best_move.cp as f32
+            * match position.turn() {
+                Color::White => 1.0,
+                Color::Black => -1.0,
+            }
+            / 100.0;
+
         let variation = Variation {
             move_: SerializableSan(san),
-            evaluation: 0.0,
+            evaluation,
         };
+        println!("{}", serde_json::to_string(&variation).unwrap());
     }
 
     child.wait().await.unwrap();
     Ok(())
 }
 
-async fn read_all(stdin: &mut Lines<BufReader<ChildStdout>>) -> Result<Uci> {
+async fn read_all_evals(stdin: &mut Lines<BufReader<ChildStdout>>) -> Result<RawVariation> {
+    let mut last_eval: Option<RawVariation> = None;
     loop {
         if let Some(s) = stdin.next_line().await? {
             if !s.is_empty() {
                 let message = parse_one(&s);
                 println!("{}", message.serialize());
 
-                if let BestMove { best_move, .. } = message {
-                    return Ok(vampirc_to_shakmaty(&best_move));
+                match message {
+                    UciMessage::Info(attributes) => {
+                        if let Some(eval) = attributes_to_eval(&attributes) {
+                            last_eval = Some(eval);
+                        }
+                    }
+                    UciMessage::BestMove { .. } => {
+                        return Ok(last_eval.unwrap());
+                    }
+                    _ => {}
                 }
             }
         }
+    }
+}
+
+struct RawVariation {
+    cp: i32,
+    best_move: Uci,
+}
+
+fn attributes_to_eval(attributes: &[UciInfoAttribute]) -> Option<RawVariation> {
+    let mut cp: Option<i32> = None;
+    let mut best_move: Option<Uci> = None;
+
+    for attribute in attributes {
+        match attribute {
+            UciInfoAttribute::Score { cp: score_cp, .. } => {
+                cp = Some(score_cp.unwrap());
+            }
+            UciInfoAttribute::Pv(moves) => {
+                best_move = Some(vampirc_to_shakmaty(&moves[0]));
+            }
+            _ => {}
+        }
+    }
+
+    if let Some(cp) = cp {
+        if let Some(best_move) = best_move {
+            Some(RawVariation { cp, best_move })
+        } else {
+            None
+        }
+    } else {
+        None
     }
 }
 
