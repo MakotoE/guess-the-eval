@@ -1,5 +1,8 @@
+use super::*;
 use serde::{Serialize, Serializer};
+use shakmaty::fen::Fen;
 use shakmaty::san::San;
+use shakmaty::{CastlingMode, Chess, Color, FromSetup, Setup};
 
 pub type BestMoves = Vec<Variation>;
 
@@ -8,6 +11,25 @@ pub struct Variation {
     #[serde(rename = "move")]
     pub move_: SerializableSan,
     pub evaluation: f32,
+}
+
+impl Variation {
+    pub fn from_raw_variation(raw: &RawVariation, fen: &Fen) -> Result<Variation> {
+        let position = Chess::from_setup(fen, CastlingMode::Standard)?;
+        let san = San::from_move(&position, &raw.uci_move.to_move(&position)?);
+
+        let evaluation = raw.cp as f32
+            * match position.turn() {
+                Color::White => 1.0,
+                Color::Black => -1.0,
+            }
+            / 100.0;
+
+        Ok(Variation {
+            move_: SerializableSan(san),
+            evaluation,
+        })
+    }
 }
 
 #[derive(Debug)]

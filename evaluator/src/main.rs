@@ -3,9 +3,8 @@ mod question;
 use crate::question::*;
 use anyhow::Result;
 use shakmaty::fen::Fen;
-use shakmaty::san::San;
 use shakmaty::uci::Uci;
-use shakmaty::{CastlingMode, Chess, Color, File, FromSetup, Rank, Role, Setup, Square};
+use shakmaty::{File, Rank, Role, Square};
 use std::process::Stdio;
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader, Lines};
@@ -41,7 +40,25 @@ async fn main() -> Result<()> {
         let semaphore = semaphore.clone();
         async move {
             let result: Result<()> = async {
-                write_message(&mut stdin, &UciMessage::Uci).await?;
+                let setup_messages = &[
+                    UciMessage::Uci,
+                    UciMessage::SetOption {
+                        name: "Threads".to_string(),
+                        value: Some(8.to_string()),
+                    },
+                    UciMessage::SetOption {
+                        name: "Hash".to_string(),
+                        value: Some(1024.to_string()),
+                    },
+                    UciMessage::SetOption {
+                        name: "MultiPV".to_string(),
+                        value: Some(3.to_string()),
+                    },
+                ];
+
+                for message in setup_messages {
+                    write_message(&mut stdin, &message).await?;
+                }
 
                 for &position in POSITIONS {
                     let position_msg = UciMessage::Position {
@@ -73,46 +90,42 @@ async fn main() -> Result<()> {
     let mut stdin = BufReader::new(child.stdout.take().unwrap()).lines();
 
     for position in POSITIONS {
-        let best_move = read_all_evals(&mut stdin).await?;
-        semaphore.notify_one();
-        let fen = Fen::from_ascii(position.as_bytes())?;
-        let position = Chess::from_setup(&fen, CastlingMode::Standard)?;
-        let san = San::from_move(&position, &best_move.best_move.to_move(&position)?);
-
-        let evaluation = best_move.cp as f32
-            * match position.turn() {
-                Color::White => 1.0,
-                Color::Black => -1.0,
+        let variations = read_all_evals(&mut stdin).await?;
+        let mut best_moves: BestMoves = Vec::with_capacity(3);
+        for variation in variations {
+            let fen = Fen::from_ascii(position.as_bytes())?;
+            if let Some(variation) = variation {
+                let variation = Variation::from_raw_variation(&variation, &fen)?;
+                best_moves.push(variation);
             }
-            / 100.0;
-
-        let variation = Variation {
-            move_: SerializableSan(san),
-            evaluation,
-        };
-        println!("{}", serde_json::to_string(&variation).unwrap());
+        }
+        println!("{:?}", best_moves);
+        semaphore.notify_one();
     }
 
     child.wait().await.unwrap();
     Ok(())
 }
 
-async fn read_all_evals(stdin: &mut Lines<BufReader<ChildStdout>>) -> Result<RawVariation> {
-    let mut last_eval: Option<RawVariation> = None;
+async fn read_all_evals(
+    stdin: &mut Lines<BufReader<ChildStdout>>,
+) -> Result<[Option<RawVariation>; 3]> {
+    let mut variations: [Option<RawVariation>; 3] = [None, None, None];
     loop {
         if let Some(s) = stdin.next_line().await? {
             if !s.is_empty() {
                 let message = parse_one(&s);
-                println!("{}", message.serialize());
+                eprintln!("{}", message.serialize());
 
                 match message {
                     UciMessage::Info(attributes) => {
                         if let Some(eval) = attributes_to_eval(&attributes) {
-                            last_eval = Some(eval);
+                            let index = eval.variation_number as usize - 1;
+                            variations[index] = Some(eval);
                         }
                     }
                     UciMessage::BestMove { .. } => {
-                        return Ok(last_eval.unwrap());
+                        return Ok(variations);
                     }
                     _ => {}
                 }
@@ -121,36 +134,39 @@ async fn read_all_evals(stdin: &mut Lines<BufReader<ChildStdout>>) -> Result<Raw
     }
 }
 
-struct RawVariation {
+#[derive(Debug, Clone)]
+pub struct RawVariation {
+    variation_number: u16,
     cp: i32,
-    best_move: Uci,
+    uci_move: Uci,
 }
 
 fn attributes_to_eval(attributes: &[UciInfoAttribute]) -> Option<RawVariation> {
+    let mut variation_number: Option<u16> = None;
     let mut cp: Option<i32> = None;
-    let mut best_move: Option<Uci> = None;
+    let mut uci_move: Option<Uci> = None;
 
     for attribute in attributes {
         match attribute {
+            UciInfoAttribute::MultiPv(n) => variation_number = Some(*n),
             UciInfoAttribute::Score { cp: score_cp, .. } => {
                 cp = Some(score_cp.unwrap());
             }
             UciInfoAttribute::Pv(moves) => {
-                best_move = Some(vampirc_to_shakmaty(&moves[0]));
+                uci_move = Some(vampirc_to_shakmaty(&moves[0]));
+            }
+            UciInfoAttribute::String(s) => {
+                assert!(s.starts_with("NNUE"), "{}", s);
+                return None;
             }
             _ => {}
         }
     }
-
-    if let Some(cp) = cp {
-        if let Some(best_move) = best_move {
-            Some(RawVariation { cp, best_move })
-        } else {
-            None
-        }
-    } else {
-        None
-    }
+    Some(RawVariation {
+        variation_number: variation_number.unwrap(),
+        cp: cp.unwrap(),
+        uci_move: uci_move.unwrap(),
+    })
 }
 
 fn vampirc_to_shakmaty(uci_move: &UciMove) -> Uci {
