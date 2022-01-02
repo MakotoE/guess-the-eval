@@ -1,5 +1,3 @@
-import { BestMoves } from './stockfish';
-
 export interface Question {
   fen: string,
   players: { white: string, black: string },
@@ -7,6 +5,14 @@ export interface Question {
   url: string,
   bestMoves: BestMoves,
 }
+
+export interface Variation {
+  move: string;
+  evaluation: number;
+}
+
+// BestMoves has 1 to 3 items. The first variation gives the current evaluation.
+export type BestMoves = Variation[];
 
 export const questions: Question[] = [
   {

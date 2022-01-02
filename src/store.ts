@@ -1,10 +1,6 @@
 import {
-  AnyAction,
   configureStore,
   createSlice,
-  isRejected,
-  Middleware,
-  MiddlewareAPI,
   PayloadAction,
 } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
@@ -45,21 +41,10 @@ export const {
   setError, submitAnswer, nextQuestion,
 } = gameSlice.actions;
 
-const errorHandler: Middleware
-  // eslint-disable-next-line operator-linebreak
-  = (api: MiddlewareAPI<typeof store.dispatch, RootState>) => (next) => (action: AnyAction) => {
-    if (isRejected(action)) {
-      api.dispatch(setError(`error: ${JSON.stringify(action.payload)}`));
-    }
-    return next(action);
-  };
-
 export const store = configureStore({
   reducer: {
     game: gameSlice.reducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware()
-    .concat(errorHandler),
   devTools: true,
 });
 
