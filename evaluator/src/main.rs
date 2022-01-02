@@ -2,10 +2,11 @@ mod question;
 
 use crate::question::*;
 use anyhow::Result;
+use clap::Parser;
 use shakmaty::fen::Fen;
 use shakmaty::uci::Uci;
 use shakmaty::{File, Rank, Role, Square};
-use std::io::stdout;
+use std::io::{stdout, Write};
 use std::process::Stdio;
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader, Lines};
@@ -16,16 +17,15 @@ use vampirc_uci::{
     UciSquare,
 };
 
-const POSITIONS: &[&str] = &[
-    "3rb1k1/1Bp2pp1/4p3/2P1P2p/r5nP/1N4P1/P4P2/R3R1K1 b - - 0 27",
-    "r1k4r/p2nb1p1/2b4p/1p1n1p2/2PP4/3Q1NB1/1P3PPP/R5K1 b - - 0 19",
-    "5q1k/ppp2Nbp/2np2p1/3B1b2/2PP4/4r1P1/PP1Q3P/R5K1 b - - 3 18",
-    "r3r1k1/pp3pbp/1qp1b1p1/2B5/2BP4/Q1n2N2/P4PPP/3R1K1R w - - 4 18",
-    "rnbq1bnr/ppppkppp/8/4p3/4P3/8/PPPPKPPP/RNBQ1BNR w - - 2 3",
-];
+#[derive(Debug, Parser)]
+struct Args {
+    positions: Vec<String>,
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let positions: Vec<String> = Args::parse().positions;
+
     let mut child = Command::new("./stockfish_14.1_linux_x64_avx2")
         .stdout(Stdio::piped())
         .stdin(Stdio::piped())
@@ -36,17 +36,18 @@ async fn main() -> Result<()> {
     let mut child_stdin = child.stdin.take().unwrap();
 
     tokio::spawn({
+        let positions: Vec<UciFen> = positions.iter().map(|p| UciFen::from(p.as_str())).collect();
         let semaphore = semaphore.clone();
         async move {
-            send_messages(&mut child_stdin, semaphore).await;
+            send_messages(&mut child_stdin, &positions, semaphore).await;
         }
     });
 
     let mut child_stdout = BufReader::new(child.stdout.take().unwrap()).lines();
 
-    let mut result: Vec<Question> = Vec::with_capacity(POSITIONS.len());
+    let mut result: Vec<Question> = Vec::with_capacity(positions.len());
 
-    for position in POSITIONS {
+    for position in positions {
         let raw_variations = read_all_evals(&mut child_stdout).await?;
         let mut variations: Vec<Variation> = Vec::with_capacity(3);
         let fen = Fen::from_ascii(position.as_bytes())?;
@@ -63,13 +64,16 @@ async fn main() -> Result<()> {
         semaphore.notify_one();
     }
 
-    serde_json::to_writer_pretty(&mut stdout(), &result)?;
+    let stdout = stdout();
+    let mut stdout = stdout.lock();
+    serde_json::to_writer_pretty(&mut stdout, &result)?;
+    stdout.flush();
 
     child.wait().await.unwrap();
     Ok(())
 }
 
-async fn send_messages(stdin: &mut ChildStdin, semaphore: Arc<Notify>) {
+async fn send_messages(stdin: &mut ChildStdin, positions: &[UciFen], semaphore: Arc<Notify>) {
     let result: Result<()> = async {
         let setup_messages = &[
             UciMessage::Uci,
@@ -91,10 +95,10 @@ async fn send_messages(stdin: &mut ChildStdin, semaphore: Arc<Notify>) {
             write_message(stdin, &message).await?;
         }
 
-        for &position in POSITIONS {
+        for position in positions {
             let position_msg = UciMessage::Position {
                 startpos: false,
-                fen: Some(UciFen::from(position)),
+                fen: Some(UciFen::from(position.as_str())),
                 moves: vec![],
             };
             write_message(stdin, &position_msg).await?;
