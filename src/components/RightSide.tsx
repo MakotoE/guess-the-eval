@@ -5,7 +5,7 @@ import {
 import { Chess } from 'chess.ts';
 import { Answer, PointsSolver } from '../PointsSolver';
 import {
-  nextQuestion, addAnswer, useAppDispatch, useAppSelector,
+  incrementQuestion, addAnswer, useAppDispatch, useAppSelector,
 } from '../store';
 import LastResult from './LastResult';
 import { questions } from '../questions';
@@ -44,7 +44,7 @@ export default (): React.ReactElement => {
   return (
     <Form onSubmit={() => {
       if (showAnswer) {
-        dispatch(nextQuestion());
+        dispatch(incrementQuestion());
         setInput(defaultInput);
       } else {
         dispatch(addAnswer(inputStringsToAnswer(input)));

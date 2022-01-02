@@ -1,5 +1,5 @@
 module.exports = {
     "rules": {
-        '@typescript-eslint/no-floating-promises': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off', // Causes false positives
     },
 }

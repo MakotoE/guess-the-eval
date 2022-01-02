@@ -25,7 +25,7 @@ const gameSlice = createSlice({
     addAnswer(state, { payload }: PayloadAction<Answer>) {
       state.answers.push(payload);
     },
-    nextQuestion(state) {
+    incrementQuestion(state) {
       state.currentQuestion += 1;
     },
   },
@@ -38,7 +38,7 @@ export function calculatePointsFromAnswers(answers: Answer[]): number {
 }
 
 export const {
-  setError, addAnswer, nextQuestion,
+  setError, addAnswer, incrementQuestion,
 } = gameSlice.actions;
 
 export const store = configureStore({
