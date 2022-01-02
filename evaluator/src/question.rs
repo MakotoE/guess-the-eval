@@ -4,7 +4,11 @@ use shakmaty::fen::Fen;
 use shakmaty::san::San;
 use shakmaty::{CastlingMode, Chess, Color, FromSetup, Setup};
 
-pub type BestMoves = Vec<Variation>;
+#[derive(Debug, Serialize)]
+pub struct Question {
+    pub fen: SerializableFen,
+    pub variations: Vec<Variation>,
+}
 
 #[derive(Debug, Serialize)]
 pub struct Variation {
@@ -29,6 +33,18 @@ impl Variation {
             move_: SerializableSan(san),
             evaluation,
         })
+    }
+}
+
+#[derive(Debug)]
+pub struct SerializableFen(pub Fen);
+
+impl Serialize for SerializableFen {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.collect_str(&self.0)
     }
 }
 
