@@ -4,7 +4,7 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
-import { Answer, PointsSolver, QuestionAnswer } from './PointsSolver';
+import { Answer, PointsSolver } from './PointsSolver';
 import { questions } from './questions';
 
 /* eslint-disable no-param-reassign,@typescript-eslint/no-use-before-define */
@@ -13,7 +13,6 @@ const gameSlice = createSlice({
   name: 'game',
   initialState: {
     currentQuestion: 0,
-    points: 0,
     answers: [] as Answer[],
     error: null as string | null,
   },
@@ -23,13 +22,8 @@ const gameSlice = createSlice({
       console.error(payload);
       state.error = payload;
     },
-    submitAnswer(state, { payload }: PayloadAction<Answer>) {
+    addAnswer(state, { payload }: PayloadAction<Answer>) {
       state.answers.push(payload);
-      const result: QuestionAnswer = {
-        question: questions[state.currentQuestion],
-        answer: payload,
-      };
-      state.points += new PointsSolver(result).totalPoints();
     },
     nextQuestion(state) {
       state.currentQuestion += 1;
@@ -37,8 +31,14 @@ const gameSlice = createSlice({
   },
 });
 
+export function calculatePointsFromAnswers(answers: Answer[]): number {
+  return answers.map((answer, index) => (
+    new PointsSolver({ question: questions[index], answer }).totalPoints()
+  )).reduce((sum, n) => sum + n, 0);
+}
+
 export const {
-  setError, submitAnswer, nextQuestion,
+  setError, addAnswer, nextQuestion,
 } = gameSlice.actions;
 
 export const store = configureStore({

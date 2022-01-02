@@ -1,13 +1,13 @@
 import React from 'react';
 import { Chess } from 'chess.ts';
-import { useAppSelector } from '../store';
+import { calculatePointsFromAnswers, useAppSelector } from '../store';
 import RightSide from './RightSide';
 import Layout from './Layout';
 import { questions } from '../questions';
 import Summary from './Summary';
 
 export default (): React.ReactElement => {
-  const { currentQuestion, points, answers } = useAppSelector((state) => state.game);
+  const { currentQuestion, answers } = useAppSelector((state) => state.game);
   const error = useAppSelector((state) => state.game.error);
 
   let fen: string;
@@ -17,14 +17,14 @@ export default (): React.ReactElement => {
     rightSide = <RightSide />;
   } else {
     fen = new Chess().fen();
-    rightSide = <Summary points={points} results={answers} />;
+    rightSide = <Summary results={answers} />;
   }
 
   return (
     <Layout fen={fen}>
       <p>
         Current points:&nbsp;
-        {points.toFixed(1)}
+        {calculatePointsFromAnswers(answers).toFixed(1)}
       </p>
       {rightSide}
       {error ? <pre>{error}</pre> : null}

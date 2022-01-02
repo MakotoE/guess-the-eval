@@ -2,6 +2,7 @@ import React from 'react';
 import { TextArea } from 'semantic-ui-react';
 import { Answer, PointsSolver } from '../PointsSolver';
 import { questions } from '../questions';
+import { calculatePointsFromAnswers } from '../store';
 
 function resultsString(index: number, answer: Answer): string {
   const question = questions[index];
@@ -14,11 +15,10 @@ function resultsString(index: number, answer: Answer): string {
 }
 
 interface Props {
-  points: number,
   results: Answer[],
 }
 
-export default ({ points, results }: Props): React.ReactElement => (
+export default ({ results }: Props): React.ReactElement => (
   <>
     <p>
       Thanks for playing! Here&apos;s a summary of the results. Copy and paste this to share your
@@ -26,7 +26,7 @@ export default ({ points, results }: Props): React.ReactElement => (
     </p>
     <TextArea
       value={
-        `> I scored ${points.toFixed(1)} points.\n>\n${results.map((result, index) => (
+        `> I scored ${calculatePointsFromAnswers(results).toFixed(1)} points.\n>\n${results.map((result, index) => (
           resultsString(index, result)
         )).join('').slice(0, '\n>\n'.length * -1)}`
       }

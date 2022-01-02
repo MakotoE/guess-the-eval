@@ -11,7 +11,7 @@ export default class extends React.Component<Props, { error: string }> {
   }
 
   static getDerivedStateFromError(error: Error) {
-    return { error: error.toString() };
+    return { error: `${error.toString()}\n${error.stack ? error.stack : ''}` };
   }
 
   render() {
