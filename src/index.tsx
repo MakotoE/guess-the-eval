@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import App from './components/App';
 import { store } from './store';
 import ErrorBoundary from './components/ErrorBoundary';
+import '../semantic/semantic.less';
 
 ReactDOM.render(
   <ErrorBoundary>

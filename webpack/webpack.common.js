@@ -18,6 +18,14 @@ module.exports = {
         ],
       },
       {
+        test: /\.less$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          'less-loader',
+        ],
+      },
+      {
         test: /\.m?js$/,
         resolve: {
           fullySpecified: false
@@ -40,7 +48,6 @@ module.exports = {
         {from: './node_modules/stockfish/src/stockfish.wasm'},
         {from: 'src/chessground.css'},
         {from: 'assets', to: 'assets'},
-        {from: './node_modules/fomantic-ui-css/semantic.min.css'},
       ],
     }),
   ],

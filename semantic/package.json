@@ -1,0 +1,19 @@
+{
+  "name": "fomantic-ui-less",
+  "version": "2.8.8",
+  "title": "Fomantic UI",
+  "description": "LESS only distribution of Fomantic UI",
+  "homepage": "https://fomantic-ui.com",
+  "author": "hammy2899",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/fomantic/Fomantic-UI-LESS.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fomantic/Fomantic-UI/issues"
+  },
+  "dependencies": {
+    "jquery": "^3.4.0"
+  }
+}
