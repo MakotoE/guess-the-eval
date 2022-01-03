@@ -1,33 +1,29 @@
 import React from 'react';
-import { Chess } from 'chess.ts';
-import { calculatePointsFromAnswers, useAppSelector } from '../store';
-import RightSide from './RightSide';
-import Layout from './Layout';
-import { questions } from '../questions';
-import Summary from './Summary';
+import { Container, Header } from 'semantic-ui-react';
+import { Config } from 'chessground/config';
+import BoardAndBar from './BoardAndBar';
 
 export default (): React.ReactElement => {
-  const { currentQuestion, answers } = useAppSelector((state) => state.game);
-  const error = useAppSelector((state) => state.game.error);
-
-  let fen: string;
-  let rightSide: React.ReactElement;
-  if (currentQuestion < questions.length) {
-    fen = questions[currentQuestion].fen;
-    rightSide = <RightSide />;
-  } else {
-    fen = new Chess().fen();
-    rightSide = <Summary results={answers} />;
-  }
+  const boardConfig: Config = {
+    fen: '3rb1k1/1Bp2pp1/4p3/2P1P2p/r5nP/1N4P1/P4P2/R3R1K1 b - - 0 27',
+    orientation: 'black',
+    draggable: {
+      enabled: false,
+    },
+    selectable: {
+      enabled: false,
+    },
+  };
 
   return (
-    <Layout fen={fen}>
-      <p>
-        Current points:&nbsp;
-        {calculatePointsFromAnswers(answers).toFixed(1)}
-      </p>
-      {rightSide}
-      {error ? <pre>{error}</pre> : null}
-    </Layout>
+    <Container textAlign="center">
+      <div style={{ display: 'inline-block' }}>
+        <Header as="h1"><i>Guess the Eval</i></Header>
+        <p style={{ textAlign: 'left' }}>Question 1/5</p>
+      </div>
+      <BoardAndBar config={boardConfig} />
+      <p>Black to play.</p>
+      <Header as="h2">What do you think the eval is? (Slide the eval bar on the right)</Header>
+    </Container>
   );
 };

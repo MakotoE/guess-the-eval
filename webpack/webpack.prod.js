@@ -18,9 +18,7 @@ module.exports = merge(common, {
               '@babel/preset-typescript',
               [
                 '@babel/preset-env',
-                {
-                  'targets': '> 2%',
-                },
+                {targets: '> 2%'},
               ],
             ],
           },

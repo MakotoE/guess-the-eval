@@ -35,8 +35,10 @@ export default ({ width, height, config }: Props): React.ReactElement => {
   }, [api, config]);
 
   return (
-    <div style={{ height, width }}>
-      <div ref={ref} style={{ height: '100%', width: '100%', display: 'table' }} />
+    <div style={{ display: 'flex', justifyContent: 'center' }}>
+      <div style={{ height, width }}>
+        <div ref={ref} style={{ height: '100%', width: '100%', display: 'table' }} />
+      </div>
     </div>
   );
 };
