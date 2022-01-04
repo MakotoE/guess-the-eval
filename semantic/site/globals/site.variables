@@ -2,6 +2,7 @@
      User Global Variables
 *******************************/
 
-@h1: 6em;
+@h1: 8em;
 @textColor: #f9f9f9;
 @pageBackground: #161616;
+@fontName: 'Roboto';

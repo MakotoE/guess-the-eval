@@ -9,6 +9,7 @@ interface Props {
 
 export default ({ config }: Props): React.ReactElement => (
   <div style={{ display: 'flex', justifyContent: 'center' }}>
+    <div style={{ width: '104px' }} />
     <Chessground
       config={config}
       width={Math.min(500, document.documentElement.clientWidth)}
