@@ -4,7 +4,7 @@ import { Chess, SQUARES } from 'chess.ts';
 import { Key } from 'chessground/types';
 import * as cg from 'chessground/src/types';
 import { defaults } from 'chessground/state';
-import Chessground from './chessground';
+import Chessground from './Chessground';
 import EvalBar from './EvalBar';
 
 interface Props {
@@ -84,20 +84,14 @@ export default ({ value, onChange }: Props): React.ReactElement => {
     drawable: {
       brushes,
     },
-    // animation: {
-    //   enabled: true,
-    //   duration: 200,
-    // },
   };
+
+  const length = Math.min(500, document.documentElement.clientWidth);
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center' }}>
       <div style={{ width: '104px' }} />
-      <Chessground
-        config={config}
-        width={Math.min(500, document.documentElement.clientWidth)}
-        height={Math.min(500, document.documentElement.clientWidth)}
-      />
+      <Chessground config={config} style={{ width: length, height: length }} />
       <EvalBar />
     </div>
   );

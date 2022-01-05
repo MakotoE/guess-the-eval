@@ -10,7 +10,6 @@ See [`src/index.tsx`](src/index.tsx) to calculate evaluations for the questions.
 
 # Credits
 - Image assets: https://github.com/ornicar/lila
-- React wrapper for Chessground: https://github.com/react-chess/chessground
 
 # TODO
 
