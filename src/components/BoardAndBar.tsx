@@ -1,7 +1,9 @@
 import { Config } from 'chessground/config';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Chess, SQUARES } from 'chess.ts';
 import { Key } from 'chessground/types';
+import * as cg from 'chessground/src/types';
+import { defaults } from 'chessground/state';
 import Chessground from './chessground';
 import EvalBar from './EvalBar';
 
@@ -26,7 +28,25 @@ function getDestinations(chess: Chess): Map<Key, Key[]> {
   return result;
 }
 
+const brushes = {
+  ...defaults().drawable.brushes,
+  green: {
+    key: 'g',
+    color: '#0678bd',
+    opacity: 1,
+    lineWidth: 11,
+  },
+};
+
 export default ({ value, onChange }: Props): React.ReactElement => {
+  useEffect(() => {
+    document.onkeydown = (event) => {
+      if (event.key === 'ArrowLeft') {
+        onChange({ ...value, playMove: null });
+      }
+    };
+  }, [onChange, value]);
+
   const chess = new Chess(value.initialFEN);
   const turn = chess.turn() === 'w' ? 'white' : 'black';
   if (value.playMove !== null) {
@@ -34,6 +54,15 @@ export default ({ value, onChange }: Props): React.ReactElement => {
       throw new Error(`illegal move: ${value.playMove}`);
     }
   }
+
+  const onMove = (origin: cg.Key, destination: cg.Key) => {
+    const move = chess.move({ from: origin, to: destination }, { dry_run: true });
+    if (move === null) {
+      throw new Error(`illegal move: ${origin}, ${destination}`);
+    }
+
+    onChange({ ...value, playMove: move.san });
+  };
 
   const config: Config = {
     fen: chess.fen(),
@@ -46,19 +75,15 @@ export default ({ value, onChange }: Props): React.ReactElement => {
       free: false,
     },
     events: {
-      move: (origin, destination) => {
-        const move = chess.move({ from: origin, to: destination }, { dry_run: true });
-        if (move === null) {
-          throw new Error(`illegal move: ${origin}, ${destination}`);
-        }
-
-        onChange({ ...value, playMove: move.san });
-      },
+      move: onMove,
     },
     selectable: {
       enabled: false,
     },
     coordinates: false,
+    drawable: {
+      brushes,
+    },
   };
 
   return (

@@ -38,7 +38,8 @@ cg-board square {
 
 cg-board square.move-dest {
   pointer-events: auto;
-  background: radial-gradient(hsla(0, 0%, 49%, 50%) 19%, rgba(0, 0, 0, 0) 20%);
+  background: radial-gradient(hsla(0, 0%, 49%, 40%) 19%, rgba(0, 0, 0, 0) 20%);
+  z-index: 3;
 }
 
 cg-board square.last-move {
