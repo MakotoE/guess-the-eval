@@ -84,6 +84,10 @@ export default ({ value, onChange }: Props): React.ReactElement => {
     drawable: {
       brushes,
     },
+    // animation: {
+    //   enabled: true,
+    //   duration: 200,
+    // },
   };
 
   return (
