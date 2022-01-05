@@ -10,7 +10,7 @@ import { Config } from 'chessground/config';
 interface Props {
   width: number;
   height: number;
-  config: Partial<Config>;
+  config: Config;
 }
 
 export default ({ width, height, config }: Props): React.ReactElement => {
