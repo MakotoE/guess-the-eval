@@ -92,9 +92,9 @@ export default ({ value, onChange }: Props): React.ReactElement => {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center' }}>
-      <div style={{ width: '104px' }} />
+      <div style={{ width: '10px' }} />
       <Chessground config={config} style={{ width: length, height: length }} />
-      <EvalSlider value={sliderValue} onChange={setSliderValue} />
+      <EvalSlider value={sliderValue} onChange={setSliderValue} orientation="b" />
     </div>
   );
 };

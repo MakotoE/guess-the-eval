@@ -1,8 +1,9 @@
 import React, { useRef } from 'react';
 import Draggable from 'react-draggable';
+import { Color } from 'chess.ts';
 
 export function sliderValueToEval(value: number): number {
-  return 20 * value ** 2;
+  return 20 * value ** 3;
 }
 
 function evalOutput(value: number): string {
@@ -18,15 +19,19 @@ interface Props {
   // From -1.0 to 1.0
   value: number;
   onChange: (value: number) => void;
+  orientation: Color;
 }
 
-export default ({ value, onChange }: Props): React.ReactElement => {
+export default ({ value, onChange, orientation }: Props): React.ReactElement => {
   const rootRef = useRef(null);
 
   const totalHeight = 500;
   const sliderWidth = 24;
   const sliderHeight = 12;
   const barWidth = 10;
+  const white = '#e3e3e3';
+  const black = '#161616';
+  const valueCoefficient = orientation === 'w' ? -1 : 1;
 
   return (
     <div
@@ -41,25 +46,21 @@ export default ({ value, onChange }: Props): React.ReactElement => {
         <div
           style={{
             width: `${barWidth}px`,
-            height: `${(totalHeight / 2) * (1 + value)}px`,
-            backgroundColor: '#e3e3e3',
+            height: `${(totalHeight / 2) * (1 + value * valueCoefficient)}px`,
+            backgroundColor: orientation === 'w' ? black : white,
             borderStyle: 'solid',
-            borderColor: '#161616',
-            borderWidth: '1px',
-            borderTopWidth: value === -1 ? 0 : 1,
-            borderBottomWidth: value === -1 ? 0 : 1,
+            borderColor: orientation === 'w' ? white : black,
+            borderWidth: `${value <= -valueCoefficient + 1 / totalHeight ? 0 : 1}px`,
           }}
         />
         <div
           style={{
             width: `${barWidth}px`,
-            height: `${(totalHeight / 2) * (1 - value)}px`,
-            backgroundColor: '#161616',
+            height: `${(totalHeight / 2) * (1 - value * valueCoefficient)}px`,
+            backgroundColor: orientation === 'w' ? white : black,
             borderStyle: 'solid',
-            borderColor: '#e3e3e3',
-            borderWidth: '1px',
-            borderTopWidth: value === 1 ? 0 : 1,
-            borderBottomWidth: value === 1 ? 0 : 1,
+            borderColor: orientation === 'w' ? black : white,
+            borderWidth: `${value >= valueCoefficient - 1 / totalHeight ? 0 : 1}px`,
           }}
         />
       </div>
@@ -69,9 +70,9 @@ export default ({ value, onChange }: Props): React.ReactElement => {
           top: -(totalHeight / 2 - sliderHeight / 2),
           bottom: (totalHeight / 2 - sliderHeight / 2),
         }}
-        position={{ x: 0, y: value * (totalHeight / 2 - sliderHeight / 2) }}
+        position={{ x: 0, y: (value * valueCoefficient) * (totalHeight / 2 - sliderHeight / 2) }}
         onDrag={(e, data) => {
-          onChange(data.y / (totalHeight / 2 - sliderHeight / 2));
+          onChange((data.y / (totalHeight / 2 - sliderHeight / 2)) * valueCoefficient);
         }}
       >
         <div
