@@ -45,22 +45,24 @@ export default ({ value, onChange, orientation }: Props): React.ReactElement => 
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <div
           style={{
+            position: 'absolute',
+            width: `${barWidth}px`,
+            height: `${totalHeight}px`,
+            backgroundColor: orientation === 'w' ? white : black,
+            borderStyle: 'solid',
+            borderColor: orientation === 'w' ? black : white,
+            borderWidth: '1px',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
             width: `${barWidth}px`,
             height: `${(totalHeight / 2) * (1 + value * valueCoefficient)}px`,
             backgroundColor: orientation === 'w' ? black : white,
             borderStyle: 'solid',
             borderColor: orientation === 'w' ? white : black,
-            borderWidth: `${value <= -valueCoefficient + 1 / totalHeight ? 0 : 1}px`,
-          }}
-        />
-        <div
-          style={{
-            width: `${barWidth}px`,
-            height: `${(totalHeight / 2) * (1 - value * valueCoefficient)}px`,
-            backgroundColor: orientation === 'w' ? white : black,
-            borderStyle: 'solid',
-            borderColor: orientation === 'w' ? black : white,
-            borderWidth: `${value >= valueCoefficient - 1 / totalHeight ? 0 : 1}px`,
+            borderWidth: '1px',
           }}
         />
       </div>
@@ -83,11 +85,12 @@ export default ({ value, onChange, orientation }: Props): React.ReactElement => 
         >
           <div
             style={{
+              position: 'absolute',
               width: `${sliderWidth}px`,
               height: `${sliderHeight}px`,
-              backgroundColor: '#161616',
+              backgroundColor: orientation === 'w' ? white : black,
               borderStyle: 'solid',
-              borderColor: '#e3e3e3',
+              borderColor: orientation === 'w' ? black : white,
               borderWidth: '1px',
               cursor: 'ns-resize',
             }}
