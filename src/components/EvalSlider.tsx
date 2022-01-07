@@ -1,9 +1,26 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import Draggable from 'react-draggable';
 
-export default (): React.ReactElement => {
+export function sliderValueToEval(value: number): number {
+  return 20 * value ** 2;
+}
+
+function evalOutput(value: number): string {
+  const evaluation = sliderValueToEval(value);
+  if (evaluation >= 0) {
+    return `+${evaluation.toFixed(2)}`;
+  }
+
+  return evaluation.toFixed(2);
+}
+
+interface Props {
   // From -1.0 to 1.0
-  const [sliderValue, setSliderValue] = useState(0);
+  value: number;
+  onChange: (value: number) => void;
+}
+
+export default ({ value, onChange }: Props): React.ReactElement => {
   const rootRef = useRef(null);
 
   const totalHeight = 500;
@@ -24,25 +41,25 @@ export default (): React.ReactElement => {
         <div
           style={{
             width: `${barWidth}px`,
-            height: `${(totalHeight / 2) * (1 + sliderValue)}px`,
+            height: `${(totalHeight / 2) * (1 + value)}px`,
             backgroundColor: '#e3e3e3',
             borderStyle: 'solid',
             borderColor: '#161616',
             borderWidth: '1px',
-            borderTopWidth: sliderValue === -1 ? 0 : 1,
-            borderBottomWidth: sliderValue === -1 ? 0 : 1,
+            borderTopWidth: value === -1 ? 0 : 1,
+            borderBottomWidth: value === -1 ? 0 : 1,
           }}
         />
         <div
           style={{
             width: `${barWidth}px`,
-            height: `${(totalHeight / 2) * (1 - sliderValue)}px`,
+            height: `${(totalHeight / 2) * (1 - value)}px`,
             backgroundColor: '#161616',
             borderStyle: 'solid',
             borderColor: '#e3e3e3',
             borderWidth: '1px',
-            borderTopWidth: sliderValue === 1 ? 0 : 1,
-            borderBottomWidth: sliderValue === 1 ? 0 : 1,
+            borderTopWidth: value === 1 ? 0 : 1,
+            borderBottomWidth: value === 1 ? 0 : 1,
           }}
         />
       </div>
@@ -52,9 +69,9 @@ export default (): React.ReactElement => {
           top: -(totalHeight / 2 - sliderHeight / 2),
           bottom: (totalHeight / 2 - sliderHeight / 2),
         }}
-        position={{ x: 0, y: sliderValue * (totalHeight / 2 - sliderHeight / 2) }}
+        position={{ x: 0, y: value * (totalHeight / 2 - sliderHeight / 2) }}
         onDrag={(e, data) => {
-          setSliderValue(data.y / (totalHeight / 2 - sliderHeight / 2));
+          onChange(data.y / (totalHeight / 2 - sliderHeight / 2));
         }}
       >
         <div
@@ -86,7 +103,7 @@ export default (): React.ReactElement => {
             }}
           >
             <p style={{ fontSize: '2em' }}>
-              +0.00
+              {evalOutput(value)}
             </p>
           </div>
         </div>

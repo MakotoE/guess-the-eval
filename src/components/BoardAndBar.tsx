@@ -1,11 +1,11 @@
 import { Config } from 'chessground/config';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Chess, SQUARES } from 'chess.ts';
 import { Key } from 'chessground/types';
 import * as cg from 'chessground/src/types';
 import { defaults } from 'chessground/state';
 import Chessground from './Chessground';
-import EvalBar from './EvalBar';
+import EvalSlider from './EvalSlider';
 
 interface Props {
   value: BoardAndBarState,
@@ -39,6 +39,8 @@ const brushes = {
 };
 
 export default ({ value, onChange }: Props): React.ReactElement => {
+  const [sliderValue, setSliderValue] = useState(0);
+
   useEffect(() => {
     document.onkeydown = (event) => {
       if (event.key === 'ArrowLeft') {
@@ -92,7 +94,7 @@ export default ({ value, onChange }: Props): React.ReactElement => {
     <div style={{ display: 'flex', justifyContent: 'center' }}>
       <div style={{ width: '104px' }} />
       <Chessground config={config} style={{ width: length, height: length }} />
-      <EvalBar />
+      <EvalSlider value={sliderValue} onChange={setSliderValue} />
     </div>
   );
 };
