@@ -44,8 +44,6 @@ module.exports = {
     new HtmlWebpackPlugin({template: './src/index.html'}),
     new CopyPlugin({
       patterns: [
-        {from: './node_modules/stockfish/src/stockfish.js'},
-        {from: './node_modules/stockfish/src/stockfish.wasm'},
         {from: 'src/chessground.css'},
         {from: 'assets', to: 'assets'},
       ],
