@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Container, Header, Input } from 'semantic-ui-react';
+import {
+  Button, Container, Header, Input,
+} from 'semantic-ui-react';
 import BoardAndBar, { BoardAndBarState } from './BoardAndBar';
 
 enum State {
@@ -35,14 +37,23 @@ export default (): React.ReactElement => {
       questionText = (
         <>
           <Header as="h2">Who played in this game?</Header>
-          <Input
-            value={player}
-            onChange={(_, data) => setPlayer(data.value)}
-            size="large"
-            spellCheck={false}
-            inverted
-            autoFocus
-          />
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            <Input
+              value={player}
+              onChange={(_, data) => setPlayer(data.value)}
+              size="large"
+              spellCheck={false}
+              inverted
+              autoFocus
+            />
+            <div style={{ width: '10px' }} />
+            <Button size="large" inverted>Submit answer</Button>
+          </div>
         </>
       );
       break;
