@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
-import { Container, Header } from 'semantic-ui-react';
+import {
+  Container, Form, Header, Input,
+} from 'semantic-ui-react';
 import BoardAndBar, { BoardAndBarState } from './BoardAndBar';
+
+enum State {
+  evaluation,
+  bestMove,
+  player,
+}
 
 export default (): React.ReactElement => {
   const [boardAndBar, setBoardAndBar] = useState({
@@ -10,6 +18,35 @@ export default (): React.ReactElement => {
     playMove: null,
   } as BoardAndBarState);
 
+  const [player, setPlayer] = useState('');
+  const [currentState, setCurrentState] = useState(State.player);
+
+  let questionText = null;
+  switch (currentState) {
+    case State.evaluation:
+      questionText = <Header as="h2">What do you think the eval is? (Slide the eval bar on the right)</Header>;
+      break;
+    case State.bestMove:
+      questionText = <Header as="h2">What is the best move for black?</Header>;
+      break;
+    case State.player:
+      questionText = (
+        <Form>
+          <Header as="h2">Who played in this game?</Header>
+          <Input
+            value={player}
+            onChange={(_, data) => setPlayer(data.value)}
+            size="large"
+            spellCheck={false}
+            focus
+          />
+        </Form>
+      );
+      break;
+    default:
+      throw new Error('unreachable');
+  }
+
   return (
     <Container fluid textAlign="center">
       <div style={{ display: 'inline-block', marginBottom: '20px' }}>
@@ -17,9 +54,15 @@ export default (): React.ReactElement => {
         <p style={{ textAlign: 'left' }}>Question 1/5</p>
       </div>
       <Container textAlign="center">
-        <BoardAndBar value={boardAndBar} onChange={setBoardAndBar} />
+        <BoardAndBar
+          value={boardAndBar}
+          onChange={(value) => {
+            setBoardAndBar(value);
+            setCurrentState((state) => state + 1);
+          }}
+        />
         <p>Black to play.</p>
-        <Header as="h2">What do you think the eval is? (Slide the eval bar on the right)</Header>
+        {questionText}
       </Container>
     </Container>
   );

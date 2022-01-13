@@ -40,12 +40,12 @@ export default ({ points }: Props): React.ReactElement => {
       {`These are the top ${question.bestMoves.length} moves according to Stockfish: ${question.bestMoves.map((variation) => `, ${variation.move}`).join('').slice(2, -1)}.`}
       <br />
       {
-        points.foundPlayerOrTournament()
-          ? 'You guessed one of the players or the tournament. +10 points'
-          : 'You did not guess a player or the tournament.'
+        points.foundPlayer()
+          ? 'You guessed one of the players correctly. +10 points'
+          : 'You did not guess a player correctly.'
       }
       <br />
-      {`This was a game between ${question.players.white} (white) and ${question.players.black} (black). It was played at the ${question.tournament}.`}
+      {`This was a game between ${question.players.white} (white) and ${question.players.black} (black).`}
       <br />
       <a href={question.url} target="_blank" rel="noopener noreferrer">Source</a>
       <br />

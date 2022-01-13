@@ -21,7 +21,7 @@ function inputStringsToAnswer(inputs: { [key in keyof Answer]: string }): Answer
 const defaultInput: { [key in keyof Answer]: string } = {
   evaluation: '',
   bestMove: '',
-  playerOrTournament: '',
+  player: '',
 };
 
 export default (): React.ReactElement => {
@@ -78,7 +78,7 @@ export default (): React.ReactElement => {
       />
       <Form.Input
         name="playerOrTournament"
-        value={input.playerOrTournament}
+        value={input.player}
         onChange={handleChange}
         disabled={showAnswer}
         label="Name one of the players or the tournament"

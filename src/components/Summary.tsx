@@ -8,7 +8,7 @@ function resultsString(index: number, answer: Answer): string {
   const question = questions[index];
   const points = new PointsSolver({ question, answer });
   return `> Question ${index + 1}:
->\tMy eval guess was off by ${Math.abs(answer.evaluation - question.bestMoves[0].evaluation).toFixed(2)}.${points.foundBestMove() ? '\n>\tI found one of the top 3 moves.' : ''}${points.foundPlayerOrTournament() ? '\n>\tI guessed one of the players or the tournament.' : ''}
+>\tMy eval guess was off by ${Math.abs(answer.evaluation - question.bestMoves[0].evaluation).toFixed(2)}.${points.foundBestMove() ? '\n>\tI found one of the top 3 moves.' : ''}${points.foundPlayer() ? '\n>\tI guessed one of the players or the tournament.' : ''}
 >\tI earned ${points.totalPoints().toFixed(1)} points on this question.
 >
 `;

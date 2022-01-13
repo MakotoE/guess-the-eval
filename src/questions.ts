@@ -1,7 +1,6 @@
 export interface Question {
   fen: string,
   players: { white: string, black: string },
-  tournament: string,
   url: string,
   bestMoves: BestMoves,
 }
@@ -21,7 +20,6 @@ export const questions: Question[] = [
       white: 'Ian Nepomniachtchi',
       black: 'Magnus Carlsen',
     },
-    tournament: 'World Chess Championship WCC 2021',
     url: 'https://lichess.org/study/RoBvWqfx/qq4glFqA#53',
     bestMoves: [
       {
@@ -44,7 +42,6 @@ export const questions: Question[] = [
       white: 'Deep Blue',
       black: 'Garry Kasparov',
     },
-    tournament: 'IBM Man-Machine 1997',
     url: 'https://lichess.org/study/PSiqUImS/H0yrYCp7#37',
     bestMoves: [
       {
@@ -67,7 +64,6 @@ export const questions: Question[] = [
       white: 'Roman Toran Albero',
       black: 'Mikhail Tal',
     },
-    tournament: 'European Team Chess Championship 1961',
     url: 'https://www.chessgames.com/perl/chessgame?gid=1139541',
     bestMoves: [
       {
@@ -86,7 +82,6 @@ export const questions: Question[] = [
       white: 'Donald Byrne',
       black: 'Robert Bobby James Fischer',
     },
-    tournament: 'Rosenwald Memorial Tournament',
     url: 'https://www.chessgames.com/perl/chessgame?gid=1008361',
     bestMoves: [
       {
@@ -109,7 +104,6 @@ export const questions: Question[] = [
       white: 'Magnus Carlsen',
       black: 'Hikaru Nakamura',
     },
-    tournament: 'Magnus Carlsen Invitational 2021',
     url: 'https://www.chessgames.com/perl/chessgame?gid=2029671',
     bestMoves: [
       {

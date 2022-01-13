@@ -85,18 +85,17 @@ export class PointsSolver {
   }
 
   /**
-   * @returns true if a player or tournament was guessed
+   * @returns true if a player was guessed
    */
-  foundPlayerOrTournament(): boolean {
+  foundPlayer(): boolean {
     const strings = [
       this.result.question.players.white,
       this.result.question.players.black,
-      this.result.question.tournament,
     ];
     const possibleWords = new Set<string>(
       strings.map((s) => s.toLowerCase().split(' ')).flat(),
     );
-    return this.result.answer.playerOrTournament.split(' ')
+    return this.result.answer.player.split(' ')
       .some((word) => possibleWords.has(word.toLowerCase()));
   }
 
@@ -106,7 +105,7 @@ export class PointsSolver {
   totalPoints(): number {
     return (this.foundWinningSide() ? 20 : 0)
       + this.evalPoints() * this.bestMoveMultiplier()
-      + (this.foundPlayerOrTournament() ? 10 : 0);
+      + (this.foundPlayer() ? 10 : 0);
   }
 }
 
@@ -118,5 +117,5 @@ export interface QuestionAnswer {
 export interface Answer {
   evaluation: number,
   bestMove: string,
-  playerOrTournament: string,
+  player: string,
 }
