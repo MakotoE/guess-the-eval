@@ -22,10 +22,14 @@ export default (): React.ReactElement => {
   let questionText = null;
   switch (currentState) {
     case State.evaluation:
-      questionText = <Header as="h2">What do you think the eval is? (Slide the eval bar on the right)</Header>;
+      questionText = (
+        <Header as="h2">
+          What do you think the eval is? (Slide the eval bar on the right)
+        </Header>
+      );
       break;
     case State.bestMove:
-      questionText = <Header as="h2">What is the best move for black? (Press left arrow key to undo)</Header>;
+      questionText = <Header as="h2">What is the best move for black?</Header>;
       break;
     case State.player:
       questionText = (
@@ -64,7 +68,6 @@ export default (): React.ReactElement => {
             }
           }}
         />
-        <p>Black to play.</p>
         {questionText}
       </Container>
     </Container>

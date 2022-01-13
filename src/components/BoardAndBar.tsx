@@ -1,9 +1,10 @@
 import { Config } from 'chessground/config';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Chess, SQUARES } from 'chess.ts';
 import { Key } from 'chessground/types';
 import * as cg from 'chessground/src/types';
 import { defaults } from 'chessground/state';
+import { Button } from 'semantic-ui-react';
 import Chessground from './Chessground';
 import EvalSlider from './EvalSlider';
 
@@ -40,14 +41,6 @@ const brushes = {
 };
 
 export default ({ value, onChange }: Props): React.ReactElement => {
-  useEffect(() => {
-    document.onkeydown = (event) => {
-      if (event.key === 'ArrowLeft') {
-        onChange({ ...value, playMove: null });
-      }
-    };
-  }, [onChange, value]);
-
   const chess = new Chess(value.initialFEN);
   const turn = chess.turn() === 'w' ? 'white' : 'black';
   if (value.playMove !== null) {
@@ -90,13 +83,32 @@ export default ({ value, onChange }: Props): React.ReactElement => {
   const length = Math.min(500, document.documentElement.clientWidth);
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center' }}>
-      <div style={{ width: '10px' }} />
-      <Chessground config={config} style={{ width: length, height: length }} />
-      <EvalSlider
-        onStop={(sliderValue) => onChange({ ...value, sliderValue })}
-        orientation="b"
-      />
-    </div>
+    <>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: '10px' }} />
+        <Chessground config={config} style={{ width: length, height: length }} />
+        <EvalSlider
+          onStop={(sliderValue) => onChange({ ...value, sliderValue })}
+          orientation="b"
+        />
+      </div>
+      <p style={{ marginBottom: '4px' }}>
+        Black to play
+      </p>
+      {
+        value.playMove === null
+          ? null
+          : (
+            <Button
+              onClick={() => onChange({ ...value, playMove: null })}
+              compact
+              size="tiny"
+              inverted
+            >
+              Undo move
+            </Button>
+          )
+      }
+    </>
   );
 };
