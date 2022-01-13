@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Container, Form, Header, Input,
-} from 'semantic-ui-react';
+import { Container, Header, Input } from 'semantic-ui-react';
 import BoardAndBar, { BoardAndBarState } from './BoardAndBar';
 
 enum State {
@@ -17,7 +15,6 @@ export default (): React.ReactElement => {
       '3rb1k1/1Bp2pp1/4p3/2P1P2p/r5nP/1N4P1/P4P2/R3R1K1 b - - 0 27',
     playMove: null,
   } as BoardAndBarState);
-
   const [player, setPlayer] = useState('');
   const [currentState, setCurrentState] = useState(State.player);
 
@@ -31,16 +28,17 @@ export default (): React.ReactElement => {
       break;
     case State.player:
       questionText = (
-        <Form>
+        <>
           <Header as="h2">Who played in this game?</Header>
           <Input
             value={player}
             onChange={(_, data) => setPlayer(data.value)}
             size="large"
             spellCheck={false}
-            focus
+            inverted
+            autoFocus
           />
-        </Form>
+        </>
       );
       break;
     default:

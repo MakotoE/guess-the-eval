@@ -1,8 +1,8 @@
-/*******************************
-     User Global Variables
-*******************************/
-
-@h1: 8em;
-@textColor: #f9f9f9;
-@pageBackground: #161616;
 @fontName: 'Roboto';
+@h1: 8em;
+
+@white: #F9F9F9;
+@black: #161616;
+@inputColor: @black;
+@pageBackground: @black;
+@textColor: @white;
