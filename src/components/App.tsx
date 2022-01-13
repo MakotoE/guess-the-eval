@@ -6,17 +6,18 @@ enum State {
   evaluation,
   bestMove,
   player,
+  summary,
 }
 
 export default (): React.ReactElement => {
   const [boardAndBar, setBoardAndBar] = useState({
-    eval: 0,
+    sliderValue: 0,
     initialFEN:
       '3rb1k1/1Bp2pp1/4p3/2P1P2p/r5nP/1N4P1/P4P2/R3R1K1 b - - 0 27',
     playMove: null,
   } as BoardAndBarState);
   const [player, setPlayer] = useState('');
-  const [currentState, setCurrentState] = useState(State.player);
+  const [currentState, setCurrentState] = useState(State.evaluation);
 
   let questionText = null;
   switch (currentState) {
@@ -24,7 +25,7 @@ export default (): React.ReactElement => {
       questionText = <Header as="h2">What do you think the eval is? (Slide the eval bar on the right)</Header>;
       break;
     case State.bestMove:
-      questionText = <Header as="h2">What is the best move for black?</Header>;
+      questionText = <Header as="h2">What is the best move for black? (Press left arrow key to undo)</Header>;
       break;
     case State.player:
       questionText = (
@@ -56,7 +57,11 @@ export default (): React.ReactElement => {
           value={boardAndBar}
           onChange={(value) => {
             setBoardAndBar(value);
-            setCurrentState((state) => state + 1);
+            if (player === '' && value.playMove !== null) {
+              setCurrentState(State.player);
+            } else if (value.sliderValue !== 0) {
+              setCurrentState(State.bestMove);
+            }
           }}
         />
         <p>Black to play.</p>

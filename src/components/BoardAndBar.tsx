@@ -1,5 +1,5 @@
 import { Config } from 'chessground/config';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Chess, SQUARES } from 'chess.ts';
 import { Key } from 'chessground/types';
 import * as cg from 'chessground/src/types';
@@ -15,7 +15,8 @@ interface Props {
 export interface BoardAndBarState {
   initialFEN: string,
   playMove: string | null,
-  eval: number
+  // From -1.0 to 1.0. Use sliderValueToEval() to convert to eval.
+  sliderValue: number
 }
 
 function getDestinations(chess: Chess): Map<Key, Key[]> {
@@ -39,8 +40,6 @@ const brushes = {
 };
 
 export default ({ value, onChange }: Props): React.ReactElement => {
-  const [sliderValue, setSliderValue] = useState(0);
-
   useEffect(() => {
     document.onkeydown = (event) => {
       if (event.key === 'ArrowLeft') {
@@ -94,7 +93,10 @@ export default ({ value, onChange }: Props): React.ReactElement => {
     <div style={{ display: 'flex', justifyContent: 'center' }}>
       <div style={{ width: '10px' }} />
       <Chessground config={config} style={{ width: length, height: length }} />
-      <EvalSlider value={sliderValue} onChange={setSliderValue} orientation="b" />
+      <EvalSlider
+        onStop={(sliderValue) => onChange({ ...value, sliderValue })}
+        orientation="b"
+      />
     </div>
   );
 };

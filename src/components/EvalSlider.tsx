@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import Draggable from 'react-draggable';
 import { Color } from 'chess.ts';
 
@@ -17,12 +17,12 @@ function evalOutput(value: number): string {
 
 interface Props {
   // From -1.0 to 1.0
-  value: number;
-  onChange: (value: number) => void;
+  onStop: (value: number) => void;
   orientation: Color;
 }
 
-export default ({ value, onChange, orientation }: Props): React.ReactElement => {
+export default ({ onStop, orientation }: Props): React.ReactElement => {
+  const [value, setValue] = useState(0);
   const rootRef = useRef(null);
 
   const totalHeight = 500;
@@ -73,9 +73,10 @@ export default ({ value, onChange, orientation }: Props): React.ReactElement => 
           bottom: (totalHeight / 2 - sliderHeight / 2),
         }}
         position={{ x: 0, y: (value * valueCoefficient) * (totalHeight / 2 - sliderHeight / 2) }}
-        onDrag={(e, data) => {
-          onChange((data.y / (totalHeight / 2 - sliderHeight / 2)) * valueCoefficient);
+        onDrag={(_, data) => {
+          setValue((data.y / (totalHeight / 2 - sliderHeight / 2)) * valueCoefficient);
         }}
+        onStop={() => onStop(value)}
       >
         <div
           style={{
