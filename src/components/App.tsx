@@ -25,6 +25,7 @@ export default (): React.ReactElement => {
   } as BoardAndBarState);
   const [player, setPlayer] = useState('');
   const [currentState, setCurrentState] = useState(State.evaluation);
+  const [questionIndex, setQuestionIndex] = useState(0);
   const lastAnswer: Answer | undefined = useAppSelector(
     (state) => state.game.answers[state.game.answers.length - 1],
   );
@@ -84,10 +85,15 @@ export default (): React.ReactElement => {
         throw new Error('lastAnswer is undefined');
       }
       questionText = (
-        <LastResult
-          question={questions[0]}
-          answer={lastAnswer}
-        />
+        <>
+          <LastResult
+            question={questions[0]}
+            answer={lastAnswer}
+          />
+          <Button onClick={() => setQuestionIndex((n) => n + 1)} size="large" inverted>
+            Okay, next
+          </Button>
+        </>
       );
       break;
     default:

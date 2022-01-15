@@ -51,7 +51,7 @@ export default ({ question, answer }: Props): React.ReactElement => {
       <br />
       <a href={question.url} target="_blank" rel="noopener noreferrer">Source</a>
       <br />
-      {`You earned ${points.totalPoints().toFixed(1)} points.`}
+      <strong>{`You earned ${points.totalPoints().toFixed(1)} points.`}</strong>
     </Container>
   );
 };
