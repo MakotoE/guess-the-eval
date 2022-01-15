@@ -24,4 +24,10 @@ module.exports = merge(common, {
       'Cross-Origin-Embedder-Policy': 'require-corp',
     },
   },
+  cache: {
+    type: 'filesystem',
+    buildDependencies: {
+      config: [__filename, __dirname + '/webpack.common.js'],
+    },
+  },
 });
