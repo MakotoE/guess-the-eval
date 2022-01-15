@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  Button, Container, Header, Input,
+  Button, Container, Form, Header, Input,
 } from 'semantic-ui-react';
 import BoardAndBar, { BoardAndBarState } from './BoardAndBar';
 import LastResult from './LastResult';
@@ -44,40 +44,38 @@ export default (): React.ReactElement => {
       questionText = <Header as="h2">What is the best move for black?</Header>;
       break;
     case State.player:
-      // TODO need to make it a form to allow enter button
       questionText = (
         <>
           <Header as="h2">Who played in this game?</Header>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-            }}
+          <Form onSubmit={() => {
+            dispatch(addAnswer({
+              evaluation: sliderValueToEval(boardAndBar.sliderValue),
+              bestMove: boardAndBar.playMove,
+              player,
+            }));
+            setCurrentState(State.result);
+          }}
           >
-            <Input
-              value={player}
-              onChange={(_, data) => setPlayer(data.value)}
-              size="large"
-              spellCheck={false}
-              inverted
-              autoFocus
-            />
-            <div style={{ width: '10px' }} />
-            <Button
-              onClick={() => {
-                dispatch(addAnswer({
-                  evaluation: sliderValueToEval(boardAndBar.sliderValue),
-                  bestMove: boardAndBar.playMove,
-                  player,
-                }));
-                setCurrentState(State.result);
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
               }}
-              size="large"
-              inverted
             >
-              Submit answer
-            </Button>
-          </div>
+              <Input
+                value={player}
+                onChange={(_, data) => setPlayer(data.value)}
+                size="large"
+                spellCheck={false}
+                inverted
+                autoFocus
+              />
+              <div style={{ width: '10px' }} />
+              <Button size="large" inverted>
+                Submit answer
+              </Button>
+            </div>
+          </Form>
         </>
       );
       break;
