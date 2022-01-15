@@ -20,7 +20,7 @@ export default ({ question, answer }: Props): React.ReactElement => {
       {
         points.foundWinningSide()
           ? 'You guessed the winning side. +20 points'
-          : 'You did not guess the winning side. +0 points'
+          : 'You did not guess the winning side.'
       }
       <br />
       {`Your eval guess was off by ${Math.abs(answer.evaluation - question.bestMoves[0].evaluation).toFixed(2)}. Actual eval was ${formatEval(question.bestMoves[0].evaluation)}.`}
@@ -39,7 +39,7 @@ export default ({ question, answer }: Props): React.ReactElement => {
           : ''
       }
       <br />
-      {`These are the top ${question.bestMoves.length} moves according to Stockfish: ${question.bestMoves.map((variation) => `, ${variation.move}`).join('').slice(2, -1)}.`}
+      {`These are the top ${question.bestMoves.length} moves according to Stockfish: ${question.bestMoves.map((variation) => `, ${variation.move} (${formatEval(variation.evaluation)})`).join('').slice(2)}.`}
       <br />
       {
         points.foundPlayer()

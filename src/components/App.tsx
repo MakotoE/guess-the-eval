@@ -6,7 +6,6 @@ import BoardAndBar, { BoardAndBarState } from './BoardAndBar';
 import LastResult from './LastResult';
 import { questions } from '../questions';
 import { sliderValueToEval } from './EvalSlider';
-import { addAnswer, useAppDispatch, useAppSelector } from '../store';
 import { Answer } from '../PointsSolver';
 
 enum State {
@@ -24,13 +23,9 @@ export default (): React.ReactElement => {
     playMove: '',
   } as BoardAndBarState);
   const [player, setPlayer] = useState('');
+  const [answers, setAnswers] = useState([] as Answer[]);
   const [currentState, setCurrentState] = useState(State.evaluation);
   const [questionIndex, setQuestionIndex] = useState(0);
-  const lastAnswer: Answer | undefined = useAppSelector(
-    (state) => state.game.answers[state.game.answers.length - 1],
-  );
-
-  const dispatch = useAppDispatch();
 
   let questionText = null;
   switch (currentState) {
@@ -49,11 +44,11 @@ export default (): React.ReactElement => {
         <>
           <Header as="h2">Who played in this game?</Header>
           <Form onSubmit={() => {
-            dispatch(addAnswer({
+            setAnswers((state) => [...state, {
               evaluation: sliderValueToEval(boardAndBar.sliderValue),
               bestMove: boardAndBar.playMove,
               player,
-            }));
+            }]);
             setCurrentState(State.result);
           }}
           >
@@ -80,7 +75,8 @@ export default (): React.ReactElement => {
         </>
       );
       break;
-    case State.result:
+    case State.result: {
+      const lastAnswer = answers[answers.length - 1];
       if (!lastAnswer) {
         throw new Error('lastAnswer is undefined');
       }
@@ -96,6 +92,7 @@ export default (): React.ReactElement => {
         </>
       );
       break;
+    }
     default:
       throw new Error('unreachable');
   }
