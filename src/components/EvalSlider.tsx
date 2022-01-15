@@ -19,9 +19,10 @@ interface Props {
   // From -1.0 to 1.0
   onStop: (value: number) => void;
   orientation: Color;
+  disabled: boolean
 }
 
-export default ({ onStop, orientation }: Props): React.ReactElement => {
+export default ({ onStop, orientation, disabled }: Props): React.ReactElement => {
   const [value, setValue] = useState(0);
   const rootRef = useRef(null);
 
@@ -77,6 +78,7 @@ export default ({ onStop, orientation }: Props): React.ReactElement => {
           setValue((data.y / (totalHeight / 2 - sliderHeight / 2)) * valueCoefficient);
         }}
         onStop={() => onStop(value)}
+        disabled={disabled}
       >
         <div
           style={{
@@ -93,7 +95,7 @@ export default ({ onStop, orientation }: Props): React.ReactElement => {
               borderStyle: 'solid',
               borderColor: orientation === 'w' ? black : white,
               borderWidth: '1px',
-              cursor: 'ns-resize',
+              cursor: disabled ? '' : 'ns-resize',
             }}
           />
           <div
@@ -104,7 +106,7 @@ export default ({ onStop, orientation }: Props): React.ReactElement => {
               top: `${sliderHeight / 2}px`,
               display: 'flex',
               alignItems: 'center',
-              cursor: 'ns-resize',
+              cursor: disabled ? '' : 'ns-resize',
             }}
           >
             <p style={{ fontSize: '2em' }}>

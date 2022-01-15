@@ -111,6 +111,7 @@ export default (): React.ReactElement => {
               setCurrentState(State.bestMove);
             }
           }}
+          disabled={currentState === State.result}
         />
         {questionText}
       </Container>

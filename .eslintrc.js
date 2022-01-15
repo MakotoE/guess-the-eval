@@ -29,7 +29,4 @@ module.exports = {
         },
     },
     ignorePatterns: ['*.js'],
-    rules: {
-        'react/function-component-definition': 'off',
-    },
 };

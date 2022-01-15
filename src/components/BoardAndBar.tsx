@@ -10,14 +10,16 @@ import EvalSlider from './EvalSlider';
 
 interface Props {
   value: BoardAndBarState,
-  onChange: (input: BoardAndBarState) => void;
+  onChange: (input: BoardAndBarState) => void,
+  // If true, user cannot change any values
+  disabled: boolean,
 }
 
 export interface BoardAndBarState {
   initialFEN: string,
   playMove: string,
   // From -1.0 to 1.0. Use sliderValueToEval() to convert to eval.
-  sliderValue: number
+  sliderValue: number,
 }
 
 function getDestinations(chess: Chess): Map<Key, Key[]> {
@@ -40,8 +42,7 @@ const brushes = {
   },
 };
 
-export default ({ value, onChange }: Props): React.ReactElement => {
-  // TODO need a way to "freeze" the board inputs
+export default ({ value, onChange, disabled }: Props): React.ReactElement => {
   const chess = new Chess(value.initialFEN);
   const turn = chess.turn() === 'w' ? 'white' : 'black';
   if (value.playMove !== '') {
@@ -66,11 +67,14 @@ export default ({ value, onChange }: Props): React.ReactElement => {
     movable: {
       dests: getDestinations(chess),
       color: turn,
-      showDests: true,
+      showDests: !disabled,
       free: false,
     },
     events: {
       move: onMove,
+    },
+    draggable: {
+      enabled: !disabled,
     },
     selectable: {
       enabled: false,
@@ -91,13 +95,14 @@ export default ({ value, onChange }: Props): React.ReactElement => {
         <EvalSlider
           onStop={(sliderValue) => onChange({ ...value, sliderValue })}
           orientation="b"
+          disabled={disabled}
         />
       </div>
       <p style={{ marginBottom: '4px' }}>
         Black to play
       </p>
       {
-        value.playMove === ''
+        value.playMove === '' || disabled
           ? null
           : (
             <Button
