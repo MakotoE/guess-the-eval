@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container } from 'semantic-ui-react';
-import { PointsSolver } from '../PointsSolver';
+import { Answer, PointsSolver } from '../PointsSolver';
+import { Question } from '../questions';
 
 function formatEval(evaluation: number): string {
   const sign = evaluation > 0 ? '+' : '';
@@ -8,11 +9,12 @@ function formatEval(evaluation: number): string {
 }
 
 interface Props {
-  points: PointsSolver;
+  question: Question;
+  answer: Answer;
 }
 
-export default ({ points }: Props): React.ReactElement => {
-  const { question, answer } = points.result;
+export default ({ question, answer }: Props): React.ReactElement => {
+  const points = new PointsSolver({ question, answer });
   return (
     <Container>
       {

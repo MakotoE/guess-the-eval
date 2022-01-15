@@ -15,7 +15,7 @@ interface Props {
 
 export interface BoardAndBarState {
   initialFEN: string,
-  playMove: string | null,
+  playMove: string,
   // From -1.0 to 1.0. Use sliderValueToEval() to convert to eval.
   sliderValue: number
 }
@@ -41,9 +41,10 @@ const brushes = {
 };
 
 export default ({ value, onChange }: Props): React.ReactElement => {
+  // TODO need a way to "freeze" the board inputs
   const chess = new Chess(value.initialFEN);
   const turn = chess.turn() === 'w' ? 'white' : 'black';
-  if (value.playMove !== null) {
+  if (value.playMove !== '') {
     if (chess.move(value.playMove) === null) {
       throw new Error(`illegal move: ${value.playMove}`);
     }
@@ -96,11 +97,11 @@ export default ({ value, onChange }: Props): React.ReactElement => {
         Black to play
       </p>
       {
-        value.playMove === null
+        value.playMove === ''
           ? null
           : (
             <Button
-              onClick={() => onChange({ ...value, playMove: null })}
+              onClick={() => onChange({ ...value, playMove: '' })}
               compact
               size="tiny"
               inverted
