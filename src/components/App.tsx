@@ -118,12 +118,17 @@ export default (): React.ReactElement => {
     <Container fluid textAlign="center">
       <div style={{ display: 'inline-block', marginBottom: '20px' }}>
         <Header as="h1" style={{ marginBottom: '-14px' }}><i>Guess the Eval</i></Header>
-        <Header as="h2">
-          Question&nbsp;
-          {questionIndex + 1}
-          /5 |&nbsp;
-          {totalPoints(questions, answers).toFixed(1)}
-          &nbsp;points
+        <Header as="h2" style={{ display: 'flex' }}>
+          <span style={{ flex: 1, textAlign: 'right' }}>
+            Question&nbsp;
+            {questionIndex + 1}
+            /5
+          </span>
+          &nbsp;|&nbsp;
+          <span style={{ flex: 1, textAlign: 'left' }}>
+            {totalPoints(questions, answers).toFixed(1)}
+            &nbsp;points
+          </span>
         </Header>
       </div>
       <Container textAlign="center">
