@@ -4,9 +4,9 @@ import {
 } from 'semantic-ui-react';
 import BoardAndBar, { BoardAndBarState } from './BoardAndBar';
 import LastResult from './LastResult';
-import { questions } from '../questions';
+import { Question, questions } from '../questions';
 import { sliderValueToEval } from './EvalSlider';
-import { Answer } from '../PointsSolver';
+import { Answer, PointsSolver } from '../PointsSolver';
 
 enum State {
   evaluation,
@@ -15,17 +15,26 @@ enum State {
   result,
 }
 
+function totalPoints(questionsArr: Question[], answers: Answer[]): number {
+  if (answers.length === 0) {
+    return 0;
+  }
+
+  return answers.map(
+    (answer, index) => new PointsSolver({ question: questionsArr[index], answer }).totalPoints(),
+  ).reduce((previous, current) => previous + current);
+}
+
 export default (): React.ReactElement => {
+  const [questionIndex, setQuestionIndex] = useState(0);
   const [boardAndBar, setBoardAndBar] = useState({
     sliderValue: 0,
-    initialFEN:
-      '3rb1k1/1Bp2pp1/4p3/2P1P2p/r5nP/1N4P1/P4P2/R3R1K1 b - - 0 27',
+    initialFEN: questions[questionIndex].fen,
     playMove: '',
   } as BoardAndBarState);
   const [player, setPlayer] = useState('');
   const [answers, setAnswers] = useState([] as Answer[]);
   const [currentState, setCurrentState] = useState(State.evaluation);
-  const [questionIndex, setQuestionIndex] = useState(0);
 
   let questionText = null;
   switch (currentState) {
@@ -44,11 +53,12 @@ export default (): React.ReactElement => {
         <>
           <Header as="h2">Who played in this game?</Header>
           <Form onSubmit={() => {
-            setAnswers((state) => [...state, {
+            const answer = {
               evaluation: sliderValueToEval(boardAndBar.sliderValue),
               bestMove: boardAndBar.playMove,
               player,
-            }]);
+            };
+            setAnswers((state) => [...state, answer]);
             setCurrentState(State.result);
           }}
           >
@@ -86,7 +96,14 @@ export default (): React.ReactElement => {
             question={questions[0]}
             answer={lastAnswer}
           />
-          <Button onClick={() => setQuestionIndex((n) => n + 1)} size="large" inverted>
+          <Button
+            onClick={() => {
+              setQuestionIndex((n) => n + 1);
+              setCurrentState(State.evaluation);
+            }}
+            size="large"
+            inverted
+          >
             Okay, next
           </Button>
         </>
@@ -101,7 +118,13 @@ export default (): React.ReactElement => {
     <Container fluid textAlign="center">
       <div style={{ display: 'inline-block', marginBottom: '20px' }}>
         <Header as="h1" style={{ marginBottom: '-14px' }}><i>Guess the Eval</i></Header>
-        <p style={{ textAlign: 'left' }}>Question 1/5</p>
+        <Header as="h2">
+          Question&nbsp;
+          {questionIndex + 1}
+          /5 |&nbsp;
+          {totalPoints(questions, answers).toFixed(1)}
+          &nbsp;points
+        </Header>
       </div>
       <Container textAlign="center">
         <BoardAndBar
