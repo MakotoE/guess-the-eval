@@ -1,12 +1,16 @@
 mod question;
 
 use crate::question::*;
-use anyhow::Result;
+use anyhow::{Error, Result};
 use clap::Parser;
+use pgn_reader::{BufferedReader, Nag, RawComment, RawHeader, Skip, Visitor};
 use shakmaty::fen::Fen;
+use shakmaty::san::{SanError, SanPlus};
 use shakmaty::uci::Uci;
-use shakmaty::{File, Rank, Role, Square};
+use shakmaty::{Chess, File, Move, Outcome, PlayError, Position, Rank, Role, Square};
+use std::fs;
 use std::io::{stdout, Write};
+use std::path::{Path, PathBuf};
 use std::process::Stdio;
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader, Lines};
@@ -19,12 +23,63 @@ use vampirc_uci::{
 
 #[derive(Debug, Parser)]
 struct Args {
-    positions: Vec<String>,
+    pgn_file_path: PathBuf,
 }
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let positions: Vec<String> = Args::parse().positions;
+    let file = fs::File::open(Args::parse().pgn_file_path)?;
+    let mut reader = BufferedReader::new(file);
+    let result = reader.read_game(&mut PositionsVisitor::new())?.unwrap()?;
+    println!("{:?}", result);
+
+    Ok(())
+}
+
+#[derive(Debug)]
+struct PositionsVisitor {
+    position: Chess,
+    error: Option<Error>,
+}
+
+impl PositionsVisitor {
+    fn new() -> Self {
+        Self {
+            position: Chess::default(),
+            error: None,
+        }
+    }
+}
+
+impl Visitor for PositionsVisitor {
+    type Result = Result<Chess>;
+
+    fn san(&mut self, san: SanPlus) {
+        let position = std::mem::take(&mut self.position);
+        let m = match san.san.to_move(&position) {
+            Ok(m) => m,
+            Err(e) => {
+                self.error = Some(e.into());
+                return;
+            }
+        };
+
+        match position.play(&m) {
+            Ok(new_pos) => self.position = new_pos,
+            Err(e) => self.error = Some(e.into()),
+        }
+    }
+
+    fn end_game(&mut self) -> Self::Result {
+        match self.error.take() {
+            Some(e) => Err(e),
+            None => Ok(std::mem::take(&mut self.position)),
+        }
+    }
+}
+
+async fn main_() -> Result<()> {
+    let positions: Vec<String> = vec![];
 
     let mut child = Command::new("./stockfish_14.1_linux_x64_avx2")
         .stdout(Stdio::piped())
@@ -67,7 +122,7 @@ async fn main() -> Result<()> {
     let stdout = stdout();
     let mut stdout = stdout.lock();
     serde_json::to_writer_pretty(&mut stdout, &result)?;
-    stdout.flush();
+    stdout.flush()?;
 
     child.wait().await.unwrap();
     Ok(())

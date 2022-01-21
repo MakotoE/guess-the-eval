@@ -11,3 +11,4 @@ serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"]}
 shakmaty = "0.20"
 clap = { version = "3.0", features = ["derive"] }
+pgn-reader = "0.19"
