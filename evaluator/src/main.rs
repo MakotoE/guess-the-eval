@@ -30,8 +30,17 @@ struct Args {
 async fn main() -> Result<()> {
     let file = fs::File::open(Args::parse().pgn_file_path)?;
     let mut reader = BufferedReader::new(file);
-    let result = reader.read_game(&mut PositionsVisitor::new())?.unwrap()?;
-    println!("{:?}", result);
+    let mut positions: Vec<Chess> = Vec::new();
+    loop {
+        match reader.read_game(&mut PositionsVisitor::new())? {
+            Some(result) => {
+                positions.push(result?);
+            }
+            None => break,
+        }
+    }
+
+    println!("{:?}", positions.len());
 
     Ok(())
 }
