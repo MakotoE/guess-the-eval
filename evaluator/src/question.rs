@@ -1,4 +1,5 @@
 use super::*;
+use crate::stockfish::RawVariation;
 use serde::{Serialize, Serializer};
 use shakmaty::fen::Fen;
 use shakmaty::san::San;
