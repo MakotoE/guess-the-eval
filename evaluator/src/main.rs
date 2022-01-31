@@ -55,7 +55,7 @@ async fn main_() -> Result<()> {
 
 #[derive(Debug)]
 struct PositionsVisitor {
-    positions: Vec<Chess>,
+    positions: Vec<Chess>, // TODO store game info
     error: Option<Error>,
 }
 
@@ -72,11 +72,11 @@ impl Visitor for PositionsVisitor {
     type Result = Result<Vec<Chess>>;
 
     fn san(&mut self, san: SanPlus) {
-        let position = std::mem::take(&mut self.positions[0]);
-        let m = match san.san.to_move(&position) {
+        let last_position = self.positions.last().unwrap().clone();
+        let m = match san.san.to_move(&last_position) {
             Ok(m) => m,
             Err(e) => {
-                let fen = Fen::from_setup(&position);
+                let fen = Fen::from_setup(&last_position);
                 let err = Error::from(e).context(format!(
                     "position: {}, san: {}",
                     fen.to_string(),
@@ -87,7 +87,7 @@ impl Visitor for PositionsVisitor {
             }
         };
 
-        match position.play(&m) {
+        match last_position.play(&m) {
             Ok(new_pos) => self.positions.push(new_pos),
             Err(e) => self.error = Some(e.into()),
         }
