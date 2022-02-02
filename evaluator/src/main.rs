@@ -1,12 +1,16 @@
 use anyhow::{Error, Result};
 use clap::Parser;
-use pgn_reader::{BufferedReader, Nag, RawComment, RawHeader, Skip, Visitor};
+use pgn_reader::{BufferedReader, RawHeader, Skip, Visitor};
+use rand::distributions::{Distribution, Uniform};
+use rand::rngs::SmallRng;
+use rand::SeedableRng;
 use shakmaty::fen::Fen;
 use shakmaty::san::SanPlus;
-use shakmaty::{Chess, Outcome, Position};
+use shakmaty::{Chess, Position, Setup};
 use std::collections::HashSet;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::hash::{Hash, Hasher};
+use std::path::PathBuf;
 
 use crate::question::*;
 use crate::stockfish::calculate_evals;
@@ -48,6 +52,9 @@ async fn main_() -> Result<()> {
         }
     }
 
+    let positions = choose_positions(&games);
+    println!("{:?}", positions);
+
     // calculate_evals(Path::new("./stockfish_14.1_linux_x64_avx2"), &positions).await?;
 
     Ok(())
@@ -82,6 +89,10 @@ impl Visitor for PositionsVisitor {
     }
 
     fn san(&mut self, san: SanPlus) {
+        if self.error.is_some() {
+            return;
+        }
+
         let last_position = self.positions.last().unwrap().clone();
         let m = match san.san.to_move(&last_position) {
             Ok(m) => m,
@@ -114,12 +125,59 @@ impl Visitor for PositionsVisitor {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq, Eq, Clone)]
 struct Players {
     white: String,
     black: String,
 }
 
-fn choose_positions() -> HashSet<Chess> {
-    todo!()
+#[derive(Debug, PartialEq, Eq, Clone)]
+struct PositionAndPlayers {
+    position: Chess,
+    players: Players,
+}
+
+impl Hash for PositionAndPlayers {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.position.hash(state);
+    }
+}
+
+/// Selects positions from given games.
+/// Starting from game 0, it selects 5 random positions that match the rules described below from
+/// each game until it accumulates 100 unique positions and returns them.
+///
+/// Selection rules:
+/// - The position must be on turn 3 or later
+/// - The position must have 3 or more pieces
+fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlayers> {
+    let mut rng = SmallRng::from_entropy();
+
+    let mut result: HashSet<PositionAndPlayers> = HashSet::new();
+
+    for game in games {
+        let uniform = Uniform::new(6, game.0.len());
+
+        for _ in 0..5 {
+            let position = &game.0[uniform.sample(&mut rng)];
+            let board = position.board();
+            let piece_count = board.rooks_and_queens().count()
+                + board.knights().count()
+                + board.bishops().count()
+                + board.kings().count();
+
+            if piece_count >= 3 {
+                result.insert(PositionAndPlayers {
+                    position: position.clone(),
+                    players: game.1.clone(),
+                });
+            }
+        }
+
+        if result.len() >= 10 {
+            break;
+        }
+    }
+
+    result
 }
