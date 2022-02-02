@@ -17,6 +17,7 @@ use vampirc_uci::{
 pub async fn calculate_evals(
     stockfish_path: &Path,
     positions: &[Chess],
+    depth: u8,
 ) -> Result<Vec<Variations>> {
     let mut child = Command::new(stockfish_path)
         .stdout(Stdio::piped())
@@ -34,7 +35,7 @@ pub async fn calculate_evals(
             .collect();
         let semaphore = semaphore.clone();
         async move {
-            send_messages(&mut child_stdin, &positions, semaphore).await;
+            send_messages(&mut child_stdin, &positions, semaphore, depth).await;
         }
     });
 
@@ -67,7 +68,12 @@ pub async fn calculate_evals(
     Ok(result)
 }
 
-async fn send_messages(stdin: &mut ChildStdin, positions: &[UciFen], semaphore: Arc<Notify>) {
+async fn send_messages(
+    stdin: &mut ChildStdin,
+    positions: &[UciFen],
+    semaphore: Arc<Notify>,
+    depth: u8,
+) {
     let result: Result<()> = async {
         let setup_messages = &[
             UciMessage::Uci,
@@ -99,7 +105,7 @@ async fn send_messages(stdin: &mut ChildStdin, positions: &[UciFen], semaphore: 
 
             let go_msg = UciMessage::Go {
                 time_control: None,
-                search_control: Some(UciSearchControl::depth(30)),
+                search_control: Some(UciSearchControl::depth(depth)),
             };
             write_message(stdin, &go_msg).await?;
             stdin.flush().await?;

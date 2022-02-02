@@ -62,8 +62,12 @@ async fn main_() -> Result<()> {
         .map(|p| p.position.clone())
         .collect();
 
-    let all_variations =
-        calculate_evals(Path::new("./stockfish_14.1_linux_x64_avx2"), &positions_vec).await?;
+    let all_variations = calculate_evals(
+        Path::new("./stockfish_14.1_linux_x64_avx2"),
+        &positions_vec,
+        10,
+    )
+    .await?;
 
     let questions: Vec<Question> = positions_and_players_vec
         .iter()
