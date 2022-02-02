@@ -94,7 +94,7 @@ async fn send_messages(stdin: &mut ChildStdin, positions: &[UciFen], semaphore: 
 
             let go_msg = UciMessage::Go {
                 time_control: None,
-                search_control: Some(UciSearchControl::depth(10)),
+                search_control: Some(UciSearchControl::depth(30)),
             };
             write_message(stdin, &go_msg).await?;
             stdin.flush().await?;
@@ -144,13 +144,16 @@ pub struct RawVariation {
     pub uci_move: Uci,
 }
 
+/// Returns variations if attributes contain an evaluation.
 fn attributes_to_eval(attributes: &[UciInfoAttribute]) -> Option<RawVariation> {
+    let mut is_seldepth = false;
     let mut variation_number: Option<u16> = None;
     let mut cp: Option<i32> = None;
     let mut uci_move: Option<Uci> = None;
 
     for attribute in attributes {
         match attribute {
+            UciInfoAttribute::SelDepth(_) => is_seldepth = true,
             UciInfoAttribute::MultiPv(n) => variation_number = Some(*n),
             UciInfoAttribute::Score { cp: score_cp, .. } => {
                 cp = Some(score_cp.unwrap());
@@ -158,18 +161,19 @@ fn attributes_to_eval(attributes: &[UciInfoAttribute]) -> Option<RawVariation> {
             UciInfoAttribute::Pv(moves) => {
                 uci_move = Some(vampirc_to_shakmaty(&moves[0]));
             }
-            UciInfoAttribute::String(s) => {
-                assert!(s.starts_with("NNUE"), "{}", s);
-                return None;
-            }
             _ => {}
         }
     }
-    Some(RawVariation {
-        variation_number: variation_number.unwrap(),
-        cp: cp.unwrap(),
-        uci_move: uci_move.unwrap(),
-    })
+
+    if is_seldepth {
+        Some(RawVariation {
+            variation_number: variation_number.unwrap(),
+            cp: cp.unwrap(),
+            uci_move: uci_move.unwrap(),
+        })
+    } else {
+        None
+    }
 }
 
 fn vampirc_to_shakmaty(uci_move: &UciMove) -> Uci {
