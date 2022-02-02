@@ -43,7 +43,8 @@ pub async fn calculate_evals(
 
     let mut result: Vec<Vec<Variation>> = Vec::with_capacity(positions.len());
 
-    for position in positions {
+    for (i, position) in positions.iter().enumerate() {
+        eprintln!("position {}/{}", i, positions.len());
         let raw_variations = read_all_evals(&mut child_stdout).await?;
         let mut variations: Vec<Variation> = Vec::with_capacity(3);
         let fen = Fen::from_setup(position);
