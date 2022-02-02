@@ -1,9 +1,9 @@
 use anyhow::{Error, Result};
 use clap::Parser;
-use pgn_reader::{BufferedReader, Visitor};
+use pgn_reader::{BufferedReader, Nag, RawComment, RawHeader, Skip, Visitor};
 use shakmaty::fen::Fen;
 use shakmaty::san::SanPlus;
-use shakmaty::{Chess, Position};
+use shakmaty::{Chess, Outcome, Position};
 use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -38,24 +38,25 @@ fn main() {
 async fn main_() -> Result<()> {
     let file = fs::File::open(Args::parse().pgn_file_path)?;
     let mut reader = BufferedReader::new(file);
-    let mut positions: Vec<Chess> = Vec::new();
+    let mut games: Vec<(Vec<Chess>, Players)> = Vec::new();
     loop {
         match reader.read_game(&mut PositionsVisitor::new())? {
             Some(result) => {
-                positions.append(&mut result?);
+                games.push(result?);
             }
             None => break,
         }
     }
 
-    calculate_evals(Path::new("./stockfish_14.1_linux_x64_avx2"), &positions).await?;
+    // calculate_evals(Path::new("./stockfish_14.1_linux_x64_avx2"), &positions).await?;
 
     Ok(())
 }
 
 #[derive(Debug)]
 struct PositionsVisitor {
-    positions: Vec<Chess>, // TODO store game info
+    positions: Vec<Chess>,
+    players: Players,
     error: Option<Error>,
 }
 
@@ -63,13 +64,22 @@ impl PositionsVisitor {
     fn new() -> Self {
         Self {
             positions: vec![Chess::default()],
+            players: Players::default(),
             error: None,
         }
     }
 }
 
 impl Visitor for PositionsVisitor {
-    type Result = Result<Vec<Chess>>;
+    type Result = Result<(Vec<Chess>, Players)>;
+
+    fn header(&mut self, key: &[u8], value: RawHeader<'_>) {
+        match key {
+            b"White" => self.players.white = value.decode_utf8_lossy().to_string(),
+            b"Black" => self.players.black = value.decode_utf8_lossy().to_string(),
+            _ => {}
+        }
+    }
 
     fn san(&mut self, san: SanPlus) {
         let last_position = self.positions.last().unwrap().clone();
@@ -96,9 +106,18 @@ impl Visitor for PositionsVisitor {
     fn end_game(&mut self) -> Self::Result {
         match self.error.take() {
             Some(e) => Err(e),
-            None => Ok(std::mem::take(&mut self.positions)),
+            None => Ok((
+                std::mem::take(&mut self.positions),
+                std::mem::take(&mut self.players),
+            )),
         }
     }
+}
+
+#[derive(Debug, Default)]
+struct Players {
+    white: String,
+    black: String,
 }
 
 fn choose_positions() -> HashSet<Chess> {
