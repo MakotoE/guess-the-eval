@@ -5,11 +5,18 @@ use shakmaty::fen::Fen;
 use shakmaty::san::San;
 use shakmaty::{CastlingMode, Chess, Color, FromSetup, Setup};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Question {
     pub fen: SerializableFen,
     pub players: Players,
-    pub variations: Vec<Variation>, // TODO create Variations struct
+    pub variations: Variations,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct Variations {
+    pub one: Variation,
+    pub two: Option<Variation>,
+    pub three: Option<Variation>,
 }
 
 #[derive(Debug, Default, PartialEq, Eq, Clone, Serialize)]
@@ -44,7 +51,7 @@ impl Variation {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SerializableFen(pub Fen);
 
 impl Serialize for SerializableFen {
@@ -73,7 +80,7 @@ mod tests {
     use super::*;
     use pgn_reader::Square;
     use shakmaty::fen::Fen;
-    use shakmaty::{CastlingMode, Chess, Move, Role, Square};
+    use shakmaty::{CastlingMode, Chess, Move, Role};
 
     #[test]
     fn test_serializable_san() {

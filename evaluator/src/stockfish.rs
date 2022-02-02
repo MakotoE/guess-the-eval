@@ -1,4 +1,4 @@
-use crate::Variation;
+use crate::{Variation, Variations};
 use anyhow::Result;
 use shakmaty::fen::Fen;
 use shakmaty::uci::Uci;
@@ -17,7 +17,7 @@ use vampirc_uci::{
 pub async fn calculate_evals(
     stockfish_path: &Path,
     positions: &[Chess],
-) -> Result<Vec<Vec<Variation>>> {
+) -> Result<Vec<Variations>> {
     let mut child = Command::new(stockfish_path)
         .stdout(Stdio::piped())
         .stdin(Stdio::piped())
@@ -40,23 +40,26 @@ pub async fn calculate_evals(
 
     let mut child_stdout = BufReader::new(child.stdout.take().unwrap()).lines();
 
-    let mut result: Vec<Vec<Variation>> = Vec::with_capacity(positions.len());
+    let mut result: Vec<Variations> = Vec::with_capacity(positions.len());
 
     for (i, position) in positions.iter().enumerate() {
         log::info!("position {}/{}", i, positions.len());
 
         let raw_variations = read_all_evals(&mut child_stdout).await?;
-        let mut variations: Vec<Variation> = Vec::with_capacity(3);
         let fen = Fen::from_setup(position);
+        let variations: Variations = Variations {
+            one: Variation::from_raw_variation(&raw_variations[0].as_ref().unwrap(), &fen)?,
+            two: match &raw_variations[1] {
+                Some(v) => Some(Variation::from_raw_variation(v, &fen)?),
+                None => None,
+            },
+            three: match &raw_variations[2] {
+                Some(v) => Some(Variation::from_raw_variation(v, &fen)?),
+                None => None,
+            },
+        };
 
-        for variation in raw_variations {
-            if let Some(variation) = variation {
-                let variation = Variation::from_raw_variation(&variation, &fen)?;
-                variations.push(variation);
-            }
-        }
-
-        result.push(std::mem::take(&mut variations));
+        result.push(variations);
         semaphore.notify_one();
     }
 
