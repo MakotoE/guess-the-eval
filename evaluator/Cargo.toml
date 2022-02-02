@@ -13,3 +13,5 @@ shakmaty = "0.20"
 clap = { version = "3.0", features = ["derive"] }
 pgn-reader = "0.19"
 rand = { version = "0.8", features = ["small_rng"] }
+log = "0.4"
+env_logger = "0.9"

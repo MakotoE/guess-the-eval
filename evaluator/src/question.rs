@@ -9,7 +9,7 @@ use shakmaty::{CastlingMode, Chess, Color, FromSetup, Setup};
 pub struct Question {
     pub fen: SerializableFen,
     pub players: Players,
-    pub variations: Vec<Variation>,
+    pub variations: Vec<Variation>, // TODO create Variations struct
 }
 
 #[derive(Debug, Default, PartialEq, Eq, Clone, Serialize)]

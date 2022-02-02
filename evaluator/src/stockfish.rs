@@ -3,7 +3,6 @@ use anyhow::Result;
 use shakmaty::fen::Fen;
 use shakmaty::uci::Uci;
 use shakmaty::{Chess, File, Rank, Role, Square};
-use std::io::{stdout, Write};
 use std::path::Path;
 use std::process::Stdio;
 use std::sync::Arc;
@@ -44,16 +43,19 @@ pub async fn calculate_evals(
     let mut result: Vec<Vec<Variation>> = Vec::with_capacity(positions.len());
 
     for (i, position) in positions.iter().enumerate() {
-        eprintln!("position {}/{}", i, positions.len());
+        log::info!("position {}/{}", i, positions.len());
+
         let raw_variations = read_all_evals(&mut child_stdout).await?;
         let mut variations: Vec<Variation> = Vec::with_capacity(3);
         let fen = Fen::from_setup(position);
+
         for variation in raw_variations {
             if let Some(variation) = variation {
                 let variation = Variation::from_raw_variation(&variation, &fen)?;
                 variations.push(variation);
             }
         }
+
         result.push(std::mem::take(&mut variations));
         semaphore.notify_one();
     }
@@ -118,7 +120,7 @@ async fn read_all_evals(
         if let Some(s) = stdin.next_line().await? {
             if !s.is_empty() {
                 let message = parse_one(&s);
-                eprintln!("{}", message.serialize());
+                log::debug!("{}", message.serialize());
 
                 match message {
                     UciMessage::Info(attributes) => {

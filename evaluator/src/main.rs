@@ -12,7 +12,6 @@ use std::fs;
 use std::hash::{Hash, Hasher};
 use std::io::stdout;
 use std::path::{Path, PathBuf};
-use vampirc_uci::UciFen;
 
 use crate::question::*;
 use crate::stockfish::calculate_evals;
@@ -26,6 +25,8 @@ struct Args {
 }
 
 fn main() {
+    env_logger::init();
+
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()
@@ -34,7 +35,7 @@ fn main() {
             match main_().await {
                 Ok(_) => {}
                 Err(e) => {
-                    eprintln!("{:?}", e);
+                    log::error!("{:?}", e);
                     std::process::exit(1);
                 }
             }
