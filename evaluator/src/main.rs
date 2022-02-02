@@ -1,6 +1,6 @@
 use anyhow::{Error, Result};
 use clap::Parser;
-use pgn_reader::{BufferedReader, RawHeader, Skip, Visitor};
+use pgn_reader::{BufferedReader, RawHeader, Visitor};
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
@@ -144,8 +144,8 @@ impl Hash for PositionAndPlayers {
 }
 
 /// Selects positions from given games.
-/// Starting from game 0, it selects 5 random positions that match the rules described below from
-/// each game until it accumulates 100 unique positions and returns them.
+/// From games 0 to 20, it selects 5 random positions from each game that match the rules described
+/// below. It then returns the unique positions from those 100 positions.
 ///
 /// Selection rules:
 /// - The position must be on turn 3 or later
@@ -155,28 +155,26 @@ fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlaye
 
     let mut result: HashSet<PositionAndPlayers> = HashSet::new();
 
-    for game in games {
-        let uniform = Uniform::new(6, game.0.len());
+    for game in &games[..5] {
+        result.extend(
+            Uniform::new(6, game.0.len())
+                .sample_iter(&mut rng)
+                .map(|index| &game.0[index])
+                .filter(|position| {
+                    let board = position.board();
+                    let piece_count = board.rooks_and_queens().count()
+                        + board.knights().count()
+                        + board.bishops().count()
+                        + board.kings().count();
 
-        for _ in 0..5 {
-            let position = &game.0[uniform.sample(&mut rng)];
-            let board = position.board();
-            let piece_count = board.rooks_and_queens().count()
-                + board.knights().count()
-                + board.bishops().count()
-                + board.kings().count();
-
-            if piece_count >= 3 {
-                result.insert(PositionAndPlayers {
+                    piece_count >= 3
+                })
+                .map(|position| PositionAndPlayers {
                     position: position.clone(),
                     players: game.1.clone(),
-                });
-            }
-        }
-
-        if result.len() >= 10 {
-            break;
-        }
+                })
+                .take(5),
+        );
     }
 
     result
