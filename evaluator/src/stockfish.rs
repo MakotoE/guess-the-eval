@@ -57,11 +57,6 @@ pub async fn calculate_evals(
         semaphore.notify_one();
     }
 
-    let stdout = stdout();
-    let mut stdout = stdout.lock();
-    serde_json::to_writer_pretty(&mut stdout, &result)?;
-    stdout.flush()?;
-
     child.wait().await.unwrap();
     Ok(result)
 }

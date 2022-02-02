@@ -10,7 +10,9 @@ use shakmaty::{Chess, Position, Setup};
 use std::collections::HashSet;
 use std::fs;
 use std::hash::{Hash, Hasher};
-use std::path::PathBuf;
+use std::io::stdout;
+use std::path::{Path, PathBuf};
+use vampirc_uci::UciFen;
 
 use crate::question::*;
 use crate::stockfish::calculate_evals;
@@ -53,9 +55,28 @@ async fn main_() -> Result<()> {
     }
 
     let positions = choose_positions(&games);
-    println!("{:?}", positions);
+    let positions_and_players_vec: Vec<PositionAndPlayers> = positions.iter().cloned().collect();
+    let positions_vec: Vec<Chess> = positions_and_players_vec
+        .iter()
+        .map(|p| p.position.clone())
+        .collect();
 
-    // calculate_evals(Path::new("./stockfish_14.1_linux_x64_avx2"), &positions).await?;
+    let all_variations =
+        calculate_evals(Path::new("./stockfish_14.1_linux_x64_avx2"), &positions_vec).await?;
+
+    let questions: Vec<Question> = positions_and_players_vec
+        .iter()
+        .zip(all_variations.iter())
+        .map(
+            |(PositionAndPlayers { position, players }, variations)| Question {
+                fen: SerializableFen(Fen::from_setup(position)),
+                players: players.clone(),
+                variations: variations.clone(),
+            },
+        )
+        .collect();
+
+    serde_json::to_writer(stdout(), &questions)?;
 
     Ok(())
 }
@@ -123,12 +144,6 @@ impl Visitor for PositionsVisitor {
             )),
         }
     }
-}
-
-#[derive(Debug, Default, PartialEq, Eq, Clone)]
-struct Players {
-    white: String,
-    black: String,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]

@@ -8,10 +8,17 @@ use shakmaty::{CastlingMode, Chess, Color, FromSetup, Setup};
 #[derive(Debug, Serialize)]
 pub struct Question {
     pub fen: SerializableFen,
+    pub players: Players,
     pub variations: Vec<Variation>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Default, PartialEq, Eq, Clone, Serialize)]
+pub struct Players {
+    pub white: String,
+    pub black: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct Variation {
     #[serde(rename = "move")]
     pub move_: SerializableSan,
@@ -49,7 +56,7 @@ impl Serialize for SerializableFen {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SerializableSan(pub San);
 
 impl Serialize for SerializableSan {
