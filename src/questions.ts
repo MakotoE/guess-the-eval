@@ -7,9 +7,12 @@ export interface Question {
 }
 
 export interface Variation {
-  move: string,
+  move: San,
   evaluation: number,
 }
+
+// San is a lowercase SAN.
+export type San = string;
 
 // Variations contains up to 3 top moves. The first variation gives the current evaluation.
 export interface Variations {

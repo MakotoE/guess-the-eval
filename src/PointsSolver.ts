@@ -26,7 +26,10 @@ export class PointsSolver {
    * @returns true if the winning side was found or correctly answering a draw
    */
   foundWinningSide(): boolean {
-    if (this.result.answer.evaluation === 0 && this.result.question.variations.one.evaluation === 0) {
+    if (
+      this.result.answer.evaluation === 0
+      && this.result.question.variations.one.evaluation === 0
+    ) {
       return true;
     }
 
@@ -103,15 +106,17 @@ export class PointsSolver {
 
   // Returns first variation with matching move, or null if not found.
   static getMatchingVariation(variations: Variations, move: string) : Variation | null {
-    if (variations.one.move === move) {
+    const lowercaseMove = move.toLowerCase();
+
+    if (variations.one.move === lowercaseMove) {
       return variations.one;
     }
 
-    if (variations.two && variations.two.move === move) {
+    if (variations.two && variations.two.move === lowercaseMove) {
       return variations.two;
     }
 
-    if (variations.three && variations.three.move === move) {
+    if (variations.three && variations.three.move === lowercaseMove) {
       return variations.three;
     }
 
