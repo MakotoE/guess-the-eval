@@ -1,4 +1,4 @@
-import { Question } from './questions';
+import { Question, Variation, Variations } from './questions';
 
 /**
  * Calculates points awarded for position.
@@ -26,18 +26,18 @@ export class PointsSolver {
    * @returns true if the winning side was found or correctly answering a draw
    */
   foundWinningSide(): boolean {
-    if (this.result.answer.evaluation === 0 && this.result.question.bestMoves[0].evaluation === 0) {
+    if (this.result.answer.evaluation === 0 && this.result.question.variations.one.evaluation === 0) {
       return true;
     }
 
-    return this.result.answer.evaluation * this.result.question.bestMoves[0].evaluation > 0;
+    return this.result.answer.evaluation * this.result.question.variations.one.evaluation > 0;
   }
 
   /**
    * @returns Points awarded for eval
    */
   evalPoints(): number {
-    const correctEval = this.result.question.bestMoves[0].evaluation;
+    const correctEval = this.result.question.variations.one.evaluation;
     const guessEval = this.result.answer.evaluation;
     const unadjusted = -8 * (1 / Math.abs(0.5 * correctEval + 1))
       * Math.abs(guessEval - correctEval)
@@ -52,25 +52,27 @@ export class PointsSolver {
    * @returns true if guessed move was in the top 3
    */
   foundBestMove(): boolean {
-    const bestMove = this.result.question.bestMoves.find(
-      (variation) => variation.move.toLowerCase() === this.result.answer.bestMove.toLowerCase(),
+    const variation = PointsSolver.getMatchingVariation(
+      this.result.question.variations,
+      this.result.answer.bestMove,
     );
-    return bestMove !== undefined;
+    return variation !== null;
   }
 
   /**
    * @returns Eval points multiplier
    */
   bestMoveMultiplier(): number {
-    const bestMove = this.result.question.bestMoves.find(
-      (variation) => variation.move.toLowerCase() === this.result.answer.bestMove.toLowerCase(),
+    const variation = PointsSolver.getMatchingVariation(
+      this.result.question.variations,
+      this.result.answer.bestMove,
     );
-    if (bestMove === undefined) {
+    if (variation === null) {
       return 1;
     }
 
     return Math.max(
-      -0.75 * Math.abs(bestMove.evaluation - this.result.question.bestMoves[0].evaluation) + 3,
+      -0.75 * Math.abs(variation.evaluation - this.result.question.variations.one.evaluation) + 3,
       1,
     );
   }
@@ -97,6 +99,23 @@ export class PointsSolver {
     return (this.foundWinningSide() ? 20 : 0)
       + this.evalPoints() * this.bestMoveMultiplier()
       + (this.foundPlayer() ? 10 : 0);
+  }
+
+  // Returns first variation with matching move, or null if not found.
+  static getMatchingVariation(variations: Variations, move: string) : Variation | null {
+    if (variations.one.move === move) {
+      return variations.one;
+    }
+
+    if (variations.two && variations.two.move === move) {
+      return variations.two;
+    }
+
+    if (variations.three && variations.three.move === move) {
+      return variations.three;
+    }
+
+    return null;
   }
 }
 

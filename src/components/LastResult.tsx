@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container } from 'semantic-ui-react';
 import { Answer, PointsSolver } from '../PointsSolver';
-import { Question } from '../questions';
+import { numberOfVariations, Question, Variations } from '../questions';
 
 function formatEval(evaluation: number): string {
   const sign = evaluation > 0 ? '+' : '';
@@ -11,6 +11,19 @@ function formatEval(evaluation: number): string {
 interface Props {
   question: Question;
   answer: Answer;
+}
+
+function variationsString(variations: Variations): string {
+  let result = variations.one.move;
+  if (variations.two !== null) {
+    result += `, ${variations.two.move}`;
+  }
+
+  if (variations.three !== null) {
+    result += `, ${variations.three.move}`;
+  }
+
+  return result;
 }
 
 export default ({ question, answer }: Props): React.ReactElement => {
@@ -23,7 +36,7 @@ export default ({ question, answer }: Props): React.ReactElement => {
           : 'You did not guess the winning side.'
       }
       <br />
-      {`Your eval guess was off by ${Math.abs(answer.evaluation - question.bestMoves[0].evaluation).toFixed(2)}. Actual eval was ${formatEval(question.bestMoves[0].evaluation)}.`}
+      {`Your eval guess was off by ${Math.abs(answer.evaluation - question.variations.one.evaluation).toFixed(2)}. Actual eval was ${formatEval(question.variations.one.evaluation)}.`}
       <br />
       {`${points.evalPoints().toFixed(1)} points for the evaluation.`}
       <br />
@@ -39,7 +52,7 @@ export default ({ question, answer }: Props): React.ReactElement => {
           : ''
       }
       <br />
-      {`These are the top ${question.bestMoves.length} moves according to Stockfish: ${question.bestMoves.map((variation) => `, ${variation.move} (${formatEval(variation.evaluation)})`).join('').slice(2)}.`}
+      {`These are the top ${numberOfVariations(question.variations)} moves according to Stockfish: ${variationsString(question.variations)}.`}
       <br />
       {
         points.foundPlayer()
@@ -48,8 +61,6 @@ export default ({ question, answer }: Props): React.ReactElement => {
       }
       <br />
       {`This was a game between ${question.players.white} (white) and ${question.players.black} (black).`}
-      <br />
-      <a href={question.url} target="_blank" rel="noopener noreferrer">Source</a>
       <br />
       <strong>{`You earned ${points.totalPoints().toFixed(1)} points.`}</strong>
     </Container>
