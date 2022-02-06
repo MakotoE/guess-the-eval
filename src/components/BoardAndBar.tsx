@@ -93,7 +93,8 @@ export default ({ value, onChange, disabled }: Props): React.ReactElement => {
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <Chessground config={config} style={{ width: length, height: length }} />
         <EvalSlider
-          onStop={(sliderValue) => onChange({ ...value, sliderValue })}
+          value={value.sliderValue}
+          onDrag={(sliderValue) => onChange({ ...value, sliderValue })}
           orientation="b"
           disabled={disabled}
         />
