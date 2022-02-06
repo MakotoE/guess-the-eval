@@ -29,8 +29,8 @@ export default (): React.ReactElement => {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [boardAndBar, setBoardAndBar] = useState({
     sliderValue: 0,
-    initialFEN: questions[questionIndex].fen,
-    playMove: '',
+    initialFEN: questions[0].fen,
+    playMove: null,
   } as BoardAndBarState);
   const [player, setPlayer] = useState('');
   const [answers, setAnswers] = useState([] as Answer[]);
@@ -55,7 +55,7 @@ export default (): React.ReactElement => {
           <Form onSubmit={() => {
             const answer = {
               evaluation: sliderValueToEval(boardAndBar.sliderValue),
-              bestMove: boardAndBar.playMove,
+              bestMove: boardAndBar.playMove === null ? '' : boardAndBar.playMove,
               player,
             };
             setAnswers((state) => [...state, answer]);
@@ -100,6 +100,11 @@ export default (): React.ReactElement => {
             onClick={() => {
               setQuestionIndex((n) => n + 1);
               setCurrentState(State.evaluation);
+              setBoardAndBar({
+                initialFEN: questions[questionIndex + 1].fen,
+                playMove: null,
+                sliderValue: 0,
+              });
             }}
             size="large"
             inverted

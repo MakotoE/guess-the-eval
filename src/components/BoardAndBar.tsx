@@ -17,7 +17,8 @@ interface Props {
 
 export interface BoardAndBarState {
   initialFEN: string,
-  playMove: string,
+  // Move to play. Null if no move is played.
+  playMove: string | null,
   // From -1.0 to 1.0. Use sliderValueToEval() to convert to eval.
   sliderValue: number,
 }
@@ -45,7 +46,7 @@ const brushes = {
 export default ({ value, onChange, disabled }: Props): React.ReactElement => {
   const chess = new Chess(value.initialFEN);
   const turn = chess.turn() === 'w' ? 'white' : 'black';
-  if (value.playMove !== '') {
+  if (value.playMove !== null) {
     if (chess.move(value.playMove) === null) {
       throw new Error(`illegal move: ${value.playMove}`);
     }
