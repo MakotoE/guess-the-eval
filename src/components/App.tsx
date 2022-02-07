@@ -25,11 +25,23 @@ function totalPoints(questionsArr: Question[], answers: Answer[]): number {
   ).reduce((previous, current) => previous + current);
 }
 
+function randomNumber(endExclusive: number): number {
+  return Math.floor(Math.random() * endExclusive);
+}
+
+const questionIndices = Array(5).fill(0).map((v, i, arr) => {
+  let number = randomNumber(questions.length);
+  while (arr.includes(number)) {
+    number = randomNumber(questions.length);
+  }
+  return number;
+});
+
 export default (): React.ReactElement => {
-  const [questionIndex, setQuestionIndex] = useState(0);
+  const [questionNumber, setQuestionNumber] = useState(0);
   const [boardAndBar, setBoardAndBar] = useState({
     sliderValue: 0,
-    initialFEN: questions[0].fen,
+    initialFEN: questions[questionIndices[0]].fen,
     playMove: null,
   } as BoardAndBarState);
   const [player, setPlayer] = useState('');
@@ -93,15 +105,15 @@ export default (): React.ReactElement => {
       questionText = (
         <>
           <LastResult
-            question={questions[0]}
+            question={questions[questionIndices[questionNumber]]}
             answer={lastAnswer}
           />
           <Button
             onClick={() => {
-              setQuestionIndex((n) => n + 1);
+              setQuestionNumber((n) => n + 1);
               setCurrentState(State.evaluation);
               setBoardAndBar({
-                initialFEN: questions[questionIndex + 1].fen,
+                initialFEN: questions[questionIndices[questionNumber + 1]].fen,
                 playMove: null,
                 sliderValue: 0,
               });
@@ -126,7 +138,7 @@ export default (): React.ReactElement => {
         <Header as="h2" style={{ display: 'flex' }}>
           <span style={{ flex: 1, textAlign: 'right' }}>
             Question&nbsp;
-            {questionIndex + 1}
+            {questionNumber + 1}
             /5
           </span>
           &nbsp;|&nbsp;
