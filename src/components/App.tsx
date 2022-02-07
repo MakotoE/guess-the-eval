@@ -141,7 +141,7 @@ export default (): React.ReactElement => {
           value={boardAndBar}
           onChange={(value) => {
             setBoardAndBar(value);
-            if (player === '' && value.playMove !== '') {
+            if (player === '' && value.playMove !== null) {
               setCurrentState(State.player);
             } else if (value.sliderValue !== 0) {
               setCurrentState(State.bestMove);

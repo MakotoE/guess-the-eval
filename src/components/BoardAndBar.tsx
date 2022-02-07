@@ -103,11 +103,11 @@ export default ({ value, onChange, disabled }: Props): React.ReactElement => {
         Black to play
       </p>
       {
-        value.playMove === '' || disabled
+        value.playMove === null || disabled
           ? null
           : (
             <Button
-              onClick={() => onChange({ ...value, playMove: '' })}
+              onClick={() => onChange({ ...value, playMove: null })}
               compact
               size="tiny"
               inverted
