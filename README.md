@@ -15,12 +15,7 @@ See [`src/index.tsx`](src/index.tsx) to calculate evaluations for the questions.
 
 Thanks to your feedback, I compiled a list of potential ways to improve the game.
 
-- Lower eval values (such as +1 to +4) should have a higher weight than lower eval values (+9 to +12)
-- Draggable pieces for best move input
-- Draggable slider to input eval (like the eval bar)
-- A positions database
 - Difficulty labels
-- A refined interface design
 - Add help page into interface
 - Stockfish detailed evaluation info?
 - Blitz mode: Questions are timed, and you either input evals or best moves

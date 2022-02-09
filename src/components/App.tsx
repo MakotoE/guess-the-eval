@@ -63,7 +63,7 @@ export default (): React.ReactElement => {
     case State.player:
       questionText = (
         <>
-          <Header as="h2">Who played in this game?</Header>
+          <Header as="h2">Who played in this game? (Last name only)</Header>
           <Form onSubmit={() => {
             const answer = {
               evaluation: sliderValueToEval(boardAndBar.sliderValue),
