@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import {
   Button, Container, Form, Header, Input,
 } from 'semantic-ui-react';
-import { DrawShape } from 'chessground/draw';
 import { Chess } from 'chess.ts';
 import { Key } from 'chessground/types';
-import BoardAndBar, { BoardAndBarState } from './BoardAndBar';
+import BoardAndBar, { BoardAndBarState, Arrow } from './BoardAndBar';
 import LastResult from './LastResult';
 import {
   Question, questions, Variation, Variations,
@@ -42,7 +41,7 @@ const questionIndices = Array(5).fill(0).map((v, i, arr) => {
   return number;
 });
 
-function variationToShape(variation: Variation, chess: Chess): DrawShape {
+function variationToShape(variation: Variation, chess: Chess): Omit<Arrow, 'opacity'> {
   const move = chess.move(variation.move, { dry_run: true });
   if (move === null) {
     throw new Error('invalid move');
@@ -53,13 +52,33 @@ function variationToShape(variation: Variation, chess: Chess): DrawShape {
   };
 }
 
-function variationsToShapes(variations: Variations, chess: Chess): DrawShape[] {
-  const result = [{ ...variationToShape(variations.one, chess), brush: 'paleGreen' }];
+function variationsToShapes(variations: Variations, chess: Chess): Arrow[] {
+  const initialOpacity = 1.0;
+  const minimumOpacity = 0.3;
+  const result = [{
+    ...variationToShape(variations.one, chess),
+    brush: 'paleGreen',
+    opacity: initialOpacity,
+  }];
   if (variations.two) {
-    result.push({ ...variationToShape(variations.two, chess), brush: 'yellow' });
+    result.push({
+      ...variationToShape(variations.two, chess),
+      brush: 'yellow',
+      opacity: Math.max(
+        initialOpacity - Math.abs(variations.one.evaluation - variations.two.evaluation) * 0.5,
+        minimumOpacity,
+      ),
+    });
   }
   if (variations.three) {
-    result.push({ ...variationToShape(variations.three, chess), brush: 'paleRed' });
+    result.push({
+      ...variationToShape(variations.three, chess),
+      brush: 'paleRed',
+      opacity: Math.max(
+        initialOpacity - Math.abs(variations.one.evaluation - variations.three.evaluation) * 0.5,
+        minimumOpacity,
+      ),
+    });
   }
   return result;
 }
@@ -76,7 +95,7 @@ export default (): React.ReactElement => {
   const [currentState, setCurrentState] = useState(State.evaluation);
 
   let questionText = null;
-  let shapes = [] as DrawShape[];
+  let shapes = [] as Arrow[];
   switch (currentState) {
     case State.evaluation:
       questionText = (

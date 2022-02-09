@@ -15,8 +15,10 @@ interface Props {
   // If true, user cannot change any values
   disabled: boolean,
   // Arrows to draw on board.
-  shapes: DrawShape[],
+  shapes: Arrow[],
 }
+
+export type Arrow = (DrawShape & { opacity: number });
 
 export interface BoardAndBarState {
   initialFEN: string,
@@ -56,13 +58,13 @@ export default ({
       lineWidth: 11,
     },
     paleGreen: {
-      key: 'pg', color: '#15781B', opacity: 0.9, lineWidth: 10,
+      key: 'pg', color: '#15781B', opacity: shapes[0] ? shapes[0].opacity : 0, lineWidth: 10,
     },
     yellow: {
-      key: 'y', color: '#18791e', opacity: 0.7, lineWidth: 10,
+      key: 'y', color: '#18791e', opacity: shapes[1] ? shapes[1].opacity : 0, lineWidth: 10,
     },
     paleRed: {
-      key: 'pr', color: '#1d7a23', opacity: 0.5, lineWidth: 10,
+      key: 'pr', color: '#1d7a23', opacity: shapes[2] ? shapes[2].opacity : 0, lineWidth: 10,
     },
   };
 
