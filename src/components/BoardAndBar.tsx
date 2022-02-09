@@ -5,6 +5,7 @@ import { Key } from 'chessground/types';
 import * as cg from 'chessground/src/types';
 import { defaults } from 'chessground/state';
 import { Button } from 'semantic-ui-react';
+import { DrawShape } from 'chessground/draw';
 import Chessground from './Chessground';
 import EvalSlider from './EvalSlider';
 
@@ -13,6 +14,8 @@ interface Props {
   onChange: (input: BoardAndBarState) => void,
   // If true, user cannot change any values
   disabled: boolean,
+  // Arrows to draw on board.
+  shapes: DrawShape[],
 }
 
 export interface BoardAndBarState {
@@ -33,17 +36,9 @@ function getDestinations(chess: Chess): Map<Key, Key[]> {
   return result;
 }
 
-const brushes = {
-  ...defaults().drawable.brushes,
-  green: {
-    key: 'g',
-    color: '#0678bd',
-    opacity: 1,
-    lineWidth: 11,
-  },
-};
-
-export default ({ value, onChange, disabled }: Props): React.ReactElement => {
+export default ({
+  value, onChange, disabled, shapes,
+}: Props): React.ReactElement => {
   const chess = new Chess(value.initialFEN);
   const turn = chess.turn() === 'w' ? 'white' : 'black';
   if (value.playMove !== null) {
@@ -51,6 +46,25 @@ export default ({ value, onChange, disabled }: Props): React.ReactElement => {
       throw new Error(`illegal move: ${value.playMove}`);
     }
   }
+
+  const brushes = {
+    ...defaults().drawable.brushes,
+    green: {
+      key: 'g',
+      color: '#0678bd',
+      opacity: 1,
+      lineWidth: 11,
+    },
+    paleGreen: {
+      key: 'pg', color: '#15781B', opacity: 0.9, lineWidth: 10,
+    },
+    yellow: {
+      key: 'y', color: '#18791e', opacity: 0.7, lineWidth: 10,
+    },
+    paleRed: {
+      key: 'pr', color: '#1d7a23', opacity: 0.5, lineWidth: 10,
+    },
+  };
 
   const onMove = (origin: cg.Key, destination: cg.Key) => {
     const move = chess.move({ from: origin, to: destination }, { dry_run: true });
@@ -83,6 +97,7 @@ export default ({ value, onChange, disabled }: Props): React.ReactElement => {
     coordinates: false,
     drawable: {
       brushes,
+      autoShapes: shapes,
     },
   };
 

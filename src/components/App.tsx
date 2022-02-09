@@ -2,9 +2,14 @@ import React, { useState } from 'react';
 import {
   Button, Container, Form, Header, Input,
 } from 'semantic-ui-react';
+import { DrawShape } from 'chessground/draw';
+import { Chess } from 'chess.ts';
+import { Key } from 'chessground/types';
 import BoardAndBar, { BoardAndBarState } from './BoardAndBar';
 import LastResult from './LastResult';
-import { Question, questions } from '../questions';
+import {
+  Question, questions, Variation, Variations,
+} from '../questions';
 import { sliderValueToEval } from './EvalSlider';
 import { Answer, PointsSolver } from '../PointsSolver';
 
@@ -37,6 +42,28 @@ const questionIndices = Array(5).fill(0).map((v, i, arr) => {
   return number;
 });
 
+function variationToShape(variation: Variation, chess: Chess): DrawShape {
+  const move = chess.move(variation.move, { dry_run: true });
+  if (move === null) {
+    throw new Error('invalid move');
+  }
+  return {
+    orig: move.from as Key,
+    dest: move.to as Key,
+  };
+}
+
+function variationsToShapes(variations: Variations, chess: Chess): DrawShape[] {
+  const result = [{ ...variationToShape(variations.one, chess), brush: 'paleGreen' }];
+  if (variations.two) {
+    result.push({ ...variationToShape(variations.two, chess), brush: 'yellow' });
+  }
+  if (variations.three) {
+    result.push({ ...variationToShape(variations.three, chess), brush: 'paleRed' });
+  }
+  return result;
+}
+
 export default (): React.ReactElement => {
   const [questionNumber, setQuestionNumber] = useState(0);
   const [boardAndBar, setBoardAndBar] = useState({
@@ -49,6 +76,7 @@ export default (): React.ReactElement => {
   const [currentState, setCurrentState] = useState(State.evaluation);
 
   let questionText = null;
+  let shapes = [] as DrawShape[];
   switch (currentState) {
     case State.evaluation:
       questionText = (
@@ -102,10 +130,14 @@ export default (): React.ReactElement => {
       if (!lastAnswer) {
         throw new Error('lastAnswer is undefined');
       }
+
+      const currentQuestion = questions[questionIndices[questionNumber]];
+
+      shapes = variationsToShapes(currentQuestion.variations, new Chess(currentQuestion.fen));
       questionText = (
         <>
           <LastResult
-            question={questions[questionIndices[questionNumber]]}
+            question={currentQuestion}
             answer={lastAnswer}
           />
           <Button
@@ -160,6 +192,7 @@ export default (): React.ReactElement => {
             }
           }}
           disabled={currentState === State.result}
+          shapes={shapes}
         />
         {questionText}
       </Container>
