@@ -17,6 +17,7 @@ enum State {
   bestMove,
   player,
   result,
+  summary,
 }
 
 function totalPoints(questionsArr: Question[], answers: Answer[]): number {
@@ -33,7 +34,7 @@ function randomNumber(endExclusive: number): number {
   return Math.floor(Math.random() * endExclusive);
 }
 
-const questionIndices = Array(5).fill(0).map((v, i, arr) => {
+const questionKeys = Array(5).fill(0).map((v, i, arr) => {
   let number = randomNumber(questions.length);
   while (arr.includes(number)) {
     number = randomNumber(questions.length);
@@ -87,7 +88,7 @@ export default (): React.ReactElement => {
   const [questionNumber, setQuestionNumber] = useState(0);
   const [boardAndBar, setBoardAndBar] = useState({
     sliderValue: 0,
-    initialFEN: questions[questionIndices[0]].fen,
+    initialFEN: questions[questionKeys[0]].fen,
     playMove: null,
   } as BoardAndBarState);
   const [player, setPlayer] = useState('');
@@ -150,7 +151,7 @@ export default (): React.ReactElement => {
         throw new Error('lastAnswer is undefined');
       }
 
-      const currentQuestion = questions[questionIndices[questionNumber]];
+      const currentQuestion = questions[questionKeys[questionNumber]];
 
       shapes = variationsToShapes(currentQuestion.variations, new Chess(currentQuestion.fen));
       questionText = (
@@ -161,13 +162,17 @@ export default (): React.ReactElement => {
           />
           <Button
             onClick={() => {
-              setQuestionNumber((n) => n + 1);
-              setCurrentState(State.evaluation);
-              setBoardAndBar({
-                initialFEN: questions[questionIndices[questionNumber + 1]].fen,
-                playMove: null,
-                sliderValue: 0,
-              });
+              if (questionNumber === 4) {
+                setCurrentState(State.summary);
+              } else {
+                setQuestionNumber((n) => n + 1);
+                setCurrentState(State.evaluation);
+                setBoardAndBar({
+                  initialFEN: questions[questionKeys[questionNumber + 1]].fen,
+                  playMove: null,
+                  sliderValue: 0,
+                });
+              }
             }}
             size="large"
             inverted
@@ -178,6 +183,9 @@ export default (): React.ReactElement => {
       );
       break;
     }
+    case State.summary: {
+      break;
+    }
     default:
       throw new Error('unreachable');
   }
@@ -186,33 +194,56 @@ export default (): React.ReactElement => {
     <Container fluid textAlign="center">
       <div style={{ display: 'inline-block', marginBottom: '20px' }}>
         <Header as="h1" style={{ marginBottom: '-14px' }}><i>Guess the Eval</i></Header>
-        <Header as="h2" style={{ display: 'flex' }}>
-          <span style={{ flex: 1, textAlign: 'right' }}>
-            Question&nbsp;
-            {questionNumber + 1}
-            /5
-          </span>
-          &nbsp;|&nbsp;
-          <span style={{ flex: 1, textAlign: 'left' }}>
-            {totalPoints(questions, answers).toFixed(1)}
-            &nbsp;points
-          </span>
-        </Header>
+        {
+          currentState === State.summary
+            ? null
+            : (
+              <Header as="h2" style={{ display: 'flex' }}>
+                <span style={{ flex: 1, textAlign: 'right' }}>
+                  Question&nbsp;
+                  {questionNumber + 1}
+                  /5
+                </span>
+                &nbsp;|&nbsp;
+                <span style={{ flex: 1, textAlign: 'left' }}>
+                  {totalPoints(questions, answers).toFixed(1)}
+                  &nbsp;points
+                </span>
+              </Header>
+            )
+        }
       </div>
       <Container textAlign="center">
-        <BoardAndBar
-          value={boardAndBar}
-          onChange={(value) => {
-            setBoardAndBar(value);
-            if (player === '' && value.playMove !== null) {
-              setCurrentState(State.player);
-            } else if (value.sliderValue !== 0) {
-              setCurrentState(State.bestMove);
-            }
-          }}
-          disabled={currentState === State.result}
-          shapes={shapes}
-        />
+        {
+          currentState === State.summary
+            ? (
+              <>
+                <Header as="h2">
+                  You earned&nbsp;
+                  {totalPoints(questions, answers).toFixed(1)}
+                  &nbsp;points!
+                </Header>
+                <Header as="h2">
+                  <a href=".">Play again?</a>
+                </Header>
+              </>
+            )
+            : (
+              <BoardAndBar
+                value={boardAndBar}
+                onChange={(value) => {
+                  setBoardAndBar(value);
+                  if (player === '' && value.playMove !== null) {
+                    setCurrentState(State.player);
+                  } else if (value.sliderValue !== 0) {
+                    setCurrentState(State.bestMove);
+                  }
+                }}
+                disabled={currentState === State.result}
+                shapes={shapes}
+              />
+            )
+        }
         {questionText}
       </Container>
     </Container>
