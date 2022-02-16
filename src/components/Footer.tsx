@@ -1,5 +1,9 @@
 import React from 'react';
 
 export default (): React.ReactElement => (
-  <p>Help | About</p>
+  <p>
+    <a href="">Help</a>
+    &nbsp;|&nbsp;
+    <a href="">About</a>
+  </p>
 );
