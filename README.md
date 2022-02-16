@@ -15,8 +15,6 @@ See [`src/index.tsx`](src/index.tsx) to calculate evaluations for the questions.
 
 Thanks to your feedback, I compiled a list of potential ways to improve the game.
 
-- Difficulty labels
 - Add help page into interface
 - Stockfish detailed evaluation info?
 - Blitz mode: Questions are timed, and you either input evals or best moves
-- Show best moves on board

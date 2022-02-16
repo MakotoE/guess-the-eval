@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  Button, Container, Form, Header, Input,
+  Button, Container, Divider, Form, Header, Input,
 } from 'semantic-ui-react';
 import { Chess } from 'chess.ts';
 import { Key } from 'chessground/types';
@@ -11,6 +11,7 @@ import {
 } from '../questions';
 import { sliderValueToEval } from './EvalSlider';
 import { Answer, PointsSolver } from '../PointsSolver';
+import Footer from './Footer';
 
 enum State {
   evaluation,
@@ -192,27 +193,25 @@ export default (): React.ReactElement => {
 
   return (
     <Container fluid textAlign="center">
-      <div style={{ display: 'inline-block', marginBottom: '20px' }}>
-        <Header as="h1" style={{ marginBottom: '-14px' }}><i>Guess the Eval</i></Header>
-        {
-          currentState === State.summary
-            ? null
-            : (
-              <Header as="h2" style={{ display: 'flex' }}>
-                <span style={{ flex: 1, textAlign: 'right' }}>
-                  Question&nbsp;
-                  {questionNumber + 1}
-                  /5
-                </span>
-                &nbsp;|&nbsp;
-                <span style={{ flex: 1, textAlign: 'left' }}>
-                  {totalPoints(questions, answers).toFixed(1)}
-                  &nbsp;points
-                </span>
-              </Header>
-            )
-        }
-      </div>
+      <Header as="h1" style={{ marginBottom: '-14px' }}><i>Guess the Eval</i></Header>
+      {
+        currentState === State.summary
+          ? null
+          : (
+            <Header as="h2" style={{ display: 'flex' }}>
+              <span style={{ flex: 1, textAlign: 'right' }}>
+                Question&nbsp;
+                {questionNumber + 1}
+                /5
+              </span>
+              &nbsp;|&nbsp;
+              <span style={{ flex: 1, textAlign: 'left' }}>
+                {totalPoints(questions, answers).toFixed(1)}
+                &nbsp;points
+              </span>
+            </Header>
+          )
+      }
       <Container textAlign="center">
         {
           currentState === State.summary
@@ -245,6 +244,11 @@ export default (): React.ReactElement => {
             )
         }
         {questionText}
+        <Divider hidden />
+        <Divider hidden />
+        <Divider hidden />
+        <Footer />
+        <Divider hidden />
       </Container>
     </Container>
   );
