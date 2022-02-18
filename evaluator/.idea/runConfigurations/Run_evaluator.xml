@@ -1,0 +1,21 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Run evaluator" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+    <option name="command" value="run --package evaluator --bin evaluator -- $PROJECT_DIR$/../twic1419.pgn " />
+    <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+    <option name="channel" value="STABLE" />
+    <option name="requiredFeatures" value="true" />
+    <option name="allFeatures" value="false" />
+    <option name="emulateTerminal" value="false" />
+    <option name="withSudo" value="false" />
+    <option name="backtrace" value="SHORT" />
+    <envs>
+      <env name="RUST_BACKTRACE" value="1" />
+      <env name="RUST_LOG" value="evaluator" />
+    </envs>
+    <option name="isRedirectInput" value="false" />
+    <option name="redirectInputPath" value="" />
+    <method v="2">
+      <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+    </method>
+  </configuration>
+</component>

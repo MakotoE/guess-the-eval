@@ -49,13 +49,8 @@ async fn main_() -> Result<()> {
     let file = fs::File::open(Args::parse().pgn_file_path)?;
     let mut reader = BufferedReader::new(file);
     let mut games: Vec<(Vec<Chess>, Players)> = Vec::new();
-    loop {
-        match reader.read_game(&mut PositionsVisitor::new())? {
-            Some(result) => {
-                games.push(result?);
-            }
-            None => break,
-        }
+    while let Some(result) = reader.read_game(&mut PositionsVisitor::new())? {
+        games.push(result?);
     }
 
     let positions = choose_positions(&games);
@@ -127,12 +122,8 @@ impl Visitor for PositionsVisitor {
             Ok(m) => m,
             Err(e) => {
                 let fen = Fen::from_setup(&last_position);
-                let err = Error::from(e).context(format!(
-                    "position: {}, san: {}",
-                    fen.to_string(),
-                    san.to_string(),
-                ));
-                self.error = Some(err.into());
+                self.error =
+                    Some(Error::from(e).context(format!("position: {}, san: {}", fen, san,)));
                 return;
             }
         };
@@ -154,7 +145,7 @@ impl Visitor for PositionsVisitor {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, Eq, Clone)]
 struct PositionAndPlayers {
     position: Chess,
     players: Players,
@@ -163,6 +154,12 @@ struct PositionAndPlayers {
 impl Hash for PositionAndPlayers {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.position.hash(state);
+    }
+}
+
+impl PartialEq for PositionAndPlayers {
+    fn eq(&self, other: &Self) -> bool {
+        self.position == other.position
     }
 }
 

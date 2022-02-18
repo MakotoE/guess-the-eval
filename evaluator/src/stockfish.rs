@@ -49,7 +49,7 @@ pub async fn calculate_evals(
         let raw_variations = read_all_evals(&mut child_stdout).await?;
         let fen = Fen::from_setup(position);
         let variations: Variations = Variations {
-            one: Variation::from_raw_variation(&raw_variations[0].as_ref().unwrap(), &fen)?,
+            one: Variation::from_raw_variation(raw_variations[0].as_ref().unwrap(), &fen)?,
             two: match &raw_variations[1] {
                 Some(v) => Some(Variation::from_raw_variation(v, &fen)?),
                 None => None,
@@ -92,7 +92,7 @@ async fn send_messages(
         ];
 
         for message in setup_messages {
-            write_message(stdin, &message).await?;
+            write_message(stdin, message).await?;
         }
 
         for position in positions {
@@ -196,7 +196,7 @@ fn vampirc_to_shakmaty(uci_move: &UciMove) -> Uci {
     fn convert_square(square: &UciSquare) -> Square {
         (
             File::from_char(square.file).unwrap(),
-            Rank::ALL.get(square.rank as usize - 1).unwrap().clone(),
+            *Rank::ALL.get(square.rank as usize - 1).unwrap(),
         )
             .into()
     }
