@@ -1,6 +1,6 @@
 # Guess the Eval
 
-[Guess the Eval](https://makotoe.github.io/guess-the-eval/) presents a series of chess positions, and you have to guess what evaluation Stockfish gives to those positions. In addition, you will determine what the best moves are. You can also guess who played in that game, or in which tournament it took place, for bonus points.
+[Guess the Eval](https://makotoe.github.io/guess-the-eval/) presents a series of chess positions, and you have to guess what evaluation Stockfish gives to those positions. In addition, you will determine what the best moves are. You can also guess who played in that game for bonus points.
 
 As you can tell, this is a prototype.
 
@@ -15,6 +15,7 @@ See [`src/index.tsx`](src/index.tsx) to calculate evaluations for the questions.
 
 Thanks to your feedback, I compiled a list of potential ways to improve the game.
 
-- Add help page into interface
-- Stockfish detailed evaluation info?
 - Blitz mode: Questions are timed, and you either input evals or best moves
+- Output FEN on question
+- Change selection rules to require 4 or more pieces; make sure rapid and blitz games are included
+- Add mate evaluation

@@ -11,7 +11,6 @@ import {
 } from '../questions';
 import { sliderValueToEval } from './EvalSlider';
 import { Answer, PointsSolver } from '../PointsSolver';
-import Footer from './Footer';
 
 enum State {
   evaluation,
@@ -247,7 +246,11 @@ export default (): React.ReactElement => {
         <Divider hidden />
         <Divider hidden />
         <Divider hidden />
-        <Footer />
+        <p>
+          <a href="https://github.com/MakotoE/guess-the-eval/blob/main/about.md" target="_blank" rel="noopener noreferrer">
+            About Guess the Eval and GitHub repo
+          </a>
+        </p>
         <Divider hidden />
       </Container>
     </Container>
