@@ -21,9 +21,12 @@ mod stockfish;
 
 #[derive(Debug, Parser)]
 struct Args {
+    /// Path to PGN file
     pgn_file_path: PathBuf,
 }
 
+/// Selects positions from given PGN file and calculates evaluations. It outputs positions in JSON
+/// format which should be piped to the `evaluator/questions.json` file.
 fn main() {
     env_logger::init();
 
