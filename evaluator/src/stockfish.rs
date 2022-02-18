@@ -166,7 +166,12 @@ fn attributes_to_eval(attributes: &[UciInfoAttribute]) -> Option<RawVariation> {
         match attribute {
             UciInfoAttribute::SelDepth(_) => is_seldepth = true,
             UciInfoAttribute::MultiPv(n) => variation_number = Some(*n),
-            UciInfoAttribute::Score { cp: score_cp, .. } => {
+            UciInfoAttribute::Score {
+                cp: score_cp, mate, ..
+            } => {
+                if mate.is_some() {
+                    panic!("stockfish is giving a mate evaluation!")
+                }
                 cp = Some(score_cp.unwrap());
             }
             UciInfoAttribute::Pv(moves) => {
