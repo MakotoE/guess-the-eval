@@ -8,7 +8,7 @@ on:
       - main
 
 jobs:
-  test:
+  app:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -18,3 +18,16 @@ jobs:
       - run: npm i
       - run: npm run build
       - run: npm run lint
+  evaluator:
+    runs-on: ubuntu-20.04
+    defaults:
+      run:
+        working-directory: evaluator
+    steps:
+      - uses: actions/checkout@v2
+      - run: rustup component add clippy
+        working-directory: evaluator
+      - run: rustup component add rustfmt
+      - run: RUST_BACKTRACE=1 cargo test --all-features -- --nocapture
+      - run: cargo clippy --all-targets --all-features -- -D warnings
+      - run: cargo fmt -- --check
