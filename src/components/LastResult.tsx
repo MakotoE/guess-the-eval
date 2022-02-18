@@ -62,6 +62,11 @@ export default ({ question, answer }: Props): React.ReactElement => {
       <br />
       {`This was a game between ${question.players.white} (white) and ${question.players.black} (black).`}
       <br />
+      <a href={`https://lichess.org/analysis/standard/${question.fen}`} target="_blank" rel="noopener noreferrer">
+        See position on Lichess
+      </a>
+      <br />
+      <br />
       <strong>{`You earned ${points.totalPoints().toFixed(1)} points.`}</strong>
     </Container>
   );

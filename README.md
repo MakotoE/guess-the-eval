@@ -15,7 +15,6 @@ See [`src/index.tsx`](src/index.tsx) to calculate evaluations for the questions.
 
 Thanks to your feedback, I compiled a list of potential ways to improve the game.
 
-- Blitz mode: Questions are timed, and you either input evals or best moves
-- Output FEN on question
+- Blitz mode: Questions are timed, and you input either evals or best moves
 - Change selection rules to require 4 or more pieces; make sure rapid and blitz games are included
 - Add mate evaluation
