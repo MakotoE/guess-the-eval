@@ -68,7 +68,7 @@ async fn main_() -> Result<()> {
     let all_variations = calculate_evals(
         Path::new("./stockfish_14.1_linux_x64_avx2"),
         &positions_vec,
-        10,
+        25,
     )
     .await?;
 

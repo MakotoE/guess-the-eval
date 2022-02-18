@@ -2,6 +2,11 @@
 name = "evaluator"
 version = "0.1.0"
 edition = "2021"
+license = "GPL"
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
 
 [dependencies]
 tokio = { version = "1.15", features = ["rt-multi-thread", "macros", "process", "io-util", "time", "sync"] }

@@ -7,10 +7,12 @@ You're currently in the GitHub repo containing the source code for [Guess the Ev
 ## Positions database
 
 Thanks [The Week in Chess](https://theweekinchess.com/), for the PGNs.
+- TODO Include info about number of positions in database
+- 19 seconds per position * 200 positions = 1.06 hours
 - Include URL to source of PGN with names of included tournaments
 
 Selecting positions for the positions database is difficult. There may be very one-sided positions. Also, the points scoring algorithm may need tweaking. You can check the source code to see how they are currently implemented. (See [`evaluator`](https://github.com/MakotoE/guess-the-eval/blob/main/evaluator/src/main.rs) and [`PointsSolver.ts`](https://github.com/MakotoE/guess-the-eval/blob/main/src/PointsSolver.ts)) Please let me know if you have ideas to improve either of those.
 
 ## Stockfish
 
-All evaluations were calculated with Stockfish 14.1, to a depth of 30 with NNUE.
+All evaluations were calculated with Stockfish 14.1, to a depth of 25 with NNUE.
