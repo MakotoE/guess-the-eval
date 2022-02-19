@@ -6,8 +6,6 @@
 
 The TypeScript project for the web app is located at the root of this repo. The Rust-based `evaluator` which is responsible for selecting positions and calculating evals is located under [`evaluator`](evaluator).
 
-Known issue: When you found a best move, the score says you did not find a best move.
-
 # TODO
 
 - Show positions on summary screen

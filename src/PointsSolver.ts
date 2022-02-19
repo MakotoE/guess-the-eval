@@ -108,15 +108,15 @@ export class PointsSolver {
   static getMatchingVariation(variations: Variations, move: string) : Variation | null {
     const lowercaseMove = move.toLowerCase();
 
-    if (variations.one.move === lowercaseMove) {
+    if (variations.one.move.toLowerCase() === lowercaseMove) {
       return variations.one;
     }
 
-    if (variations.two && variations.two.move === lowercaseMove) {
+    if (variations.two && variations.two.move.toLowerCase() === lowercaseMove) {
       return variations.two;
     }
 
-    if (variations.three && variations.three.move === lowercaseMove) {
+    if (variations.three && variations.three.move.toLowerCase() === lowercaseMove) {
       return variations.three;
     }
 
