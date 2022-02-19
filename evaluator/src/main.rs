@@ -164,18 +164,18 @@ impl PartialEq for PositionAndPlayers {
 }
 
 /// Selects positions from given games.
-/// From games 0 to 20, it selects 5 random positions from each game that match the rules described
-/// below. It then returns the unique positions from those 100 positions.
+/// From games 0 to 20, it selects 5 random and unique positions from each game that match the rules
+/// described below.
 ///
 /// Selection rules:
 /// - The position must be on turn 3 or later
-/// - The position must have 3 or more pieces
+/// - The position must have 4 or more pieces
 fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlayers> {
     let mut rng = SmallRng::from_entropy();
 
     let mut result: HashSet<PositionAndPlayers> = HashSet::new();
 
-    for game in &games[..5] {
+    for game in &games[..20] {
         result.extend(
             Uniform::new(6, game.0.len())
                 .sample_iter(&mut rng)
@@ -187,7 +187,7 @@ fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlaye
                         + board.bishops().count()
                         + board.kings().count();
 
-                    piece_count >= 3
+                    piece_count >= 4
                 })
                 .map(|position| PositionAndPlayers {
                     position: position.clone(),

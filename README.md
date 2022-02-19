@@ -11,5 +11,4 @@ The TypeScript project for the web app is located at the root of this repo. The 
 Planned features:
 
 - Blitz mode: Questions are timed, and you input either evals or best moves
-- Change selection rules to require 4 or more pieces; make sure rapid and blitz games are included
 - Add mate evaluation
