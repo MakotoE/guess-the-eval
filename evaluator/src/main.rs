@@ -164,37 +164,39 @@ impl PartialEq for PositionAndPlayers {
 }
 
 /// Selects positions from given games.
-/// From games 0 to 20, it selects 5 random and unique positions from each game that match the rules
-/// described below.
+/// From games 0 to 50, it selects 2 random positions from each game that match the rules described
+/// below. The positions must be unique.
 ///
 /// Selection rules:
-/// - The position must be on turn 3 or later
+/// - The position must be on turn 4 or later
 /// - The position must have 4 or more pieces
 fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlayers> {
     let mut rng = SmallRng::from_entropy();
 
     let mut result: HashSet<PositionAndPlayers> = HashSet::new();
 
-    for game in &games[..20] {
-        result.extend(
-            Uniform::new(6, game.0.len())
-                .sample_iter(&mut rng)
-                .map(|index| &game.0[index])
-                .filter(|position| {
-                    let board = position.board();
-                    let piece_count = board.rooks_and_queens().count()
-                        + board.knights().count()
-                        + board.bishops().count()
-                        + board.kings().count();
+    for game in &games[..50] {
+        if game.0.len() > 8 {
+            result.extend(
+                Uniform::new(8, game.0.len())
+                    .sample_iter(&mut rng)
+                    .map(|index| &game.0[index])
+                    .filter(|position| {
+                        let board = position.board();
+                        let piece_count = board.rooks_and_queens().count()
+                            + board.knights().count()
+                            + board.bishops().count()
+                            + board.kings().count();
 
-                    piece_count >= 4
-                })
-                .map(|position| PositionAndPlayers {
-                    position: position.clone(),
-                    players: game.1.clone(),
-                })
-                .take(5),
-        );
+                        piece_count >= 4
+                    })
+                    .map(|position| PositionAndPlayers {
+                        position: position.clone(),
+                        players: game.1.clone(),
+                    })
+                    .take(5),
+            );
+        }
     }
 
     result
