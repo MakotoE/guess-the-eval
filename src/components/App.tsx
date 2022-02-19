@@ -242,7 +242,7 @@ export default (): React.ReactElement => {
             </Header>
           )
       }
-      <Container textAlign="center">
+      <Container fluid textAlign="center">
         {
           currentState === State.summary
             ? null

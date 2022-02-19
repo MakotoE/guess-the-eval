@@ -1,5 +1,5 @@
 import { Config } from 'chessground/config';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Chess, SQUARES } from 'chess.ts';
 import { Key } from 'chessground/types';
 import * as cg from 'chessground/src/types';
@@ -48,6 +48,14 @@ export default ({
       throw new Error(`illegal move: ${value.playMove}`);
     }
   }
+
+  const rootElement = useRef<HTMLDivElement>(null);
+  const [length, setLength] = useState(0);
+  useEffect(() => {
+    if (rootElement && rootElement.current) {
+      setLength(Math.min(500, rootElement.current.offsetWidth - 40));
+    }
+  }, [rootElement]);
 
   const brushes = {
     ...defaults().drawable.brushes,
@@ -104,10 +112,8 @@ export default ({
     },
   };
 
-  const length = Math.min(500, document.documentElement.clientWidth);
-
   return (
-    <>
+    <div ref={rootElement}>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <Chessground config={config} style={{ width: length, height: length }} />
         <EvalSlider
@@ -115,6 +121,7 @@ export default ({
           onDrag={(sliderValue) => onChange({ ...value, sliderValue })}
           orientation={turn}
           disabled={disabled}
+          height={length}
         />
       </div>
       <p style={{ marginBottom: '4px' }}>
@@ -135,6 +142,6 @@ export default ({
             </Button>
           )
       }
-    </>
+    </div>
   );
 };

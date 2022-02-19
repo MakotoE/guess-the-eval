@@ -20,15 +20,16 @@ interface Props {
   value: number;
   onDrag: (value: number) => void;
   orientation: Color;
-  disabled: boolean
+  disabled: boolean;
+  height: number;
 }
 
 export default ({
-  value, onDrag, orientation, disabled,
+  value, onDrag, orientation, disabled, height,
 }: Props): React.ReactElement => {
   const rootRef = useRef(null);
 
-  const totalHeight = 500;
+  const totalHeight = height;
   const sliderWidth = 24;
   const sliderHeight = 12;
   const barWidth = 10;
