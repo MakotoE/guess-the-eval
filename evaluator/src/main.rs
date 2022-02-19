@@ -173,7 +173,7 @@ fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlaye
 
     let mut result: HashSet<PositionAndPlayers> = HashSet::new();
 
-    for game in &games[..50] {
+    for game in &games[..30] {
         if game.0.len() > 8 {
             result.extend(
                 Uniform::new(8, game.0.len())
@@ -192,7 +192,7 @@ fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlaye
                         position: position.clone(),
                         players: game.1.clone(),
                     })
-                    .take(5),
+                    .take(2),
             );
         }
     }

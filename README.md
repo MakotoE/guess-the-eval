@@ -10,5 +10,7 @@ The TypeScript project for the web app is located at the root of this repo. The 
 
 Planned features:
 
-- Blitz mode: Questions are timed, and you input either evals or best moves
 - Add mate evaluation
+- Save full PGN so that the game is viewable on Lichess
+- Support mobile devices
+- Blitz mode: Questions are timed, and you input either evals or best moves
