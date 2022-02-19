@@ -6,7 +6,7 @@ You're currently in the GitHub repo containing the source code for [Guess the Ev
 
 ## Positions database
 
-Thanks [The Week in Chess](https://theweekinchess.com/), for the PGNs. From the World Rapid 2021 database, I choose two random positions from 30 games.
+Thanks [The Week in Chess](https://theweekinchess.com/), for the PGNs. From the first 30 games of the World Rapid 2021 database, I choose two random positions each.
 
 All evaluations were calculated with Stockfish 14.1, to a depth of 25 with NNUE.
 

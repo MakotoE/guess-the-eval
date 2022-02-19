@@ -42,7 +42,7 @@ export default ({
   value, onChange, disabled, shapes,
 }: Props): React.ReactElement => {
   const chess = new Chess(value.initialFEN);
-  const turn = chess.turn() === 'w' ? 'white' : 'black';
+  const turn = chess.turn();
   if (value.playMove !== null) {
     if (chess.move(value.playMove) === null) {
       throw new Error(`illegal move: ${value.playMove}`);
@@ -77,13 +77,14 @@ export default ({
     onChange({ ...value, playMove: move.san });
   };
 
+  const color = turn === 'w' ? 'white' : 'black';
   const config: Config = {
     fen: chess.fen(),
-    orientation: turn,
-    turnColor: turn,
+    orientation: color,
+    turnColor: color,
     movable: {
       dests: getDestinations(chess),
-      color: turn,
+      color,
       showDests: !disabled,
       free: false,
     },
@@ -112,12 +113,13 @@ export default ({
         <EvalSlider
           value={value.sliderValue}
           onDrag={(sliderValue) => onChange({ ...value, sliderValue })}
-          orientation="b"
+          orientation={turn}
           disabled={disabled}
         />
       </div>
       <p style={{ marginBottom: '4px' }}>
-        Black to play
+        {turn === 'w' ? 'White' : 'Black'}
+        &nbsp;to play
       </p>
       {
         value.playMove === null || disabled

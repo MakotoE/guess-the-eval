@@ -95,6 +95,8 @@ export default (): React.ReactElement => {
   const [answers, setAnswers] = useState([] as Answer[]);
   const [currentState, setCurrentState] = useState(State.evaluation);
 
+  const turn = new Chess(questions[questionKeys[questionNumber]].fen).turn();
+
   let questionText = null;
   let shapes = [] as Arrow[];
   switch (currentState) {
@@ -106,12 +108,20 @@ export default (): React.ReactElement => {
       );
       break;
     case State.bestMove:
-      questionText = <Header as="h2">What is the best move for black?</Header>;
+      questionText = (
+        <Header as="h2">
+          What is the best move for&nbsp;
+          {turn === 'w' ? 'white' : 'black'}
+          ? (Play the move on the board)
+        </Header>
+      );
       break;
     case State.player:
       questionText = (
         <>
-          <Header as="h2">Who played in this game? (Last name only)</Header>
+          <Header as="h2">
+            Who played in this game? (Last name only; leave blank if you don&apos;t know)
+          </Header>
           <Form onSubmit={() => {
             const answer = {
               evaluation: sliderValueToEval(boardAndBar.sliderValue),
@@ -166,12 +176,13 @@ export default (): React.ReactElement => {
                 setCurrentState(State.summary);
               } else {
                 setQuestionNumber((n) => n + 1);
-                setCurrentState(State.evaluation);
                 setBoardAndBar({
                   initialFEN: questions[questionKeys[questionNumber + 1]].fen,
                   playMove: null,
                   sliderValue: 0,
                 });
+                setPlayer('');
+                setCurrentState(State.evaluation);
               }
             }}
             size="large"
