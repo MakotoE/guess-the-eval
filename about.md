@@ -10,4 +10,4 @@ Thanks [The Week in Chess](https://theweekinchess.com/), for the PGNs. From the 
 
 All evaluations were calculated with Stockfish 14.1, to a depth of 25 with NNUE.
 
-Selecting positions for the positions database is difficult. There may be very one-sided positions. Also, the points scoring algorithm may need tweaking. You can check the source code to see how they are currently implemented. (See [`evaluator`](https://github.com/MakotoE/guess-the-eval/blob/main/evaluator/src/main.rs) and [`PointsSolver.ts`](https://github.com/MakotoE/guess-the-eval/blob/main/src/PointsSolver.ts)) Please let me know if you have ideas to improve either of those.
+Selecting positions for the positions database is difficult. There may be very one-sided positions. Also, the points scoring algorithm may need tweaking. You can check the source code to see how they are currently implemented. (See [`evaluator`](https://github.com/MakotoE/guess-the-eval/blob/main/evaluator/src/main.rs) and [`PointsSolver.ts`](https://github.com/MakotoE/guess-the-eval/blob/main/src/PointsSolver.ts))

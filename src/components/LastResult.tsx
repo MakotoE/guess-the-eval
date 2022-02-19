@@ -1,7 +1,9 @@
 import React from 'react';
 import { Container } from 'semantic-ui-react';
 import { Answer, PointsSolver } from '../PointsSolver';
-import { numberOfVariations, Question, Variations } from '../questions';
+import {
+  numberOfVariations, Question, Variation, Variations,
+} from '../questions';
 
 function formatEval(evaluation: number): string {
   const sign = evaluation > 0 ? '+' : '';
@@ -13,14 +15,18 @@ interface Props {
   answer: Answer;
 }
 
+function variationString(variation: Variation): string {
+  return `${variation.move} (${formatEval(variation.evaluation)})`;
+}
+
 function variationsString(variations: Variations): string {
-  let result = variations.one.move;
+  let result = variationString(variations.one);
   if (variations.two !== null) {
-    result += `, ${variations.two.move}`;
+    result += `, ${variationString(variations.two)}`;
   }
 
   if (variations.three !== null) {
-    result += `, ${variations.three.move}`;
+    result += `, ${variationString(variations.three)}`;
   }
 
   return result;
