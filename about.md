@@ -4,6 +4,8 @@ Guess the Eval is designed and developed by Makoto Emura. Guess the Eval is lice
 
 You're currently in the GitHub repo containing the source code for [Guess the Eval](https://github.com/MakotoE/guess-the-eval). If you have feedback or suggestions for this project, please make an issue on this repo. Thanks!
 
+Mobile devices are not supported currently. The board is really wonky on my iPhone screen, and I don't know why.
+
 ## Positions database
 
 Thanks [The Week in Chess](https://theweekinchess.com/), for the PGNs. From the first 30 games of the World Rapid 2021 database, I choose two random positions each.
