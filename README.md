@@ -6,10 +6,11 @@
 
 The TypeScript project for the web app is located at the root of this repo. The Rust-based `evaluator` which is responsible for selecting positions and calculating evals is located under [`evaluator`](evaluator).
 
+Known issue: When you found a best move, the score says you did not find a best move.
+
 # TODO
 
-Planned features:
-
+- Show positions on summary screen
 - Add mate evaluation
 - Save full PGN so that the game is viewable on Lichess
 - Support mobile devices

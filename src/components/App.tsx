@@ -195,6 +195,26 @@ export default (): React.ReactElement => {
       break;
     }
     case State.summary: {
+      questionText = (
+        <>
+          <Header as="h2">
+            You earned&nbsp;
+            {totalPoints(questions, answers).toFixed(1)}
+            &nbsp;points!
+          </Header>
+          <p>
+            These were the five positions that were shown:
+          </p>
+          <pre>
+            {answers.map((answer, index) => (
+              `${questions[questionKeys[index]].fen}\n`
+            ))}
+          </pre>
+          <Header as="h2">
+            <a href=".">Play again?</a>
+          </Header>
+        </>
+      );
       break;
     }
     default:
@@ -225,18 +245,7 @@ export default (): React.ReactElement => {
       <Container textAlign="center">
         {
           currentState === State.summary
-            ? (
-              <>
-                <Header as="h2">
-                  You earned&nbsp;
-                  {totalPoints(questions, answers).toFixed(1)}
-                  &nbsp;points!
-                </Header>
-                <Header as="h2">
-                  <a href=".">Play again?</a>
-                </Header>
-              </>
-            )
+            ? null
             : (
               <BoardAndBar
                 value={boardAndBar}
