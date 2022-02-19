@@ -47,6 +47,21 @@ pub async fn calculate_evals(
         log::info!("position {}/{}", i, positions.len());
 
         let raw_variations = read_all_evals(&mut child_stdout).await?;
+
+        // Skip if mate is evaluated (temporary)
+        if raw_variations[0]
+            .as_ref()
+            .map_or(false, |v| v.evaluated_as_mate)
+            || raw_variations[1]
+                .as_ref()
+                .map_or(false, |v| v.evaluated_as_mate)
+            || raw_variations[2]
+                .as_ref()
+                .map_or(false, |v| v.evaluated_as_mate)
+        {
+            continue;
+        }
+
         let fen = Fen::from_setup(position);
         let variations: Variations = Variations {
             one: Variation::from_raw_variation(raw_variations[0].as_ref().unwrap(), &fen)?,
@@ -150,6 +165,8 @@ async fn read_all_evals(
 
 #[derive(Debug, Clone)]
 pub struct RawVariation {
+    // Temporary
+    pub evaluated_as_mate: bool,
     pub variation_number: u16,
     pub cp: i32,
     pub uci_move: Uci,
@@ -170,7 +187,13 @@ fn attributes_to_eval(attributes: &[UciInfoAttribute]) -> Option<RawVariation> {
                 cp: score_cp, mate, ..
             } => {
                 if mate.is_some() {
-                    panic!("stockfish is giving a mate evaluation!")
+                    log::info!("stockfish returned a mate eval");
+                    return Some(RawVariation {
+                        evaluated_as_mate: true,
+                        variation_number: 1,
+                        cp: 0,
+                        uci_move: Uci::Null,
+                    });
                 }
                 cp = Some(score_cp.unwrap());
             }
@@ -183,6 +206,7 @@ fn attributes_to_eval(attributes: &[UciInfoAttribute]) -> Option<RawVariation> {
 
     if is_seldepth {
         Some(RawVariation {
+            evaluated_as_mate: false,
             variation_number: variation_number.unwrap(),
             cp: cp.unwrap(),
             uci_move: uci_move.unwrap(),
