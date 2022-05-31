@@ -89,7 +89,7 @@ export class PointsSolver {
       this.result.question.players.black,
     ];
     const possibleWords = new Set<string>(
-      strings.map((s) => s.toLowerCase().split(' ')).flat(),
+      strings.map((s) => s.toLowerCase().replace(/,/gm, '').split(' ')).flat(),
     );
     return this.result.answer.player.split(' ')
       .some((word) => possibleWords.has(word.toLowerCase()));
