@@ -81,27 +81,11 @@ export class PointsSolver {
   }
 
   /**
-   * @returns true if a player was guessed
-   */
-  foundPlayer(): boolean {
-    const strings = [
-      this.result.question.players.white,
-      this.result.question.players.black,
-    ];
-    const possibleWords = new Set<string>(
-      strings.map((s) => s.toLowerCase().replace(/,/gm, '').split(' ')).flat(),
-    );
-    return this.result.answer.player.split(' ')
-      .some((word) => possibleWords.has(word.toLowerCase()));
-  }
-
-  /**
    * @returns Points awarded for question
    */
   totalPoints(): number {
     return (this.foundWinningSide() ? 20 : 0)
-      + this.evalPoints() * this.bestMoveMultiplier()
-      + (this.foundPlayer() ? 10 : 0);
+      + this.evalPoints() * this.bestMoveMultiplier();
   }
 
   // Returns first variation with matching move, or null if not found.
@@ -132,5 +116,4 @@ export interface QuestionAnswer {
 export interface Answer {
   evaluation: number,
   bestMove: string,
-  player: string,
 }

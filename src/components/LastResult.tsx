@@ -60,12 +60,6 @@ export default ({ question, answer }: Props): React.ReactElement => {
       <br />
       {`These are the top ${numberOfVariations(question.variations)} moves according to Stockfish: ${variationsString(question.variations)}.`}
       <br />
-      {
-        points.foundPlayer()
-          ? 'You guessed one of the players correctly. +10 points'
-          : 'You did not guess a player correctly.'
-      }
-      <br />
       {`This was a game between ${question.players.white} (white) and ${question.players.black} (black).`}
       <br />
       <a href={`https://lichess.org/analysis/standard/${question.fen}`} target="_blank" rel="noopener noreferrer">

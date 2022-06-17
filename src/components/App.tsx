@@ -15,7 +15,7 @@ import { Answer, PointsSolver } from '../PointsSolver';
 enum State {
   evaluation,
   bestMove,
-  player,
+  confirm,
   result,
   summary,
 }
@@ -116,42 +116,24 @@ export default (): React.ReactElement => {
         </Header>
       );
       break;
-    case State.player:
+    case State.confirm:
       questionText = (
         <>
-          <Header as="h2">
-            Who played in this game? (Last name only; leave blank if you don&apos;t know)
-          </Header>
-          <Form onSubmit={() => {
-            const answer = {
-              evaluation: sliderValueToEval(boardAndBar.sliderValue),
-              bestMove: boardAndBar.playMove === null ? '' : boardAndBar.playMove,
-              player,
-            };
-            setAnswers((state) => [...state, answer]);
-            setCurrentState(State.result);
-          }}
+          <br />
+          <Button
+            onClick={() => {
+              const answer = {
+                evaluation: sliderValueToEval(boardAndBar.sliderValue),
+                bestMove: boardAndBar.playMove === null ? '' : boardAndBar.playMove,
+              };
+              setAnswers((state) => [...state, answer]);
+              setCurrentState(State.result);
+            }}
+            size="large"
+            inverted
           >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-              }}
-            >
-              <Input
-                value={player}
-                onChange={(_, data) => setPlayer(data.value)}
-                size="large"
-                spellCheck={false}
-                inverted
-                autoFocus
-              />
-              <div style={{ width: '10px' }} />
-              <Button size="large" inverted>
-                Submit answer
-              </Button>
-            </div>
-          </Form>
+            Submit answer
+          </Button>
         </>
       );
       break;
