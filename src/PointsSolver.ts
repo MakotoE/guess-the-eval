@@ -90,7 +90,7 @@ export class PointsSolver {
 
   // Returns first variation with matching move, or null if not found.
   static getMatchingVariation(variations: Variations, move: string) : Variation | null {
-    const lowercaseMove = move.toLowerCase();
+    const lowercaseMove = move.toLowerCase().replace('+', '');
 
     if (variations.one.move.toLowerCase() === lowercaseMove) {
       return variations.one;
