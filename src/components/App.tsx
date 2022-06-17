@@ -34,7 +34,7 @@ function randomNumber(endExclusive: number): number {
   return Math.floor(Math.random() * endExclusive);
 }
 
-const questionKeys = Array(5).fill(0).map((v, i, arr) => {
+const questionKeys = Array(Math.min(5, questionsDatabase.length)).fill(null).map((v, i, arr) => {
   let number = randomNumber(questionsDatabase.length);
   while (arr.includes(number)) {
     number = randomNumber(questionsDatabase.length);
@@ -154,7 +154,7 @@ export default (): React.ReactElement => {
           />
           <Button
             onClick={() => {
-              if (questionIndex === 4) {
+              if (questionIndex === questions.length - 1) {
                 setCurrentState(State.summary);
               } else {
                 setQuestionIndex((n) => n + 1);
