@@ -34,4 +34,4 @@ export function numberOfVariations(variations: Variations): number {
   return 1;
 }
 
-export const questions = questionsData as unknown as Question[];
+export const questionsDatabase = questionsData as unknown as Question[];

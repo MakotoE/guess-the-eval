@@ -7,7 +7,7 @@ import { Key } from 'chessground/types';
 import BoardAndBar, { BoardAndBarState, Arrow } from './BoardAndBar';
 import LastResult from './LastResult';
 import {
-  Question, questions, Variation, Variations,
+  Question, questionsDatabase, Variation, Variations,
 } from '../questions';
 import { sliderValueToEval } from './EvalSlider';
 import { Answer, PointsSolver } from '../PointsSolver';
@@ -35,12 +35,14 @@ function randomNumber(endExclusive: number): number {
 }
 
 const questionKeys = Array(5).fill(0).map((v, i, arr) => {
-  let number = randomNumber(questions.length);
+  let number = randomNumber(questionsDatabase.length);
   while (arr.includes(number)) {
-    number = randomNumber(questions.length);
+    number = randomNumber(questionsDatabase.length);
   }
   return number;
 });
+
+const questions = questionKeys.map((key) => questionsDatabase[key]);
 
 function variationToShape(variation: Variation, chess: Chess): Omit<Arrow, 'opacity'> {
   const move = chess.move(variation.move, { dry_run: true });
@@ -85,17 +87,16 @@ function variationsToShapes(variations: Variations, chess: Chess): Arrow[] {
 }
 
 export default (): React.ReactElement => {
-  const [questionNumber, setQuestionNumber] = useState(0);
+  const [questionIndex, setQuestionIndex] = useState(0);
   const [boardAndBar, setBoardAndBar] = useState({
     sliderValue: 0,
-    initialFEN: questions[questionKeys[0]].fen,
+    initialFEN: questions[0].fen,
     playMove: null,
   } as BoardAndBarState);
-  const [player, setPlayer] = useState('');
   const [answers, setAnswers] = useState([] as Answer[]);
   const [currentState, setCurrentState] = useState(State.evaluation);
 
-  const currentQuestion = questions[questionKeys[questionNumber]];
+  const currentQuestion = questions[questionIndex];
   const turn = new Chess(currentQuestion.fen).turn();
 
   let questionText = null;
@@ -153,16 +154,15 @@ export default (): React.ReactElement => {
           />
           <Button
             onClick={() => {
-              if (questionNumber === 4) {
+              if (questionIndex === 4) {
                 setCurrentState(State.summary);
               } else {
-                setQuestionNumber((n) => n + 1);
+                setQuestionIndex((n) => n + 1);
                 setBoardAndBar({
-                  initialFEN: questions[questionKeys[questionNumber + 1]].fen,
+                  initialFEN: questions[questionIndex + 1].fen,
                   playMove: null,
                   sliderValue: 0,
                 });
-                setPlayer('');
                 setCurrentState(State.evaluation);
               }
             }}
@@ -188,7 +188,7 @@ export default (): React.ReactElement => {
           </p>
           <pre>
             {answers.map((answer, index) => (
-              `${questions[questionKeys[index]].fen}\n`
+              `${questions[index].fen}\n`
             ))}
           </pre>
           <Header as="h2">
@@ -212,7 +212,7 @@ export default (): React.ReactElement => {
             <Header as="h2" style={{ display: 'flex' }}>
               <span style={{ flex: 1, textAlign: 'right' }}>
                 Question&nbsp;
-                {questionNumber + 1}
+                {questionIndex + 1}
                 /5
               </span>
               &nbsp;|&nbsp;
@@ -233,7 +233,7 @@ export default (): React.ReactElement => {
                   value={boardAndBar}
                   onChange={(value) => {
                     setBoardAndBar(value);
-                    if (player === '' && value.playMove !== null) {
+                    if (value.playMove !== null) {
                       setCurrentState(State.confirm);
                     } else if (value.sliderValue !== 0) {
                       setCurrentState(State.bestMove);
