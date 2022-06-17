@@ -1,6 +1,6 @@
 # About Guess the Eval
 
-Guess the Eval is designed and developed by Makoto Emura. Guess the Eval is licensed under the GNU General Public License. See [LICENSE](LICENSE) for details.  Guess the Eval uses third party libraries which are listed [here](thirdPartyLicenses.md).
+Guess the Eval is designed and developed by Makoto Emura. Guess the Eval is licensed under the GNU General Public License. See [LICENSE](LICENSE) for details. Guess the Eval uses third party libraries which are listed [here](thirdPartyLicenses.md).
 
 You're currently in the GitHub repo containing the source code for [Guess the Eval](https://github.com/MakotoE/guess-the-eval). If you have feedback or suggestions for this project, please make an issue on this repo. Thanks!
 

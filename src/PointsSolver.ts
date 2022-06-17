@@ -6,12 +6,12 @@ import { Question, Variation, Variations } from './questions';
  * 1. 20 points for correctly guessing the winning side or that the position is a draw
  *
  * 2. The number of points for the eval guess is given by:
- * points = -8(1/abs(0.5c + 1))d^2 + 50
+ * points = -8(1/abs(0.5c + 1))d^1.5 + 50
  * if points < 0: points = points / 4
  * where c = correct eval, d = abs(guessed eval - c)
  *
  * 3. Guessing a best move multiplies your eval points by:
- * max(-0.75 * abs(guessedMoveEval - bestMoveEval) + 3, 1)
+ * max(-0.75 * abs(guessed eval - c) + 3, 1)
  *
  * 4. Guessing a player awards 10 points
  */
@@ -43,7 +43,7 @@ export class PointsSolver {
     const correctEval = this.result.question.variations.one.evaluation;
     const guessEval = this.result.answer.evaluation;
     const unadjusted = -8 * (1 / Math.abs(0.5 * correctEval + 1))
-      * Math.abs(guessEval - correctEval)
+      * Math.abs(guessEval - correctEval) ** 1.5
       + 50;
     if (unadjusted < 0) {
       return unadjusted / 4;
