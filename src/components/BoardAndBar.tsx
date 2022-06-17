@@ -124,10 +124,6 @@ export default ({
           height={length}
         />
       </div>
-      <p style={{ marginBottom: '4px' }}>
-        {turn === 'w' ? 'White' : 'Black'}
-        &nbsp;to play
-      </p>
       {
         value.playMove === null || disabled
           ? null

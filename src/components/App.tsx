@@ -95,7 +95,8 @@ export default (): React.ReactElement => {
   const [answers, setAnswers] = useState([] as Answer[]);
   const [currentState, setCurrentState] = useState(State.evaluation);
 
-  const turn = new Chess(questions[questionKeys[questionNumber]].fen).turn();
+  const currentQuestion = questions[questionKeys[questionNumber]];
+  const turn = new Chess(currentQuestion.fen).turn();
 
   let questionText = null;
   let shapes = [] as Arrow[];
@@ -229,19 +230,28 @@ export default (): React.ReactElement => {
           currentState === State.summary
             ? null
             : (
-              <BoardAndBar
-                value={boardAndBar}
-                onChange={(value) => {
-                  setBoardAndBar(value);
-                  if (player === '' && value.playMove !== null) {
-                    setCurrentState(State.player);
-                  } else if (value.sliderValue !== 0) {
-                    setCurrentState(State.bestMove);
-                  }
-                }}
-                disabled={currentState === State.result}
-                shapes={shapes}
-              />
+              <>
+                <BoardAndBar
+                  value={boardAndBar}
+                  onChange={(value) => {
+                    setBoardAndBar(value);
+                    if (player === '' && value.playMove !== null) {
+                      setCurrentState(State.confirm);
+                    } else if (value.sliderValue !== 0) {
+                      setCurrentState(State.bestMove);
+                    }
+                  }}
+                  disabled={currentState === State.result}
+                  shapes={shapes}
+                />
+                <p>
+                  {`${currentQuestion.players.white} vs ${currentQuestion.players.black}`}
+                </p>
+                <p>
+                  {turn === 'w' ? 'White' : 'Black'}
+                  &nbsp;to play
+                </p>
+              </>
             )
         }
         {questionText}

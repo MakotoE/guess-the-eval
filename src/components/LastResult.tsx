@@ -60,8 +60,6 @@ export default ({ question, answer }: Props): React.ReactElement => {
       <br />
       {`These are the top ${numberOfVariations(question.variations)} moves according to Stockfish: ${variationsString(question.variations)}.`}
       <br />
-      {`This was a game between ${question.players.white} (white) and ${question.players.black} (black).`}
-      <br />
       <a href={`https://lichess.org/analysis/standard/${question.fen}`} target="_blank" rel="noopener noreferrer">
         See position on Lichess
       </a>
