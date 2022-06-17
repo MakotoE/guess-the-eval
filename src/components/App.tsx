@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  Button, Container, Divider, Form, Header, Input,
+  Button, Container, Divider, Header,
 } from 'semantic-ui-react';
 import { Chess } from 'chess.ts';
 import { Key } from 'chessground/types';
@@ -143,8 +143,6 @@ export default (): React.ReactElement => {
       if (!lastAnswer) {
         throw new Error('lastAnswer is undefined');
       }
-
-      const currentQuestion = questions[questionKeys[questionNumber]];
 
       shapes = variationsToShapes(currentQuestion.variations, new Chess(currentQuestion.fen));
       questionText = (
