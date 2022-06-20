@@ -1,12 +1,11 @@
 use anyhow::{Error, Result};
 use clap::Parser;
-use pgn_reader::{BufferedReader, RawHeader, Visitor};
+use pgn_reader::{BufferedReader, RawHeader, SanPlus, Visitor};
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
 use shakmaty::fen::Fen;
-use shakmaty::san::SanPlus;
-use shakmaty::{Chess, Position, Setup};
+use shakmaty::{Chess, EnPassantMode, Position};
 use std::collections::HashSet;
 use std::fs;
 use std::hash::{Hash, Hasher};
@@ -70,7 +69,7 @@ async fn main_() -> Result<()> {
         .zip(all_variations.iter())
         .map(
             |(PositionAndPlayers { position, players }, variations)| Question {
-                fen: SerializableFen(Fen::from_setup(position)),
+                fen: SerializableFen(Fen::from_position(position.clone(), EnPassantMode::Legal)),
                 players: players.clone(),
                 variations: variations.clone(),
             },
@@ -119,7 +118,7 @@ impl Visitor for PositionsVisitor {
         let m = match san.san.to_move(&last_position) {
             Ok(m) => m,
             Err(e) => {
-                let fen = Fen::from_setup(&last_position);
+                let fen = Fen::from_position(last_position, EnPassantMode::Legal);
                 self.error =
                     Some(Error::from(e).context(format!("position: {}, san: {}", fen, san,)));
                 return;

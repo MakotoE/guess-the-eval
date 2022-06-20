@@ -3,7 +3,7 @@ use crate::stockfish::RawVariation;
 use serde::{Serialize, Serializer};
 use shakmaty::fen::Fen;
 use shakmaty::san::San;
-use shakmaty::{CastlingMode, Chess, Color, FromSetup, Setup};
+use shakmaty::{CastlingMode, Chess, Color, FromSetup};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Question {
@@ -34,7 +34,7 @@ pub struct Variation {
 
 impl Variation {
     pub fn from_raw_variation(raw: &RawVariation, fen: &Fen) -> Result<Variation> {
-        let position = Chess::from_setup(fen, CastlingMode::Standard)?;
+        let position = Chess::from_setup(fen.as_setup().clone(), CastlingMode::Standard)?;
         let san = San::from_move(&position, &raw.uci_move.to_move(&position)?);
 
         let evaluation = raw.cp as f32

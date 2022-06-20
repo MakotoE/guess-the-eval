@@ -2,7 +2,7 @@ use crate::{Variation, Variations};
 use anyhow::Result;
 use shakmaty::fen::Fen;
 use shakmaty::uci::Uci;
-use shakmaty::{Chess, File, Rank, Role, Square};
+use shakmaty::{Chess, EnPassantMode, File, Rank, Role, Square};
 use std::path::Path;
 use std::process::Stdio;
 use std::sync::Arc;
@@ -31,7 +31,13 @@ pub async fn calculate_evals(
     tokio::spawn({
         let positions: Vec<UciFen> = positions
             .iter()
-            .map(|pos| UciFen::from(Fen::from_setup(pos).to_string().as_str()))
+            .map(|pos| {
+                UciFen::from(
+                    Fen::from_position(pos.clone(), EnPassantMode::Legal)
+                        .to_string()
+                        .as_str(),
+                )
+            })
             .collect();
         let semaphore = semaphore.clone();
         async move {
@@ -62,7 +68,7 @@ pub async fn calculate_evals(
             continue;
         }
 
-        let fen = Fen::from_setup(position);
+        let fen = Fen::from_position(position.clone(), EnPassantMode::Legal);
         let variations: Variations = Variations {
             one: Variation::from_raw_variation(raw_variations[0].as_ref().unwrap(), &fen)?,
             two: match &raw_variations[1] {
