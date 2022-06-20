@@ -87,7 +87,7 @@ mod tests {
         let position: Chess =
             Fen::from_ascii(b"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
                 .unwrap()
-                .position(CastlingMode::Standard)
+                .into_position(CastlingMode::Standard)
                 .unwrap();
         let m = Move::Normal {
             role: Role::Knight,
