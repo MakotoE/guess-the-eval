@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 
 interface Props {
-  children?: ReactNode | undefined;
+  children: ReactNode;
 }
 
 export default class extends React.Component<Props, { error: string }> {
