@@ -1,20 +1,17 @@
-use crate::{Variation, Variations};
 use anyhow::{Error, Result};
-use shakmaty::fen::Fen;
 use shakmaty::uci::Uci;
-use shakmaty::{Chess, EnPassantMode, File, Rank, Role, Square};
+use shakmaty::{File, Rank, Role, Square};
 use std::path::Path;
 use std::process::Stdio;
-use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader, Lines};
 use tokio::process::{Child, ChildStdin, ChildStdout, Command};
-use tokio::sync::Notify;
 use vampirc_uci::{
     parse_one, Serializable, UciFen, UciInfoAttribute, UciMessage, UciMove, UciSearchControl,
     UciSquare,
 };
 
 pub struct Stockfish {
+    #[allow(dead_code)] // Child dies when dropped
     process: Child,
     stdin: ChildStdin,
     stdout: Lines<BufReader<ChildStdout>>,
@@ -27,6 +24,7 @@ impl Stockfish {
         let mut child = Command::new(stockfish_path)
             .stdout(Stdio::piped())
             .stdin(Stdio::piped())
+            .kill_on_drop(true)
             .spawn()?;
 
         let setup_messages = &[
@@ -74,6 +72,8 @@ impl Stockfish {
         write_message(&mut self.stdin, &go_msg).await?;
         self.stdin.flush().await?;
 
+        let mut variations: [Option<RawVariation>; 3] = [None, None, None];
+
         loop {
             let line = self
                 .stdout
@@ -84,7 +84,6 @@ impl Stockfish {
             let message = parse_one(&line);
             log::debug!("{}", message.serialize());
 
-            let mut variations: [Option<RawVariation>; 3] = [None, None, None];
             match message {
                 UciMessage::Info(attributes) => {
                     if let Some(eval) = attributes_to_eval(&attributes) {
@@ -96,161 +95,6 @@ impl Stockfish {
                     return Ok(variations);
                 }
                 _ => {}
-            }
-        }
-    }
-}
-
-pub async fn calculate_evals(
-    stockfish_path: &Path,
-    positions: &[Chess],
-    depth: u8,
-) -> Result<Vec<Variations>> {
-    let mut child = Command::new(stockfish_path)
-        .stdout(Stdio::piped())
-        .stdin(Stdio::piped())
-        .spawn()?;
-
-    let semaphore = Arc::new(Notify::new());
-
-    let mut child_stdin = child.stdin.take().unwrap();
-
-    tokio::spawn({
-        let positions: Vec<UciFen> = positions
-            .iter()
-            .map(|pos| {
-                UciFen::from(
-                    Fen::from_position(pos.clone(), EnPassantMode::Legal)
-                        .to_string()
-                        .as_str(),
-                )
-            })
-            .collect();
-        let semaphore = semaphore.clone();
-        async move {
-            send_messages(&mut child_stdin, &positions, semaphore, depth).await;
-        }
-    });
-
-    let mut child_stdout = BufReader::new(child.stdout.take().unwrap()).lines();
-
-    let mut result: Vec<Variations> = Vec::with_capacity(positions.len());
-
-    for (i, position) in positions.iter().enumerate() {
-        log::info!("position {}/{}", i, positions.len());
-
-        let raw_variations = read_all_evals(&mut child_stdout).await?;
-
-        // Skip if mate is evaluated (temporary)
-        if raw_variations[0]
-            .as_ref()
-            .map_or(false, |v| v.evaluated_as_mate)
-            || raw_variations[1]
-                .as_ref()
-                .map_or(false, |v| v.evaluated_as_mate)
-            || raw_variations[2]
-                .as_ref()
-                .map_or(false, |v| v.evaluated_as_mate)
-        {
-            continue;
-        }
-
-        let fen = Fen::from_position(position.clone(), EnPassantMode::Legal);
-        let variations: Variations = Variations {
-            one: Variation::from_raw_variation(raw_variations[0].as_ref().unwrap(), &fen)?,
-            two: match &raw_variations[1] {
-                Some(v) => Some(Variation::from_raw_variation(v, &fen)?),
-                None => None,
-            },
-            three: match &raw_variations[2] {
-                Some(v) => Some(Variation::from_raw_variation(v, &fen)?),
-                None => None,
-            },
-        };
-
-        result.push(variations);
-        semaphore.notify_one();
-    }
-
-    child.wait().await.unwrap();
-    Ok(result)
-}
-
-async fn send_messages(
-    stdin: &mut ChildStdin,
-    positions: &[UciFen],
-    semaphore: Arc<Notify>,
-    depth: u8,
-) {
-    let result: Result<()> = async {
-        let setup_messages = &[
-            UciMessage::Uci,
-            UciMessage::SetOption {
-                name: "Threads".to_string(),
-                value: Some(8.to_string()),
-            },
-            UciMessage::SetOption {
-                name: "Hash".to_string(),
-                value: Some(1024.to_string()),
-            },
-            UciMessage::SetOption {
-                name: "MultiPV".to_string(),
-                value: Some(3.to_string()),
-            },
-        ];
-
-        for message in setup_messages {
-            write_message(stdin, message).await?;
-        }
-
-        for position in positions {
-            let position_msg = UciMessage::Position {
-                startpos: false,
-                fen: Some(UciFen::from(position.as_str())),
-                moves: vec![],
-            };
-            write_message(stdin, &position_msg).await?;
-
-            let go_msg = UciMessage::Go {
-                time_control: None,
-                search_control: Some(UciSearchControl::depth(depth)),
-            };
-            write_message(stdin, &go_msg).await?;
-            stdin.flush().await?;
-            semaphore.notified().await;
-        }
-
-        write_message(stdin, &UciMessage::Quit).await?;
-        Ok(())
-    }
-    .await;
-    if let Err(e) = result {
-        panic!("error: {}", e);
-    }
-}
-
-async fn read_all_evals(
-    stdin: &mut Lines<BufReader<ChildStdout>>,
-) -> Result<[Option<RawVariation>; 3]> {
-    let mut variations: [Option<RawVariation>; 3] = [None, None, None];
-    loop {
-        if let Some(s) = stdin.next_line().await? {
-            if !s.is_empty() {
-                let message = parse_one(&s);
-                log::debug!("{}", message.serialize());
-
-                match message {
-                    UciMessage::Info(attributes) => {
-                        if let Some(eval) = attributes_to_eval(&attributes) {
-                            let index = eval.variation_number as usize - 1;
-                            variations[index] = Some(eval);
-                        }
-                    }
-                    UciMessage::BestMove { .. } => {
-                        return Ok(variations);
-                    }
-                    _ => {}
-                }
             }
         }
     }

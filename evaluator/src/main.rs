@@ -9,11 +9,12 @@ use shakmaty::{Chess, EnPassantMode, Position};
 use std::collections::HashSet;
 use std::fs;
 use std::hash::{Hash, Hasher};
+use std::io::stdout;
 use std::path::{Path, PathBuf};
 use vampirc_uci::UciFen;
 
 use crate::question::*;
-use crate::stockfish::{calculate_evals, Stockfish};
+use crate::stockfish::*;
 
 mod question;
 mod stockfish;
@@ -50,52 +51,72 @@ async fn main_() -> Result<()> {
         games.push(result?);
     }
 
-    let positions = choose_positions(&games);
     let mut stockfish = Stockfish::new(&Path::new("./stockfish_14.1_linux_x64_avx2"), 5).await?;
-    let fen = UciFen::from(
-        Fen::from_position(
-            positions.iter().next().unwrap().position.clone(),
-            EnPassantMode::Legal,
-        )
-        .to_string()
-        .as_str(),
-    );
-    stockfish.calculate(fen).await?;
+    let mut questions: Vec<Question> = Vec::with_capacity(games.len());
 
-    // let questions: Vec<Question> = positions_and_players_vec
-    //     .iter()
-    //     .zip(all_variations.iter())
-    //     .map(
-    //         |(PositionAndPlayers { position, players }, variations)| Question {
-    //             fen: SerializableFen(Fen::from_position(position.clone(), EnPassantMode::Legal)),
-    //             players: players.clone(),
-    //             variations: variations.clone(),
-    //         },
-    //     )
-    //     .collect();
+    for position in choose_positions(&games) {
+        match calculate_eval(&mut stockfish, position).await? {
+            Some(question) => questions.push(question),
+            None => {}
+        }
+    }
 
-    // let all_variations = calculate_evals(
-    //     Path::new("./stockfish_14.1_linux_x64_avx2"),
-    //     &positions_vec,
-    //     25,
-    // )
-    // .await?;
-    //
-    // let questions: Vec<Question> = positions_and_players_vec
-    //     .iter()
-    //     .zip(all_variations.iter())
-    //     .map(
-    //         |(PositionAndPlayers { position, players }, variations)| Question {
-    //             fen: SerializableFen(Fen::from_position(position.clone(), EnPassantMode::Legal)),
-    //             players: players.clone(),
-    //             variations: variations.clone(),
-    //         },
-    //     )
-    //     .collect();
-    //
-    // serde_json::to_writer(stdout(), &questions)?;
-
+    serde_json::to_writer(stdout().lock(), &questions)?;
     Ok(())
+}
+
+// Returns None if this position must be skipped.
+fn convert_variations(
+    position: Chess,
+    raw_variations: [Option<RawVariation>; 3],
+) -> Result<Option<Variations>> {
+    // Skip if mate is evaluated (temporary)
+    if raw_variations[0]
+        .as_ref()
+        .map_or(false, |v| v.evaluated_as_mate)
+        || raw_variations[1]
+            .as_ref()
+            .map_or(false, |v| v.evaluated_as_mate)
+        || raw_variations[2]
+            .as_ref()
+            .map_or(false, |v| v.evaluated_as_mate)
+    {
+        return Ok(None);
+    }
+
+    let fen = Fen::from_position(position, EnPassantMode::Legal);
+    Ok(Some(Variations {
+        one: Variation::from_raw_variation(raw_variations[0].as_ref().unwrap(), &fen)?,
+        two: match &raw_variations[1] {
+            Some(v) => Some(Variation::from_raw_variation(v, &fen)?),
+            None => None,
+        },
+        three: match &raw_variations[2] {
+            Some(v) => Some(Variation::from_raw_variation(v, &fen)?),
+            None => None,
+        },
+    }))
+}
+
+async fn calculate_eval(
+    stockfish: &mut Stockfish,
+    position: PositionAndPlayers,
+) -> Result<Option<Question>> {
+    let fen = UciFen::from(
+        Fen::from_position(position.position.clone(), EnPassantMode::Legal)
+            .to_string()
+            .as_str(),
+    );
+    let raw_variations = stockfish.calculate(fen).await?;
+    let variations = convert_variations(position.position.clone(), raw_variations)?;
+    Ok(match variations {
+        Some(variations) => Some(Question {
+            fen: SerializableFen(Fen::from_position(position.position, EnPassantMode::Legal)),
+            players: position.players,
+            variations,
+        }),
+        None => None,
+    })
 }
 
 #[derive(Debug)]
@@ -189,7 +210,7 @@ fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlaye
 
     let mut result: HashSet<PositionAndPlayers> = HashSet::new();
 
-    for game in &games[..30] {
+    for game in &games[..10] {
         if game.0.len() > 8 {
             result.extend(
                 Uniform::new(8, game.0.len())
