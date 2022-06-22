@@ -1,5 +1,5 @@
 use crate::{Variation, Variations};
-use anyhow::Result;
+use anyhow::{Error, Result};
 use shakmaty::fen::Fen;
 use shakmaty::uci::Uci;
 use shakmaty::{Chess, EnPassantMode, File, Rank, Role, Square};
@@ -7,12 +7,99 @@ use std::path::Path;
 use std::process::Stdio;
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader, Lines};
-use tokio::process::{ChildStdin, ChildStdout, Command};
+use tokio::process::{Child, ChildStdin, ChildStdout, Command};
 use tokio::sync::Notify;
 use vampirc_uci::{
     parse_one, Serializable, UciFen, UciInfoAttribute, UciMessage, UciMove, UciSearchControl,
     UciSquare,
 };
+
+pub struct Stockfish {
+    process: Child,
+    stdin: ChildStdin,
+    stdout: Lines<BufReader<ChildStdout>>,
+    // Depth to calculate
+    depth: u8,
+}
+
+impl Stockfish {
+    pub async fn new(stockfish_path: &Path, depth: u8) -> Result<Self> {
+        let mut child = Command::new(stockfish_path)
+            .stdout(Stdio::piped())
+            .stdin(Stdio::piped())
+            .spawn()?;
+
+        let setup_messages = &[
+            UciMessage::Uci,
+            UciMessage::SetOption {
+                name: "Threads".to_string(),
+                value: Some(8.to_string()),
+            },
+            UciMessage::SetOption {
+                name: "Hash".to_string(),
+                value: Some(1024.to_string()),
+            },
+            UciMessage::SetOption {
+                name: "MultiPV".to_string(),
+                value: Some(3.to_string()),
+            },
+        ];
+
+        let mut stdin = child.stdin.take().unwrap();
+
+        for message in setup_messages {
+            write_message(&mut stdin, message).await?;
+        }
+
+        Ok(Stockfish {
+            stdin,
+            stdout: BufReader::new(child.stdout.take().unwrap()).lines(),
+            process: child,
+            depth,
+        })
+    }
+
+    pub async fn calculate(&mut self, position: UciFen) -> Result<[Option<RawVariation>; 3]> {
+        let position_msg = UciMessage::Position {
+            startpos: false,
+            fen: Some(position),
+            moves: vec![],
+        };
+        write_message(&mut self.stdin, &position_msg).await?;
+
+        let go_msg = UciMessage::Go {
+            time_control: None,
+            search_control: Some(UciSearchControl::depth(self.depth)),
+        };
+        write_message(&mut self.stdin, &go_msg).await?;
+        self.stdin.flush().await?;
+
+        loop {
+            let line = self
+                .stdout
+                .next_line()
+                .await?
+                .ok_or(Error::msg("expected output but did not get output"))?;
+
+            let message = parse_one(&line);
+            log::debug!("{}", message.serialize());
+
+            let mut variations: [Option<RawVariation>; 3] = [None, None, None];
+            match message {
+                UciMessage::Info(attributes) => {
+                    if let Some(eval) = attributes_to_eval(&attributes) {
+                        let index = eval.variation_number as usize - 1;
+                        variations[index] = Some(eval);
+                    }
+                }
+                UciMessage::BestMove { .. } => {
+                    return Ok(variations);
+                }
+                _ => {}
+            }
+        }
+    }
+}
 
 pub async fn calculate_evals(
     stockfish_path: &Path,
@@ -241,6 +328,7 @@ fn vampirc_to_shakmaty(uci_move: &UciMove) -> Uci {
 }
 
 async fn write_message(stdin: &mut ChildStdin, message: &UciMessage) -> Result<()> {
+    log::debug!("write: {}", message.serialize());
     stdin
         .write_all((message.serialize() + "\n").as_bytes())
         .await?;

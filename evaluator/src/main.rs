@@ -9,11 +9,11 @@ use shakmaty::{Chess, EnPassantMode, Position};
 use std::collections::HashSet;
 use std::fs;
 use std::hash::{Hash, Hasher};
-use std::io::stdout;
 use std::path::{Path, PathBuf};
+use vampirc_uci::UciFen;
 
 use crate::question::*;
-use crate::stockfish::calculate_evals;
+use crate::stockfish::{calculate_evals, Stockfish};
 
 mod question;
 mod stockfish;
@@ -51,32 +51,49 @@ async fn main_() -> Result<()> {
     }
 
     let positions = choose_positions(&games);
-    let positions_and_players_vec: Vec<PositionAndPlayers> = positions.iter().cloned().collect();
-    let positions_vec: Vec<Chess> = positions_and_players_vec
-        .iter()
-        .map(|p| p.position.clone())
-        .collect();
-
-    let all_variations = calculate_evals(
-        Path::new("./stockfish_14.1_linux_x64_avx2"),
-        &positions_vec,
-        25,
-    )
-    .await?;
-
-    let questions: Vec<Question> = positions_and_players_vec
-        .iter()
-        .zip(all_variations.iter())
-        .map(
-            |(PositionAndPlayers { position, players }, variations)| Question {
-                fen: SerializableFen(Fen::from_position(position.clone(), EnPassantMode::Legal)),
-                players: players.clone(),
-                variations: variations.clone(),
-            },
+    let mut stockfish = Stockfish::new(&Path::new("./stockfish_14.1_linux_x64_avx2"), 5).await?;
+    let fen = UciFen::from(
+        Fen::from_position(
+            positions.iter().next().unwrap().position.clone(),
+            EnPassantMode::Legal,
         )
-        .collect();
+        .to_string()
+        .as_str(),
+    );
+    stockfish.calculate(fen).await?;
 
-    serde_json::to_writer(stdout(), &questions)?;
+    // let questions: Vec<Question> = positions_and_players_vec
+    //     .iter()
+    //     .zip(all_variations.iter())
+    //     .map(
+    //         |(PositionAndPlayers { position, players }, variations)| Question {
+    //             fen: SerializableFen(Fen::from_position(position.clone(), EnPassantMode::Legal)),
+    //             players: players.clone(),
+    //             variations: variations.clone(),
+    //         },
+    //     )
+    //     .collect();
+
+    // let all_variations = calculate_evals(
+    //     Path::new("./stockfish_14.1_linux_x64_avx2"),
+    //     &positions_vec,
+    //     25,
+    // )
+    // .await?;
+    //
+    // let questions: Vec<Question> = positions_and_players_vec
+    //     .iter()
+    //     .zip(all_variations.iter())
+    //     .map(
+    //         |(PositionAndPlayers { position, players }, variations)| Question {
+    //             fen: SerializableFen(Fen::from_position(position.clone(), EnPassantMode::Legal)),
+    //             players: players.clone(),
+    //             variations: variations.clone(),
+    //         },
+    //     )
+    //     .collect();
+    //
+    // serde_json::to_writer(stdout(), &questions)?;
 
     Ok(())
 }
