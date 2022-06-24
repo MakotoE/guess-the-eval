@@ -54,7 +54,7 @@ async fn main_() -> Result<()> {
         games.push(result?);
     }
 
-    let mut stockfish = Stockfish::new(&Args::parse().stockfish_path, 5).await?;
+    let mut stockfish = Stockfish::new(&Args::parse().stockfish_path, 25).await?;
     let mut questions: Vec<Question> = Vec::with_capacity(games.len());
 
     for position in choose_positions(&games) {
@@ -213,7 +213,7 @@ fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlaye
 
     let mut result: HashSet<PositionAndPlayers> = HashSet::new();
 
-    for game in &games[..10] {
+    for game in &games[..50] {
         if game.0.len() > 8 {
             result.extend(
                 Uniform::new(8, game.0.len())
