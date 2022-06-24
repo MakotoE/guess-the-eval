@@ -10,7 +10,7 @@ use std::collections::HashSet;
 use std::fs;
 use std::hash::{Hash, Hasher};
 use std::io::stdout;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use vampirc_uci::UciFen;
 
 use crate::question::*;
@@ -21,6 +21,9 @@ mod stockfish;
 
 #[derive(Debug, Parser)]
 struct Args {
+    /// Path to Stockfish binary
+    #[clap(long)]
+    stockfish_path: PathBuf,
     /// Path to PGN file
     pgn_file_path: PathBuf,
 }
@@ -51,7 +54,7 @@ async fn main_() -> Result<()> {
         games.push(result?);
     }
 
-    let mut stockfish = Stockfish::new(&Path::new("./stockfish_14.1_linux_x64_avx2"), 5).await?;
+    let mut stockfish = Stockfish::new(&Args::parse().stockfish_path, 5).await?;
     let mut questions: Vec<Question> = Vec::with_capacity(games.len());
 
     for position in choose_positions(&games) {
