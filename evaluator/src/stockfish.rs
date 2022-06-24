@@ -79,7 +79,7 @@ impl Stockfish {
                 .stdout
                 .next_line()
                 .await?
-                .ok_or(Error::msg("expected output but did not get output"))?;
+                .ok_or_else(|| Error::msg("expected output but did not get output"))?;
 
             let message = parse_one(&line);
             log::debug!("{}", message.serialize());
