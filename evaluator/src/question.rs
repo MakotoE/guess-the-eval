@@ -8,7 +8,7 @@ use shakmaty::{CastlingMode, Chess, Color, FromSetup};
 pub struct Question {
     pub fen: SerializableFen,
     pub players: Players,
-    pub variations: Moves,
+    pub moves: Moves,
 }
 
 #[derive(Debug, Clone, Serialize)]

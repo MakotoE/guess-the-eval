@@ -2,7 +2,7 @@ import React from 'react';
 import { Container } from 'semantic-ui-react';
 import { Answer, PointsSolver } from '../PointsSolver';
 import {
-  numberOfVariations, Question, Variation, Variations,
+  numberOfVariations, Question, Move, Moves,
 } from '../questions';
 
 function formatEval(evaluation: number): string {
@@ -15,11 +15,11 @@ interface Props {
   answer: Answer;
 }
 
-function variationString(variation: Variation): string {
+function variationString(variation: Move): string {
   return `${variation.move} (${formatEval(variation.evaluation)})`;
 }
 
-function variationsString(variations: Variations): string {
+function variationsString(variations: Moves): string {
   let result = variationString(variations.one);
   if (variations.two !== null) {
     result += `, ${variationString(variations.two)}`;
@@ -42,7 +42,7 @@ export default ({ question, answer }: Props): React.ReactElement => {
           : 'You did not guess the winning side.'
       }
       <br />
-      {`Your eval guess was off by ${Math.abs(answer.evaluation - question.variations.one.evaluation).toFixed(2)}. Actual eval was ${formatEval(question.variations.one.evaluation)}.`}
+      {`Your eval guess was off by ${Math.abs(answer.evaluation - question.moves.one.evaluation).toFixed(2)}. Actual eval was ${formatEval(question.moves.one.evaluation)}.`}
       <br />
       {`${points.evalPoints().toFixed(1)} points for the evaluation.`}
       <br />
@@ -52,7 +52,7 @@ export default ({ question, answer }: Props): React.ReactElement => {
           : 'You did not find a best move.'
       }
       <br />
-      {`These are the top ${numberOfVariations(question.variations)} moves according to Stockfish: ${variationsString(question.variations)}.`}
+      {`These are the top ${numberOfVariations(question.moves)} moves according to Stockfish: ${variationsString(question.moves)}.`}
       <br />
       <a href={`https://lichess.org/analysis/standard/${question.fen}`} target="_blank" rel="noopener noreferrer">
         See position on Lichess

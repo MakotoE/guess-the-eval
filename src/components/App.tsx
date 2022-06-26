@@ -7,7 +7,7 @@ import { Key } from 'chessground/types';
 import BoardAndBar, { BoardAndBarState, Arrow } from './BoardAndBar';
 import LastResult from './LastResult';
 import {
-  Question, questionsDatabase, Variation, Variations,
+  Question, questionsDatabase, Move, Moves,
 } from '../questions';
 import { sliderValueToEval } from './EvalSlider';
 import { Answer, PointsSolver } from '../PointsSolver';
@@ -47,7 +47,7 @@ const questions = Array(Math.min(5, questionsDatabase.length))
     return number;
   }).map((key) => questionsDatabase[key]);
 
-function variationToShape(variation: Variation, chess: Chess): Omit<Arrow, 'opacity'> {
+function variationToShape(variation: Move, chess: Chess): Omit<Arrow, 'opacity'> {
   const move = chess.move(variation.move, { dry_run: true });
   if (move === null) {
     throw new Error('invalid move');
@@ -58,7 +58,7 @@ function variationToShape(variation: Variation, chess: Chess): Omit<Arrow, 'opac
   };
 }
 
-function variationsToShapes(variations: Variations, chess: Chess): Arrow[] {
+function variationsToShapes(variations: Moves, chess: Chess): Arrow[] {
   const initialOpacity = 1.0;
   const minimumOpacity = 0.5;
   const result = [{
@@ -148,7 +148,7 @@ export default (): React.ReactElement => {
         throw new Error('lastAnswer is undefined');
       }
 
-      shapes = variationsToShapes(currentQuestion.variations, new Chess(currentQuestion.fen));
+      shapes = variationsToShapes(currentQuestion.moves, new Chess(currentQuestion.fen));
       questionText = (
         <>
           <LastResult

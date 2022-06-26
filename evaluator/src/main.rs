@@ -126,7 +126,7 @@ async fn calculate_eval(
                         EnPassantMode::Legal,
                     )),
                     players: position.players,
-                    variations,
+                    moves: variations,
                 }),
                 None => None,
             })

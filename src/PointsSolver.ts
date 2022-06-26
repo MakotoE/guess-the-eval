@@ -1,4 +1,4 @@
-import { Question, Variation, Variations } from './questions';
+import { Question, Move, Moves } from './questions';
 
 /**
  * Calculates points awarded for position.
@@ -30,19 +30,19 @@ export class PointsSolver {
   foundWinningSide(): boolean {
     if (
       this.result.answer.evaluation === 0
-      && this.result.question.variations.one.evaluation === 0
+      && this.result.question.moves.one.evaluation === 0
     ) {
       return true;
     }
 
-    return this.result.answer.evaluation * this.result.question.variations.one.evaluation > 0;
+    return this.result.answer.evaluation * this.result.question.moves.one.evaluation > 0;
   }
 
   /**
    * @returns Points awarded for eval
    */
   evalPoints(): number {
-    const correctEval = this.result.question.variations.one.evaluation;
+    const correctEval = this.result.question.moves.one.evaluation;
     const guessEval = this.result.answer.evaluation;
     const unadjusted = -8 * (1 / Math.abs(0.5 * correctEval + 1))
       * Math.abs(guessEval - correctEval) ** 1.5
@@ -58,7 +58,7 @@ export class PointsSolver {
    */
   foundBestMove(): boolean {
     const variation = PointsSolver.getMatchingVariation(
-      this.result.question.variations,
+      this.result.question.moves,
       this.result.answer.bestMove,
     );
     return variation !== null;
@@ -69,7 +69,7 @@ export class PointsSolver {
    */
   bestMoveMultiplier(): number {
     const variation = PointsSolver.getMatchingVariation(
-      this.result.question.variations,
+      this.result.question.moves,
       this.result.answer.bestMove,
     );
     if (variation === null) {
@@ -77,7 +77,7 @@ export class PointsSolver {
     }
 
     const multiplier = Math.max(
-      -0.75 * Math.abs(variation.evaluation - this.result.question.variations.one.evaluation) + 3,
+      -0.75 * Math.abs(variation.evaluation - this.result.question.moves.one.evaluation) + 3,
       1,
     );
 
@@ -97,7 +97,7 @@ export class PointsSolver {
   }
 
   // Returns first variation with matching move, or null if not found.
-  static getMatchingVariation(variations: Variations, move: string) : Variation | null {
+  static getMatchingVariation(variations: Moves, move: string) : Move | null {
     const lowercaseMove = move.toLowerCase().replace('+', '');
 
     if (variations.one.move.toLowerCase() === lowercaseMove) {
