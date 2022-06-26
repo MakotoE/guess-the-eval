@@ -7,7 +7,7 @@ import { defaults } from 'chessground/state';
 import { Button } from 'semantic-ui-react';
 import { DrawShape } from 'chessground/draw';
 import Chessground from './Chessground';
-import EvalSlider from './EvalSlider';
+import EvalSliderDesktop from './EvalSliderDesktop';
 
 interface Props {
   value: BoardAndBarState,
@@ -116,7 +116,7 @@ export default ({
     <div ref={rootElement}>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <Chessground config={config} style={{ width: length, height: length }} />
-        <EvalSlider
+        <EvalSliderDesktop
           value={value.sliderValue}
           onDrag={(sliderValue) => onChange({ ...value, sliderValue })}
           orientation={turn}

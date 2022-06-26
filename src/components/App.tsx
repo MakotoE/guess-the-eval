@@ -9,7 +9,7 @@ import LastResult from './LastResult';
 import {
   Question, questionsDatabase, Move, Moves,
 } from '../questions';
-import { sliderValueToEval } from './EvalSlider';
+import { sliderValueToEval } from './EvalSliderDesktop';
 import { Answer, PointsSolver } from '../PointsSolver';
 
 enum State {
@@ -108,7 +108,7 @@ export default (): React.ReactElement => {
     case State.evaluation:
       questionText = (
         <Header as="h2">
-          What do you think the eval is? (Slide the eval bar on the right)
+          What do you think the eval is? (Slide the eval bar)
         </Header>
       );
       break;
