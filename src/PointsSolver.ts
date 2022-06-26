@@ -11,7 +11,9 @@ import { Question, Variation, Variations } from './questions';
  * where c = correct eval, d = abs(guessed eval - c)
  *
  * 3. Guessing a best move multiplies your eval points by:
- * max(-0.75 * abs(guessed eval - c) + 3, 1)
+ * multiplier = max(-0.75 * abs(guessed eval - c) + 3, 1)
+ * if points > 0:
+ *   1 / multiplier
  *
  * 4. Guessing a player awards 10 points
  */
@@ -46,7 +48,7 @@ export class PointsSolver {
       * Math.abs(guessEval - correctEval) ** 1.5
       + 50;
     if (unadjusted < 0) {
-      return unadjusted / 4;
+      return unadjusted / 2;
     }
     return unadjusted;
   }
@@ -74,10 +76,16 @@ export class PointsSolver {
       return 1;
     }
 
-    return Math.max(
+    const multiplier = Math.max(
       -0.75 * Math.abs(variation.evaluation - this.result.question.variations.one.evaluation) + 3,
       1,
     );
+
+    if (this.evalPoints() < 0) {
+      return 1 / multiplier;
+    }
+
+    return multiplier;
   }
 
   /**
