@@ -1,22 +1,7 @@
+import { Color } from 'chess.ts';
 import React from 'react';
 import Draggable from 'react-draggable';
-import { Color } from 'chess.ts';
-
-export function sliderValueToEval(value: number): number {
-  return 20 * value ** 3;
-}
-
-export function evalOutput(value: number): string {
-  const evaluation = sliderValueToEval(value);
-  if (evaluation >= 0) {
-    return `+${evaluation.toFixed(2)}`;
-  }
-
-  return evaluation.toFixed(2);
-}
-
-export const WHITE_COLOR = '#e3e3e3';
-export const BLACK_COLOR = '#161616';
+import { BLACK_COLOR, evalOutput, WHITE_COLOR } from './EvalSliderDesktop';
 
 interface Props {
   // From -1.0 to 1.0
@@ -24,22 +9,22 @@ interface Props {
   onDrag: (value: number) => void;
   orientation: Color;
   disabled: boolean;
-  height: number;
+  width: number;
 }
 
 export default ({
-  value, onDrag, orientation, disabled, height,
+  value, onDrag, orientation, disabled, width,
 }: Props): React.ReactElement => {
-  const sliderWidth = 24;
-  const sliderHeight = 12;
-  const barWidth = 10;
+  const sliderWidth = 20;
+  const sliderHeight = 28;
+  const barHeight = 10;
   const valueCoefficient = orientation === 'w' ? -1 : 1;
 
   return (
     <div
       style={{
         display: 'flex',
-        flexDirection: 'row',
+        flexDirection: 'column',
         position: 'relative',
       }}
     >
@@ -47,8 +32,8 @@ export default ({
         <div
           style={{
             position: 'absolute',
-            width: `${barWidth}px`,
-            height: `${height}px`,
+            width: `${width}px`,
+            height: `${barHeight}px`,
             backgroundColor: orientation === 'w' ? WHITE_COLOR : BLACK_COLOR,
             borderStyle: 'solid',
             borderColor: orientation === 'w' ? BLACK_COLOR : WHITE_COLOR,
@@ -58,8 +43,8 @@ export default ({
         <div
           style={{
             position: 'absolute',
-            width: `${barWidth}px`,
-            height: `${(height / 2) * (1 + value * valueCoefficient)}px`,
+            height: `${barHeight}px`,
+            width: `${(width / 2) * (1 + value * valueCoefficient)}px`,
             backgroundColor: orientation === 'w' ? BLACK_COLOR : WHITE_COLOR,
             borderStyle: 'solid',
             borderColor: orientation === 'w' ? WHITE_COLOR : BLACK_COLOR,
@@ -68,21 +53,21 @@ export default ({
         />
       </div>
       <Draggable
-        axis="y"
+        axis="x"
         bounds={{
-          top: -(height / 2 - sliderHeight / 2),
-          bottom: (height / 2 - sliderHeight / 2),
+          left: -(width / 2 - sliderWidth / 2),
+          right: (width / 2 - sliderWidth / 2),
         }}
-        position={{ x: 0, y: (value * valueCoefficient) * (height / 2 - sliderHeight / 2) }}
+        position={{ x: (value * valueCoefficient) * (width / 2 - sliderWidth / 2), y: 0 }}
         onDrag={(_, data) => {
-          onDrag((data.y / (height / 2 - sliderHeight / 2)) * valueCoefficient);
+          onDrag((data.x / (width / 2 - sliderWidth / 2)) * valueCoefficient);
         }}
         disabled={disabled}
       >
         <div
           style={{
             position: 'absolute',
-            top: `${height / 2 - sliderHeight / 2}px`,
+            left: `${width / 2 - sliderWidth / 2}px`,
           }}
         >
           <div
@@ -94,18 +79,18 @@ export default ({
               borderStyle: 'solid',
               borderColor: orientation === 'w' ? BLACK_COLOR : WHITE_COLOR,
               borderWidth: '1px',
-              cursor: disabled ? '' : 'ns-resize',
+              cursor: disabled ? '' : 'ew-resize',
             }}
           />
           <div
             style={{
               height: 0,
               position: 'absolute',
-              left: `${sliderWidth + 5}px`,
-              top: `${sliderHeight / 2}px`,
+              left: `${sliderWidth / 2 + 10}px`,
+              top: `${sliderHeight + 8}px`,
               display: 'flex',
               alignItems: 'center',
-              cursor: disabled ? '' : 'ns-resize',
+              cursor: disabled ? '' : 'ew-resize',
             }}
           >
             <p style={{ fontSize: '2em' }}>
