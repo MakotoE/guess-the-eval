@@ -54,10 +54,14 @@ async fn main_() -> Result<()> {
         games.push(result?);
     }
 
-    let mut stockfish = Stockfish::new(&Args::parse().stockfish_path, 25).await?;
-    let mut questions: Vec<Question> = Vec::with_capacity(games.len());
+    // Choose first n games
+    let games_subslice = &games[..50];
 
-    for position in choose_positions(&games) {
+    let mut stockfish = Stockfish::new(&Args::parse().stockfish_path, 25).await?;
+    let mut questions: Vec<Question> = Vec::with_capacity(games_subslice.len());
+
+    let positions = choose_positions(games_subslice);
+    for position in positions {
         match calculate_eval(&mut stockfish, position).await? {
             Some(question) => questions.push(question),
             None => {}
@@ -71,31 +75,31 @@ async fn main_() -> Result<()> {
 // Returns None if this position must be skipped.
 fn convert_variations(
     position: Chess,
-    raw_variations: [Option<RawVariation>; 3],
-) -> Result<Option<Variations>> {
-    // Skip if mate is evaluated (temporary)
+    raw_variations: &[Option<EvalAndMove>; 3],
+) -> Result<Option<Moves>> {
+    // Skip if evaluation is mate or eval is not in range [-20, 20]
     if raw_variations[0]
         .as_ref()
-        .map_or(false, |v| v.evaluated_as_mate)
+        .map_or(false, |EvalAndMove { cp, .. }| cp.abs() > 2000)
         || raw_variations[1]
             .as_ref()
-            .map_or(false, |v| v.evaluated_as_mate)
+            .map_or(false, |EvalAndMove { cp, .. }| cp.abs() > 2000)
         || raw_variations[2]
             .as_ref()
-            .map_or(false, |v| v.evaluated_as_mate)
+            .map_or(false, |EvalAndMove { cp, .. }| cp.abs() > 2000)
     {
         return Ok(None);
     }
 
     let fen = Fen::from_position(position, EnPassantMode::Legal);
-    Ok(Some(Variations {
-        one: Variation::from_raw_variation(raw_variations[0].as_ref().unwrap(), &fen)?,
+    Ok(Some(Moves {
+        one: Move::from_raw_variation(raw_variations[0].as_ref().unwrap(), &fen)?,
         two: match &raw_variations[1] {
-            Some(v) => Some(Variation::from_raw_variation(v, &fen)?),
+            Some(v) => Some(Move::from_raw_variation(v, &fen)?),
             None => None,
         },
         three: match &raw_variations[2] {
-            Some(v) => Some(Variation::from_raw_variation(v, &fen)?),
+            Some(v) => Some(Move::from_raw_variation(v, &fen)?),
             None => None,
         },
     }))
@@ -111,15 +115,23 @@ async fn calculate_eval(
             .as_str(),
     );
     let raw_variations = stockfish.calculate(fen).await?;
-    let variations = convert_variations(position.position.clone(), raw_variations)?;
-    Ok(match variations {
-        Some(variations) => Some(Question {
-            fen: SerializableFen(Fen::from_position(position.position, EnPassantMode::Legal)),
-            players: position.players,
-            variations,
-        }),
-        None => None,
-    })
+    match raw_variations {
+        Variations::Mate => Ok(None),
+        Variations::Variations(variations) => {
+            let variations = convert_variations(position.position.clone(), &variations)?;
+            Ok(match variations {
+                Some(variations) => Some(Question {
+                    fen: SerializableFen(Fen::from_position(
+                        position.position,
+                        EnPassantMode::Legal,
+                    )),
+                    players: position.players,
+                    variations,
+                }),
+                None => None,
+            })
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -213,7 +225,7 @@ fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlaye
 
     let mut result: HashSet<PositionAndPlayers> = HashSet::new();
 
-    for game in &games[..50] {
+    for game in games {
         if game.0.len() > 8 {
             result.extend(
                 Uniform::new(8, game.0.len())

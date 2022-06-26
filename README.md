@@ -8,8 +8,5 @@ The TypeScript project for the web app is located at the root of this repo. The 
 
 # TODO
 
-- Refactor evaluator so that it takes one position at a time instead of an array of positions, because there's a bug that's making it stop while calculating
-- Add mate evaluation
 - Save full PGN so that the game is viewable on Lichess
 - Support mobile devices
-- Blitz mode: Questions are timed, and you input either evals or best moves

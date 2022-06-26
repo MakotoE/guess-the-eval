@@ -57,7 +57,7 @@ impl Stockfish {
         })
     }
 
-    pub async fn calculate(&mut self, position: UciFen) -> Result<[Option<RawVariation>; 3]> {
+    pub async fn calculate(&mut self, position: UciFen) -> Result<Variations> {
         let position_msg = UciMessage::Position {
             startpos: false,
             fen: Some(position),
@@ -72,7 +72,7 @@ impl Stockfish {
         write_message(&mut self.stdin, &go_msg).await?;
         self.stdin.flush().await?;
 
-        let mut variations: [Option<RawVariation>; 3] = [None, None, None];
+        let mut variations: [Option<EvalAndMove>; 3] = [None, None, None];
 
         loop {
             let line = self
@@ -87,12 +87,17 @@ impl Stockfish {
             match message {
                 UciMessage::Info(attributes) => {
                     if let Some(eval) = attributes_to_eval(&attributes) {
-                        let index = eval.variation_number as usize - 1;
-                        variations[index] = Some(eval);
+                        match eval {
+                            Variation::Mate => return Ok(Variations::Mate),
+                            Variation::EvalAndMove(eval_and_move) => {
+                                let index = eval_and_move.variation_number as usize - 1;
+                                variations[index] = Some(eval_and_move);
+                            }
+                        }
                     }
                 }
                 UciMessage::BestMove { .. } => {
-                    return Ok(variations);
+                    return Ok(Variations::Variations(variations));
                 }
                 _ => {}
             }
@@ -101,16 +106,26 @@ impl Stockfish {
 }
 
 #[derive(Debug, Clone)]
-pub struct RawVariation {
-    // Temporary
-    pub evaluated_as_mate: bool,
+pub enum Variations {
+    Mate,
+    Variations([Option<EvalAndMove>; 3]),
+}
+
+#[derive(Debug, Clone)]
+pub struct EvalAndMove {
     pub variation_number: u16,
     pub cp: i32,
     pub uci_move: Uci,
 }
 
+#[derive(Debug, Clone)]
+pub enum Variation {
+    Mate,
+    EvalAndMove(EvalAndMove),
+}
+
 /// Returns variations if attributes contain an evaluation.
-fn attributes_to_eval(attributes: &[UciInfoAttribute]) -> Option<RawVariation> {
+fn attributes_to_eval(attributes: &[UciInfoAttribute]) -> Option<Variation> {
     let mut is_seldepth = false;
     let mut variation_number: Option<u16> = None;
     let mut cp: Option<i32> = None;
@@ -124,13 +139,7 @@ fn attributes_to_eval(attributes: &[UciInfoAttribute]) -> Option<RawVariation> {
                 cp: score_cp, mate, ..
             } => {
                 if mate.is_some() {
-                    log::info!("stockfish returned a mate eval");
-                    return Some(RawVariation {
-                        evaluated_as_mate: true,
-                        variation_number: 1,
-                        cp: 0,
-                        uci_move: Uci::Null,
-                    });
+                    return Some(Variation::Mate);
                 }
                 cp = Some(score_cp.unwrap());
             }
@@ -142,12 +151,11 @@ fn attributes_to_eval(attributes: &[UciInfoAttribute]) -> Option<RawVariation> {
     }
 
     if is_seldepth {
-        Some(RawVariation {
-            evaluated_as_mate: false,
+        Some(Variation::EvalAndMove(EvalAndMove {
             variation_number: variation_number.unwrap(),
             cp: cp.unwrap(),
             uci_move: uci_move.unwrap(),
-        })
+        }))
     } else {
         None
     }
