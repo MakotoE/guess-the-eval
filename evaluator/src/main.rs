@@ -54,10 +54,14 @@ async fn main_() -> Result<()> {
         games.push(result?);
     }
 
-    let mut stockfish = Stockfish::new(&Args::parse().stockfish_path, 25).await?;
-    let mut questions: Vec<Question> = Vec::with_capacity(games.len());
+    // Choose first n games
+    let games_subslice = &games[..50];
 
-    for position in choose_positions(&games) {
+    let mut stockfish = Stockfish::new(&Args::parse().stockfish_path, 25).await?;
+    let mut questions: Vec<Question> = Vec::with_capacity(games_subslice.len());
+
+    let positions = choose_positions(&games_subslice);
+    for position in positions {
         match calculate_eval(&mut stockfish, position).await? {
             Some(question) => questions.push(question),
             None => {}
@@ -76,13 +80,13 @@ fn convert_variations(
     // Skip if evaluation is mate or eval is not in range [-20, 20]
     if raw_variations[0]
         .as_ref()
-        .map_or(false, |EvalAndMove { cp, .. }| cp.abs() > 20)
+        .map_or(false, |EvalAndMove { cp, .. }| cp.abs() > 2000)
         || raw_variations[1]
             .as_ref()
-            .map_or(false, |EvalAndMove { cp, .. }| cp.abs() > 20)
+            .map_or(false, |EvalAndMove { cp, .. }| cp.abs() > 2000)
         || raw_variations[2]
             .as_ref()
-            .map_or(false, |EvalAndMove { cp, .. }| cp.abs() > 20)
+            .map_or(false, |EvalAndMove { cp, .. }| cp.abs() > 2000)
     {
         return Ok(None);
     }
@@ -221,7 +225,7 @@ fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlaye
 
     let mut result: HashSet<PositionAndPlayers> = HashSet::new();
 
-    for game in &games[..50] {
+    for game in games {
         if game.0.len() > 8 {
             result.extend(
                 Uniform::new(8, game.0.len())
