@@ -8,7 +8,7 @@ use shakmaty::{CastlingMode, Chess, Color, FromSetup};
 pub struct Question {
     pub fen: SerializableFen,
     pub players: Players,
-    pub variations: Moves,
+    pub moves: Moves,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -32,7 +32,7 @@ pub struct Move {
 }
 
 impl Move {
-    pub fn from_raw_variation(eval_and_move: &EvalAndMove, fen: &Fen) -> Result<Move> {
+    pub fn from_variation(eval_and_move: &EvalAndMove, fen: &Fen) -> Result<Move> {
         let position = Chess::from_setup(fen.as_setup().clone(), CastlingMode::Standard)?;
         let san = San::from_move(&position, &eval_and_move.uci_move.to_move(&position)?);
 
