@@ -51,12 +51,6 @@ export default ({ question, answer }: Props): React.ReactElement => {
           ? `You found one of the top 3 moves. Multiplier of x${points.bestMoveMultiplier().toFixed(1)}`
           : 'You did not find a best move.'
       }
-      {
-        // Multiplier was applied to a negative score
-        points.evalPoints() < 0 && points.bestMoveMultiplier() > 1
-          ? ' (OOOF!)'
-          : ''
-      }
       <br />
       {`These are the top ${numberOfVariations(question.variations)} moves according to Stockfish: ${variationsString(question.variations)}.`}
       <br />

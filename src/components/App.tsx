@@ -34,15 +34,18 @@ function randomNumber(endExclusive: number): number {
   return Math.floor(Math.random() * endExclusive);
 }
 
-const questionKeys = Array(Math.min(5, questionsDatabase.length)).fill(null).map((v, i, arr) => {
-  let number = randomNumber(questionsDatabase.length);
-  while (arr.includes(number)) {
-    number = randomNumber(questionsDatabase.length);
-  }
-  return number;
-});
+// For testing
+// const questions = [questionsDatabase[0]];
 
-const questions = questionKeys.map((key) => questionsDatabase[key]);
+const questions = Array(Math.min(5, questionsDatabase.length))
+  .fill(null)
+  .map((v, i, arr) => {
+    let number = randomNumber(questionsDatabase.length);
+    while (arr.includes(number)) {
+      number = randomNumber(questionsDatabase.length);
+    }
+    return number;
+  }).map((key) => questionsDatabase[key]);
 
 function variationToShape(variation: Variation, chess: Chess): Omit<Arrow, 'opacity'> {
   const move = chess.move(variation.move, { dry_run: true });
@@ -57,7 +60,7 @@ function variationToShape(variation: Variation, chess: Chess): Omit<Arrow, 'opac
 
 function variationsToShapes(variations: Variations, chess: Chess): Arrow[] {
   const initialOpacity = 1.0;
-  const minimumOpacity = 0.3;
+  const minimumOpacity = 0.5;
   const result = [{
     ...variationToShape(variations.one, chess),
     brush: 'paleGreen',
@@ -152,6 +155,7 @@ export default (): React.ReactElement => {
             question={currentQuestion}
             answer={lastAnswer}
           />
+          <br />
           <Button
             onClick={() => {
               if (questionIndex === questions.length - 1) {
@@ -257,7 +261,11 @@ export default (): React.ReactElement => {
         <Divider hidden />
         <Divider hidden />
         <p>
-          <a href="https://github.com/MakotoE/guess-the-eval/blob/main/about.md" target="_blank" rel="noopener noreferrer">
+          <a
+            href="https://github.com/MakotoE/guess-the-eval/blob/main/about.md"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             About Guess the Eval and GitHub repo
           </a>
         </p>
