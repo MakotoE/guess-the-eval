@@ -208,7 +208,9 @@ export default (): React.ReactElement => {
 
   return (
     <Container fluid textAlign="center">
-      <Header as="h1" style={{ marginBottom: '-14px' }}><i>Guess the Eval</i></Header>
+      <Header as="h1" style={{ marginTop: 10, marginBottom: -14, lineHeight: 1 }}>
+        <i>Guess the Eval</i>
+      </Header>
       {
         currentState === State.summary
           ? null
