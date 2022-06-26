@@ -73,16 +73,16 @@ fn convert_variations(
     position: Chess,
     raw_variations: [Option<RawVariation>; 3],
 ) -> Result<Option<Variations>> {
-    // Skip if mate is evaluated (temporary)
+    // Skip if evaluation is mate or eval is not in range [-20, 20]
     if raw_variations[0]
         .as_ref()
-        .map_or(false, |v| v.evaluated_as_mate)
+        .map_or(false, |v| v.evaluated_as_mate || v.cp.abs() > 20)
         || raw_variations[1]
             .as_ref()
-            .map_or(false, |v| v.evaluated_as_mate)
+            .map_or(false, |v| v.evaluated_as_mate || v.cp.abs() > 20)
         || raw_variations[2]
             .as_ref()
-            .map_or(false, |v| v.evaluated_as_mate)
+            .map_or(false, |v| v.evaluated_as_mate || v.cp.abs() > 20)
     {
         return Ok(None);
     }

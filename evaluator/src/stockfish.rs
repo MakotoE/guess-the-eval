@@ -102,7 +102,6 @@ impl Stockfish {
 
 #[derive(Debug, Clone)]
 pub struct RawVariation {
-    // Temporary
     pub evaluated_as_mate: bool,
     pub variation_number: u16,
     pub cp: i32,
