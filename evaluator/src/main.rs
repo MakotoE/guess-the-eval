@@ -60,7 +60,7 @@ async fn main_() -> Result<()> {
     let mut stockfish = Stockfish::new(&Args::parse().stockfish_path, 25).await?;
     let mut questions: Vec<Question> = Vec::with_capacity(games_subslice.len());
 
-    let positions = choose_positions(&games_subslice);
+    let positions = choose_positions(games_subslice);
     for position in positions {
         match calculate_eval(&mut stockfish, position).await? {
             Some(question) => questions.push(question),
