@@ -71,31 +71,31 @@ async fn main_() -> Result<()> {
 // Returns None if this position must be skipped.
 fn convert_variations(
     position: Chess,
-    raw_variations: [Option<RawVariation>; 3],
-) -> Result<Option<Variations>> {
+    raw_variations: &[Option<EvalAndMove>; 3],
+) -> Result<Option<Moves>> {
     // Skip if evaluation is mate or eval is not in range [-20, 20]
     if raw_variations[0]
         .as_ref()
-        .map_or(false, |v| v.evaluated_as_mate || v.cp.abs() > 20)
+        .map_or(false, |EvalAndMove { cp, .. }| cp.abs() > 20)
         || raw_variations[1]
             .as_ref()
-            .map_or(false, |v| v.evaluated_as_mate || v.cp.abs() > 20)
+            .map_or(false, |EvalAndMove { cp, .. }| cp.abs() > 20)
         || raw_variations[2]
             .as_ref()
-            .map_or(false, |v| v.evaluated_as_mate || v.cp.abs() > 20)
+            .map_or(false, |EvalAndMove { cp, .. }| cp.abs() > 20)
     {
         return Ok(None);
     }
 
     let fen = Fen::from_position(position, EnPassantMode::Legal);
-    Ok(Some(Variations {
-        one: Variation::from_raw_variation(raw_variations[0].as_ref().unwrap(), &fen)?,
+    Ok(Some(Moves {
+        one: Move::from_raw_variation(raw_variations[0].as_ref().unwrap(), &fen)?,
         two: match &raw_variations[1] {
-            Some(v) => Some(Variation::from_raw_variation(v, &fen)?),
+            Some(v) => Some(Move::from_raw_variation(v, &fen)?),
             None => None,
         },
         three: match &raw_variations[2] {
-            Some(v) => Some(Variation::from_raw_variation(v, &fen)?),
+            Some(v) => Some(Move::from_raw_variation(v, &fen)?),
             None => None,
         },
     }))
@@ -111,15 +111,23 @@ async fn calculate_eval(
             .as_str(),
     );
     let raw_variations = stockfish.calculate(fen).await?;
-    let variations = convert_variations(position.position.clone(), raw_variations)?;
-    Ok(match variations {
-        Some(variations) => Some(Question {
-            fen: SerializableFen(Fen::from_position(position.position, EnPassantMode::Legal)),
-            players: position.players,
-            variations,
-        }),
-        None => None,
-    })
+    match raw_variations {
+        Variations::Mate => Ok(None),
+        Variations::Variations(variations) => {
+            let variations = convert_variations(position.position.clone(), &variations)?;
+            Ok(match variations {
+                Some(variations) => Some(Question {
+                    fen: SerializableFen(Fen::from_position(
+                        position.position,
+                        EnPassantMode::Legal,
+                    )),
+                    players: position.players,
+                    variations,
+                }),
+                None => None,
+            })
+        }
+    }
 }
 
 #[derive(Debug)]

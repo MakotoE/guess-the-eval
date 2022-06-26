@@ -1,5 +1,4 @@
 use super::*;
-use crate::stockfish::RawVariation;
 use serde::{Serialize, Serializer};
 use shakmaty::fen::Fen;
 use shakmaty::san::San;
@@ -9,14 +8,14 @@ use shakmaty::{CastlingMode, Chess, Color, FromSetup};
 pub struct Question {
     pub fen: SerializableFen,
     pub players: Players,
-    pub variations: Variations,
+    pub variations: Moves,
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub struct Variations {
-    pub one: Variation,
-    pub two: Option<Variation>,
-    pub three: Option<Variation>,
+pub struct Moves {
+    pub one: Move,
+    pub two: Option<Move>,
+    pub three: Option<Move>,
 }
 
 #[derive(Debug, Default, PartialEq, Eq, Clone, Serialize)]
@@ -26,25 +25,25 @@ pub struct Players {
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub struct Variation {
+pub struct Move {
     #[serde(rename = "move")]
     pub move_: SerializableSan,
     pub evaluation: f32,
 }
 
-impl Variation {
-    pub fn from_raw_variation(raw: &RawVariation, fen: &Fen) -> Result<Variation> {
+impl Move {
+    pub fn from_raw_variation(eval_and_move: &EvalAndMove, fen: &Fen) -> Result<Move> {
         let position = Chess::from_setup(fen.as_setup().clone(), CastlingMode::Standard)?;
-        let san = San::from_move(&position, &raw.uci_move.to_move(&position)?);
+        let san = San::from_move(&position, &eval_and_move.uci_move.to_move(&position)?);
 
-        let evaluation = raw.cp as f32
+        let evaluation = eval_and_move.cp as f32
             * match position.turn() {
                 Color::White => 1.0,
                 Color::Black => -1.0,
             }
             / 100.0;
 
-        Ok(Variation {
+        Ok(Move {
             move_: SerializableSan(san),
             evaluation,
         })
