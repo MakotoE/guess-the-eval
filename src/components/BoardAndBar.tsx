@@ -54,7 +54,7 @@ export default ({
   const [length, setLength] = useState(0);
   useEffect(() => {
     if (rootElement && rootElement.current) {
-      setLength(Math.min(500, rootElement.current.offsetWidth - 40));
+      setLength(Math.min(500, rootElement.current.offsetWidth - 10));
     }
   }, [rootElement]);
 
@@ -113,26 +113,36 @@ export default ({
     },
   };
 
+  const isMobileLayout = length < 500;
+
   return (
     <div ref={rootElement}>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <Chessground config={config} style={{ width: length, height: length }} />
-          <EvalSliderMobile
-            value={value.sliderValue}
-            onDrag={(sliderValue) => onChange({ ...value, sliderValue })}
-            orientation={turn}
-            disabled={disabled}
-            width={length}
-          />
+          {isMobileLayout
+            ? (
+              <EvalSliderMobile
+                value={value.sliderValue}
+                onDrag={(sliderValue) => onChange({ ...value, sliderValue })}
+                orientation={turn}
+                disabled={disabled}
+                width={length}
+              />
+            )
+            : null}
         </div>
-        <EvalSliderDesktop
-          value={value.sliderValue}
-          onDrag={(sliderValue) => onChange({ ...value, sliderValue })}
-          orientation={turn}
-          disabled={disabled}
-          height={length}
-        />
+        {isMobileLayout
+          ? null
+          : (
+            <EvalSliderDesktop
+              value={value.sliderValue}
+              onDrag={(sliderValue) => onChange({ ...value, sliderValue })}
+              orientation={turn}
+              disabled={disabled}
+              height={length}
+            />
+          )}
       </div>
       {
         value.playMove === null || disabled

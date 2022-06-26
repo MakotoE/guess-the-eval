@@ -26,6 +26,7 @@ export default ({
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
+        height: 60,
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -86,14 +87,14 @@ export default ({
             style={{
               height: 0,
               position: 'absolute',
-              left: `${sliderWidth / 2 + 10}px`,
-              top: `${sliderHeight + 8}px`,
+              left: `${sliderWidth / 2 - 50}px`,
+              top: `${sliderHeight + 18}px`,
               display: 'flex',
               alignItems: 'center',
               cursor: disabled ? '' : 'ew-resize',
             }}
           >
-            <p style={{ fontSize: '2em' }}>
+            <p style={{ width: 100, fontSize: '2em', textAlign: 'center' }}>
               {evalOutput(value)}
             </p>
           </div>
