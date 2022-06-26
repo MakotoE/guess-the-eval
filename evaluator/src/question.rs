@@ -32,7 +32,7 @@ pub struct Move {
 }
 
 impl Move {
-    pub fn from_raw_variation(eval_and_move: &EvalAndMove, fen: &Fen) -> Result<Move> {
+    pub fn from_variation(eval_and_move: &EvalAndMove, fen: &Fen) -> Result<Move> {
         let position = Chess::from_setup(fen.as_setup().clone(), CastlingMode::Standard)?;
         let san = San::from_move(&position, &eval_and_move.uci_move.to_move(&position)?);
 
