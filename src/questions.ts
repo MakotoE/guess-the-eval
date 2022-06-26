@@ -14,7 +14,7 @@ export interface Move {
 // San is a lowercase SAN.
 export type San = string;
 
-// Variations contains up to 3 top moves. The first variation gives the current evaluation.
+// Contains up to 3 top moves. The first move gives the current evaluation.
 export interface Moves {
   one: Move,
   two: Move | null,

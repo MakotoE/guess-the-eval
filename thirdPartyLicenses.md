@@ -1,3 +1,5 @@
+PGNs by [The Week in Chess](https://theweekinchess.com/).
+
 Image assets by [lichess-org/lila](https://github.com/lichess-org/lila), which is licensed under [AGPL](https://github.com/lichess-org/lila/blob/master/LICENSE).
 
 Guess the Eval wouldn't have been possible without the following third-party libraries:
