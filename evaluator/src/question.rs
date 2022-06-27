@@ -9,6 +9,8 @@ pub struct Question {
     pub fen: SerializableFen,
     pub players: Players,
     pub moves: Moves,
+    pub pgn: String,
+    pub turn_number: usize,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -77,9 +79,8 @@ impl Serialize for SerializableSan {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use pgn_reader::Square;
     use shakmaty::fen::Fen;
-    use shakmaty::{CastlingMode, Chess, Move, Role};
+    use shakmaty::{CastlingMode, Chess, Move, Role, Square};
 
     #[test]
     fn test_serializable_san() {

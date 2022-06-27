@@ -1,6 +1,6 @@
 use anyhow::{Error, Result};
 use clap::Parser;
-use pgn_reader::{BufferedReader, RawHeader, SanPlus, Visitor};
+use pgn_reader::BufferedReader;
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
@@ -9,15 +9,17 @@ use shakmaty::{Chess, EnPassantMode, Position};
 use std::collections::HashSet;
 use std::fs;
 use std::hash::{Hash, Hasher};
-use std::io::stdout;
-use std::path::PathBuf;
+use std::io::{stdout, Read};
+use std::path::{Path, PathBuf};
 use vampirc_uci::UciFen;
 
 use crate::question::*;
 use crate::stockfish::*;
+use crate::visitor::PositionsVisitor;
 
 mod question;
 mod stockfish;
+mod visitor;
 
 #[derive(Debug, Parser)]
 struct Args {
@@ -47,29 +49,51 @@ fn main() {
 }
 
 async fn main_() -> Result<()> {
-    let file = fs::File::open(Args::parse().pgn_file_path)?;
-    let mut reader = BufferedReader::new(file);
-    let mut games: Vec<(Vec<Chess>, Players)> = Vec::new();
-    while let Some(result) = reader.read_game(&mut PositionsVisitor::new())? {
-        games.push(result?);
-    }
+    let args = Args::parse();
+    let positions = get_positions(&args.pgn_file_path, 50)?;
 
-    // Choose first n games
-    let games_subslice = &games[..50];
+    let mut stockfish = Stockfish::new(&args.stockfish_path, 25).await?;
+    let mut questions: Vec<Question> = Vec::with_capacity(positions.len());
 
-    let mut stockfish = Stockfish::new(&Args::parse().stockfish_path, 25).await?;
-    let mut questions: Vec<Question> = Vec::with_capacity(games_subslice.len());
-
-    let positions = choose_positions(games_subslice);
     for position in positions {
-        match calculate_eval(&mut stockfish, position).await? {
-            Some(question) => questions.push(question),
+        match calculate_eval(&mut stockfish, position.position.clone()).await? {
+            Some(moves) => questions.push(Question {
+                fen: SerializableFen(Fen::from_position(position.position, EnPassantMode::Legal)),
+                players: position.players,
+                moves,
+                pgn: position.pgn,
+                turn_number: position.turn_number,
+            }),
             None => {}
         }
     }
 
     serde_json::to_writer(stdout().lock(), &questions)?;
     Ok(())
+}
+
+fn get_positions(
+    pgn_file_path: &Path,
+    number_of_games: usize,
+) -> Result<HashSet<PositionAndPlayers>> {
+    let mut file = fs::File::open(pgn_file_path)?;
+
+    let mut file_str = String::new();
+    file.read_to_string(&mut file_str).unwrap();
+
+    let mut file_split = file_str.as_str().split("\n\n[");
+
+    let mut reader = BufferedReader::new_cursor(&file_str);
+    let mut games: Vec<(Vec<Chess>, Players, String)> = Vec::new();
+    while let Some(result) = reader.read_game(&mut PositionsVisitor::new())? {
+        let (position, players) = result?;
+        let pgn = file_split
+            .next()
+            .ok_or_else(|| Error::msg("expected pgn but did not get any"))?;
+        games.push((position, players, pgn.to_string()));
+    }
+
+    Ok(choose_positions(&games[..number_of_games]))
 }
 
 // Returns None if this position must be skipped.
@@ -105,93 +129,16 @@ fn convert_variations(
     }))
 }
 
-async fn calculate_eval(
-    stockfish: &mut Stockfish,
-    position: PositionAndPlayers,
-) -> Result<Option<Question>> {
+async fn calculate_eval(stockfish: &mut Stockfish, position: Chess) -> Result<Option<Moves>> {
     let fen = UciFen::from(
-        Fen::from_position(position.position.clone(), EnPassantMode::Legal)
+        Fen::from_position(position.clone(), EnPassantMode::Legal)
             .to_string()
             .as_str(),
     );
     let variations = stockfish.calculate(fen).await?;
     match variations {
         Variations::Mate => Ok(None),
-        Variations::Variations(variations) => {
-            let moves = convert_variations(position.position.clone(), &variations)?;
-            Ok(match moves {
-                Some(m) => Some(Question {
-                    fen: SerializableFen(Fen::from_position(
-                        position.position,
-                        EnPassantMode::Legal,
-                    )),
-                    players: position.players,
-                    moves: m,
-                }),
-                None => None,
-            })
-        }
-    }
-}
-
-#[derive(Debug)]
-struct PositionsVisitor {
-    positions: Vec<Chess>,
-    players: Players,
-    error: Option<Error>,
-}
-
-impl PositionsVisitor {
-    fn new() -> Self {
-        Self {
-            positions: vec![Chess::default()],
-            players: Players::default(),
-            error: None,
-        }
-    }
-}
-
-impl Visitor for PositionsVisitor {
-    type Result = Result<(Vec<Chess>, Players)>;
-
-    fn header(&mut self, key: &[u8], value: RawHeader<'_>) {
-        match key {
-            b"White" => self.players.white = value.decode_utf8_lossy().to_string(),
-            b"Black" => self.players.black = value.decode_utf8_lossy().to_string(),
-            _ => {}
-        }
-    }
-
-    fn san(&mut self, san: SanPlus) {
-        if self.error.is_some() {
-            return;
-        }
-
-        let last_position = self.positions.last().unwrap().clone();
-        let m = match san.san.to_move(&last_position) {
-            Ok(m) => m,
-            Err(e) => {
-                let fen = Fen::from_position(last_position, EnPassantMode::Legal);
-                self.error =
-                    Some(Error::from(e).context(format!("position: {}, san: {}", fen, san,)));
-                return;
-            }
-        };
-
-        match last_position.play(&m) {
-            Ok(new_pos) => self.positions.push(new_pos),
-            Err(e) => self.error = Some(e.into()),
-        }
-    }
-
-    fn end_game(&mut self) -> Self::Result {
-        match self.error.take() {
-            Some(e) => Err(e),
-            None => Ok((
-                std::mem::take(&mut self.positions),
-                std::mem::take(&mut self.players),
-            )),
-        }
+        Variations::Variations(variations) => convert_variations(position, &variations),
     }
 }
 
@@ -199,6 +146,8 @@ impl Visitor for PositionsVisitor {
 struct PositionAndPlayers {
     position: Chess,
     players: Players,
+    pgn: String,
+    turn_number: usize,
 }
 
 impl Hash for PositionAndPlayers {
@@ -220,7 +169,7 @@ impl PartialEq for PositionAndPlayers {
 /// Selection rules:
 /// - The position must be on turn 4 or later
 /// - The position must have 4 or more pieces
-fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlayers> {
+fn choose_positions(games: &[(Vec<Chess>, Players, String)]) -> HashSet<PositionAndPlayers> {
     let mut rng = SmallRng::from_entropy();
 
     let mut result: HashSet<PositionAndPlayers> = HashSet::new();
@@ -230,8 +179,8 @@ fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlaye
             result.extend(
                 Uniform::new(8, game.0.len())
                     .sample_iter(&mut rng)
-                    .map(|index| &game.0[index])
-                    .filter(|position| {
+                    .map(|index| (&game.0[index], index))
+                    .filter(|(position, _)| {
                         let board = position.board();
                         let piece_count = board.rooks_and_queens().count()
                             + board.knights().count()
@@ -240,9 +189,11 @@ fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlaye
 
                         piece_count >= 4
                     })
-                    .map(|position| PositionAndPlayers {
+                    .map(|(position, index)| PositionAndPlayers {
                         position: position.clone(),
                         players: game.1.clone(),
+                        pgn: game.2.clone(),
+                        turn_number: index,
                     })
                     .take(2),
             );

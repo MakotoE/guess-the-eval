@@ -1,4 +1,4 @@
-use anyhow::{Error, Result};
+use super::*;
 use shakmaty::uci::Uci;
 use shakmaty::{File, Rank, Role, Square};
 use std::path::Path;
