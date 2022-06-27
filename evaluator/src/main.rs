@@ -169,7 +169,6 @@ impl PartialEq for PositionAndPlayers {
 /// Selection rules:
 /// - The position must be on turn 4 or later
 /// - The position must have 4 or more pieces
-// TODO limit to positions before last turn
 fn choose_positions(games: &[(Vec<Chess>, Players, String)]) -> HashSet<PositionAndPlayers> {
     let mut rng = SmallRng::from_entropy();
 
