@@ -79,9 +79,8 @@ impl Serialize for SerializableSan {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use pgn_reader::Square;
     use shakmaty::fen::Fen;
-    use shakmaty::{CastlingMode, Chess, Move, Role};
+    use shakmaty::{CastlingMode, Chess, Move, Role, Square};
 
     #[test]
     fn test_serializable_san() {
