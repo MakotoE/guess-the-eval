@@ -193,7 +193,7 @@ fn choose_positions(games: &[(Vec<Chess>, Players, String)]) -> HashSet<Position
                         position: position.clone(),
                         players: game.1.clone(),
                         pgn: game.2.clone(),
-                        turn_number: index + 1,
+                        turn_number: index,
                     })
                     .take(2),
             );
