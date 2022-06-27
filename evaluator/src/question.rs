@@ -9,6 +9,8 @@ pub struct Question {
     pub fen: SerializableFen,
     pub players: Players,
     pub moves: Moves,
+    pub pgn: String,
+    pub turn_number: usize,
 }
 
 #[derive(Debug, Clone, Serialize)]

@@ -62,8 +62,14 @@ async fn main_() -> Result<()> {
 
     let positions = choose_positions(games_subslice);
     for position in positions {
-        match calculate_eval(&mut stockfish, position).await? {
-            Some(question) => questions.push(question),
+        match calculate_eval(&mut stockfish, position.position.clone()).await? {
+            Some(moves) => questions.push(Question {
+                fen: SerializableFen(Fen::from_position(position.position, EnPassantMode::Legal)),
+                players: position.players,
+                moves,
+                pgn: position.pgn,
+                turn_number: position.turn_number,
+            }),
             None => {}
         }
     }
@@ -105,32 +111,16 @@ fn convert_variations(
     }))
 }
 
-async fn calculate_eval(
-    stockfish: &mut Stockfish,
-    position: PositionAndPlayers,
-) -> Result<Option<Question>> {
+async fn calculate_eval(stockfish: &mut Stockfish, position: Chess) -> Result<Option<Moves>> {
     let fen = UciFen::from(
-        Fen::from_position(position.position.clone(), EnPassantMode::Legal)
+        Fen::from_position(position.clone(), EnPassantMode::Legal)
             .to_string()
             .as_str(),
     );
     let variations = stockfish.calculate(fen).await?;
     match variations {
         Variations::Mate => Ok(None),
-        Variations::Variations(variations) => {
-            let moves = convert_variations(position.position.clone(), &variations)?;
-            Ok(match moves {
-                Some(m) => Some(Question {
-                    fen: SerializableFen(Fen::from_position(
-                        position.position,
-                        EnPassantMode::Legal,
-                    )),
-                    players: position.players,
-                    moves: m,
-                }),
-                None => None,
-            })
-        }
+        Variations::Variations(variations) => convert_variations(position, &variations),
     }
 }
 
@@ -199,6 +189,8 @@ impl Visitor for PositionsVisitor {
 struct PositionAndPlayers {
     position: Chess,
     players: Players,
+    pgn: String,
+    turn_number: usize,
 }
 
 impl Hash for PositionAndPlayers {
@@ -220,6 +212,7 @@ impl PartialEq for PositionAndPlayers {
 /// Selection rules:
 /// - The position must be on turn 4 or later
 /// - The position must have 4 or more pieces
+// TODO limit to positions before last turn
 fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlayers> {
     let mut rng = SmallRng::from_entropy();
 
@@ -230,8 +223,8 @@ fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlaye
             result.extend(
                 Uniform::new(8, game.0.len())
                     .sample_iter(&mut rng)
-                    .map(|index| &game.0[index])
-                    .filter(|position| {
+                    .map(|index| (&game.0[index], index))
+                    .filter(|(position, _)| {
                         let board = position.board();
                         let piece_count = board.rooks_and_queens().count()
                             + board.knights().count()
@@ -240,9 +233,11 @@ fn choose_positions(games: &[(Vec<Chess>, Players)]) -> HashSet<PositionAndPlaye
 
                         piece_count >= 4
                     })
-                    .map(|position| PositionAndPlayers {
+                    .map(|(position, index)| PositionAndPlayers {
                         position: position.clone(),
                         players: game.1.clone(),
+                        pgn: "".to_string(),
+                        turn_number: index + 1,
                     })
                     .take(2),
             );
