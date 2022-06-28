@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Container } from 'semantic-ui-react';
+import { Chess } from 'chess.ts';
 import { Answer, PointsSolver } from '../PointsSolver';
 import {
   numberOfVariations, Question, Move, Moves,
@@ -50,7 +51,9 @@ export default ({ question, answer }: Props): React.ReactElement => {
       },
     );
     const body = await response.json() as ImportResponse;
-    window.open(`${body.url}#${question.turn_number}`, '_blank')?.focus();
+
+    const turn = new Chess(question.fen).turn();
+    window.open(`${body.url}${turn === 'b' ? '/black' : ''}#${question.turn_number}`, '_blank')?.focus();
     setLichessLoading(false);
   };
 
