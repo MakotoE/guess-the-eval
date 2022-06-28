@@ -4,6 +4,8 @@ export interface Question {
   fen: string,
   players: { white: string, black: string },
   moves: Moves,
+  pgn: string,
+  turn_number: number,
 }
 
 export interface Move {

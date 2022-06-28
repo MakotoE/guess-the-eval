@@ -1,5 +1,6 @@
-import React from 'react';
-import { Container } from 'semantic-ui-react';
+import React, { useState } from 'react';
+import { Button, Container } from 'semantic-ui-react';
+import { Chess } from 'chess.ts';
 import { Answer, PointsSolver } from '../PointsSolver';
 import {
   numberOfVariations, Question, Move, Moves,
@@ -32,7 +33,30 @@ function variationsString(variations: Moves): string {
   return result;
 }
 
+interface ImportResponse {
+  url: string,
+}
+
 export default ({ question, answer }: Props): React.ReactElement => {
+  const [lichessLoading, setLichessLoading] = useState(false);
+
+  const onPGNUpload = async () => {
+    setLichessLoading(true);
+    const response = await fetch(
+      'https://lichess.org/api/import',
+      {
+        method: 'POST',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        body: new URLSearchParams({ pgn: question.pgn }),
+      },
+    );
+    const body = await response.json() as ImportResponse;
+
+    const turn = new Chess(question.fen).turn();
+    window.open(`${body.url}${turn === 'b' ? '/black' : ''}#${question.turn_number}`, '_blank')?.focus();
+    setLichessLoading(false);
+  };
+
   const points = new PointsSolver({ question, answer });
   return (
     <Container>
@@ -54,9 +78,13 @@ export default ({ question, answer }: Props): React.ReactElement => {
       <br />
       {`These are the top ${numberOfVariations(question.moves)} moves according to Stockfish: ${variationsString(question.moves)}.`}
       <br />
-      <a href={`https://lichess.org/analysis/standard/${question.fen}`} target="_blank" rel="noopener noreferrer">
-        See position on Lichess
-      </a>
+      <Button
+        onClick={onPGNUpload}
+        loading={lichessLoading}
+        size="mini"
+      >
+        See game on Lichess
+      </Button>
       <br />
       <br />
       <strong>{`You earned ${points.totalPoints().toFixed(1)} points.`}</strong>
