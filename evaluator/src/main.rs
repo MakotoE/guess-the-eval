@@ -87,10 +87,16 @@ fn get_positions(
     let mut games: Vec<(Vec<Chess>, Players, String)> = Vec::new();
     while let Some(result) = reader.read_game(&mut PositionsVisitor::new())? {
         let (position, players) = result?;
-        let pgn = file_split
+        let mut pgn = file_split
             .next()
-            .ok_or_else(|| Error::msg("expected pgn but did not get any"))?;
-        games.push((position, players, pgn.to_string()));
+            .ok_or_else(|| Error::msg("expected pgn but did not get any"))?
+            .to_string();
+        // Add in bracket that was removed in split
+        if !pgn.starts_with('[') {
+            pgn.insert(0, '[');
+        }
+
+        games.push((position, players, pgn));
     }
 
     Ok(choose_positions(&games[..number_of_games]))

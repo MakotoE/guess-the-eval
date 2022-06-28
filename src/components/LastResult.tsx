@@ -75,9 +75,6 @@ export default ({ question, answer }: Props): React.ReactElement => {
       <br />
       {`These are the top ${numberOfVariations(question.moves)} moves according to Stockfish: ${variationsString(question.moves)}.`}
       <br />
-      <a href={`https://lichess.org/analysis/standard/${question.fen}`} target="_blank" rel="noopener noreferrer">
-        See position on Lichess
-      </a>
       <Button
         onClick={onPGNUpload}
         loading={lichessLoading}
