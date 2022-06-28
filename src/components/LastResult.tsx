@@ -81,6 +81,7 @@ export default ({ question, answer }: Props): React.ReactElement => {
       <Button
         onClick={onPGNUpload}
         loading={lichessLoading}
+        size="mini"
       >
         See game on Lichess
       </Button>
