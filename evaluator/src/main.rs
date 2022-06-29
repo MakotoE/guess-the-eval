@@ -80,8 +80,9 @@ fn get_positions(
 
     let mut file_str = String::new();
     file.read_to_string(&mut file_str).unwrap();
+    file_str = file_str.replace("\r\n", "\n");
 
-    let mut file_split = file_str.as_str().split("\n\n[");
+    let mut file_split = file_str.split("\n\n[");
 
     let mut reader = BufferedReader::new_cursor(&file_str);
     let mut games: Vec<(Vec<Chess>, Players, String)> = Vec::new();
