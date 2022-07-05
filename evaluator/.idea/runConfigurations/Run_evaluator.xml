@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run evaluator" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="run --package evaluator --bin evaluator -- --stockfish-path $PROJECT_DIR$/stockfish_14.1_linux_x64_avx2 $PROJECT_DIR$/../twic1419.pgn " />
+    <option name="command" value="run --package evaluator --bin evaluator -- --stockfish-path $PROJECT_DIR$/stockfish_15_x64_avx2.exe $PROJECT_DIR$/../wchcand22.pgn" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
     <option name="channel" value="STABLE" />
     <option name="requiredFeatures" value="true" />

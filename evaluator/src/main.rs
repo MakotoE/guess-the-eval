@@ -50,9 +50,9 @@ fn main() {
 
 async fn main_() -> Result<()> {
     let args = Args::parse();
-    let positions = get_positions(&args.pgn_file_path, 50)?;
+    let positions = get_positions(&args.pgn_file_path, 56)?;
 
-    let mut stockfish = Stockfish::new(&args.stockfish_path, 25).await?;
+    let mut stockfish = Stockfish::new(&args.stockfish_path, 30).await?;
     let mut questions: Vec<Question> = Vec::with_capacity(positions.len());
 
     for position in positions {
@@ -72,6 +72,7 @@ async fn main_() -> Result<()> {
     Ok(())
 }
 
+// Reads positions from pgn file.
 fn get_positions(
     pgn_file_path: &Path,
     number_of_games: usize,
