@@ -125,7 +125,14 @@ fn convert_variations(
 
     let fen = Fen::from_position(position, EnPassantMode::Legal);
     Ok(Some(Moves {
-        one: Move::from_variation(eval_and_moves[0].as_ref().unwrap(), &fen)?,
+        one: match &eval_and_moves[0] {
+            Some(v) => Move::from_variation(v, &fen)?,
+            None => {
+                // eval_and_moves[0] should never be None here but I can't figure out why it can be
+                // None in reality.
+                return Ok(None)
+            },
+        },
         two: match &eval_and_moves[1] {
             Some(v) => Some(Move::from_variation(v, &fen)?),
             None => None,
