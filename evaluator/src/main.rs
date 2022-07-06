@@ -50,13 +50,12 @@ fn main() {
 
 async fn main_() -> Result<()> {
     let args = Args::parse();
-    let positions = get_positions(&args.pgn_file_path, 50)?;
+    let positions = get_positions(&args.pgn_file_path, 56)?;
 
-    let mut stockfish = Stockfish::new(&args.stockfish_path, 25).await?;
     let mut questions: Vec<Question> = Vec::with_capacity(positions.len());
 
     for position in positions {
-        match calculate_eval(&mut stockfish, position.position.clone()).await? {
+        match calculate_eval(&args.stockfish_path, position.position.clone()).await? {
             Some(moves) => questions.push(Question {
                 fen: SerializableFen(Fen::from_position(position.position, EnPassantMode::Legal)),
                 players: position.players,
@@ -72,6 +71,7 @@ async fn main_() -> Result<()> {
     Ok(())
 }
 
+// Reads positions from pgn file.
 fn get_positions(
     pgn_file_path: &Path,
     number_of_games: usize,
@@ -124,7 +124,14 @@ fn convert_variations(
 
     let fen = Fen::from_position(position, EnPassantMode::Legal);
     Ok(Some(Moves {
-        one: Move::from_variation(eval_and_moves[0].as_ref().unwrap(), &fen)?,
+        one: match &eval_and_moves[0] {
+            Some(v) => Move::from_variation(v, &fen)?,
+            None => {
+                // eval_and_moves[0] should never be None here but I can't figure out why it can be
+                // None in reality.
+                return Ok(None);
+            }
+        },
         two: match &eval_and_moves[1] {
             Some(v) => Some(Move::from_variation(v, &fen)?),
             None => None,
@@ -136,7 +143,9 @@ fn convert_variations(
     }))
 }
 
-async fn calculate_eval(stockfish: &mut Stockfish, position: Chess) -> Result<Option<Moves>> {
+async fn calculate_eval(stockfish_path: &Path, position: Chess) -> Result<Option<Moves>> {
+    let mut stockfish = Stockfish::new(stockfish_path, 30).await?;
+
     let fen = UciFen::from(
         Fen::from_position(position.clone(), EnPassantMode::Legal)
             .to_string()
@@ -170,21 +179,23 @@ impl PartialEq for PositionAndPlayers {
 }
 
 /// Selects positions from given games.
-/// From games 0 to 50, it selects 2 random positions from each game that match the rules described
-/// below. The positions must be unique.
+/// It selects 2 random positions from each game that match the rules described below. The positions
+/// must be unique.
 ///
 /// Selection rules:
-/// - The position must be on turn 4 or later
+/// - The position must be on turn 7 or later
 /// - The position must have 4 or more pieces
 fn choose_positions(games: &[(Vec<Chess>, Players, String)]) -> HashSet<PositionAndPlayers> {
+    const START_FROM_INDEX: usize = 7 * 2 + 1;
+
     let mut rng = SmallRng::from_entropy();
 
     let mut result: HashSet<PositionAndPlayers> = HashSet::new();
 
     for game in games {
-        if game.0.len() > 8 {
+        if game.0.len() > START_FROM_INDEX {
             result.extend(
-                Uniform::new(8, game.0.len())
+                Uniform::new(START_FROM_INDEX, game.0.len())
                     .sample_iter(&mut rng)
                     .map(|index| (&game.0[index], index))
                     .filter(|(position, _)| {
