@@ -6,8 +6,8 @@ You're currently in the GitHub repo containing the source code for [Guess the Ev
 
 ## Positions database
 
-Thanks [The Week in Chess](https://theweekinchess.com/), for the PGNs. From the first 50 games of the World Rapid 2021 database, I choose two random positions each.
+Thanks to [The Week in Chess](https://theweekinchess.com/) for the PGNs. From the 56 games of Candidates Tournament 2022, I choose up to two random positions of each.
 
-All evaluations were calculated with Stockfish 14.1, to a depth of 25 with NNUE.
+All evaluations were calculated with Stockfish 15, to a depth of 30 with NNUE.
 
 Selecting positions for the positions database is difficult. There may be very one-sided positions. Also, the points scoring algorithm may need tweaking. If you know of a possible way to improve the scoring algorithm, please leave create an issue with your idea.
