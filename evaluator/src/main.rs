@@ -52,11 +52,10 @@ async fn main_() -> Result<()> {
     let args = Args::parse();
     let positions = get_positions(&args.pgn_file_path, 56)?;
 
-    let mut stockfish = Stockfish::new(&args.stockfish_path, 30).await?;
     let mut questions: Vec<Question> = Vec::with_capacity(positions.len());
 
     for position in positions {
-        match calculate_eval(&mut stockfish, position.position.clone()).await? {
+        match calculate_eval(&args.stockfish_path, position.position.clone()).await? {
             Some(moves) => questions.push(Question {
                 fen: SerializableFen(Fen::from_position(position.position, EnPassantMode::Legal)),
                 players: position.players,
@@ -144,7 +143,9 @@ fn convert_variations(
     }))
 }
 
-async fn calculate_eval(stockfish: &mut Stockfish, position: Chess) -> Result<Option<Moves>> {
+async fn calculate_eval(stockfish_path: &Path, position: Chess) -> Result<Option<Moves>> {
+    let mut stockfish = Stockfish::new(stockfish_path, 30).await?;
+
     let fen = UciFen::from(
         Fen::from_position(position.clone(), EnPassantMode::Legal)
             .to_string()
