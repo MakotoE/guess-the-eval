@@ -129,8 +129,8 @@ fn convert_variations(
             None => {
                 // eval_and_moves[0] should never be None here but I can't figure out why it can be
                 // None in reality.
-                return Ok(None)
-            },
+                return Ok(None);
+            }
         },
         two: match &eval_and_moves[1] {
             Some(v) => Some(Move::from_variation(v, &fen)?),
@@ -179,21 +179,23 @@ impl PartialEq for PositionAndPlayers {
 }
 
 /// Selects positions from given games.
-/// From games 0 to 50, it selects 2 random positions from each game that match the rules described
-/// below. The positions must be unique.
+/// It selects 2 random positions from each game that match the rules described below. The positions
+/// must be unique.
 ///
 /// Selection rules:
-/// - The position must be on turn 4 or later
+/// - The position must be on turn 7 or later
 /// - The position must have 4 or more pieces
 fn choose_positions(games: &[(Vec<Chess>, Players, String)]) -> HashSet<PositionAndPlayers> {
+    const START_FROM_INDEX: usize = 7 * 2 + 1;
+
     let mut rng = SmallRng::from_entropy();
 
     let mut result: HashSet<PositionAndPlayers> = HashSet::new();
 
     for game in games {
-        if game.0.len() > 8 {
+        if game.0.len() > START_FROM_INDEX {
             result.extend(
-                Uniform::new(8, game.0.len())
+                Uniform::new(START_FROM_INDEX, game.0.len())
                     .sample_iter(&mut rng)
                     .map(|index| (&game.0[index], index))
                     .filter(|(position, _)| {
