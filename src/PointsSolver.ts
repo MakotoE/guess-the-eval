@@ -35,7 +35,7 @@ export class PointsSolver {
       return true;
     }
 
-    return this.result.answer.evaluation * this.result.question.moves.one.evaluation > 0;
+    return this.result.answer.evaluation * this.result.question.moves.one.evaluation >= 0;
   }
 
   /**
