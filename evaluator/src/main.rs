@@ -1,3 +1,5 @@
+#![allow(clippy::single_match)]
+
 use anyhow::{Error, Result};
 use clap::Parser;
 use pgn_reader::BufferedReader;
